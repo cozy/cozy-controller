@@ -65,6 +65,12 @@ app.use(flatiron.plugins.cli, {
       description: 'Use the Haibu CoffeeScript plugin.',
       boolean: true
     },
+    dir: {
+      alias: 'd',
+      description: 'Change applications repertories.',
+      string: true,
+      default: '/usr/local'
+    },
     help: {
       alias: 'h',
       description: 'You\'re looking at it!',
@@ -89,6 +95,8 @@ var start = app.commands.start = function(address, port, env) {
   if (app.argv['advanced-replies']) {
     haibu.use(haibu['advanced-replies'], {});
   }
+
+  haibu.config.set('directories:apps', app.argv.dir )
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
 
