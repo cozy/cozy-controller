@@ -52,11 +52,11 @@ app.use(flatiron.plugins.cli, {
       description: 'Use the Haibu User Accounts plugin.',
       boolean: true
     },
-    permi: {
-      alias: 'pe',
-      description: 'Permission of applications directories',
+    permissions: {
+      alias: 'per',
+      description: 'Change applications directories permissions.',
       check: function(argv) {
-        if (isNaN(parseInt(argv.permi))) return false;
+        if (isNaN(parseInt(argv.permissions)))  return false;
       },
       default: 700
     },
@@ -73,16 +73,13 @@ app.use(flatiron.plugins.cli, {
   }
 });
 
-var start = app.commands.start = function(address, port, env, permi) {
+var start = app.commands.start = function(address, port, env) {
   address = address || app.argv.address         || haibu.common.ipAddress();
   port    = port    || parseInt(app.argv.port)  || 9002;
   env     = env     || app.argv.env             || 'development';
-  permi   = permi   || parseInt(app.argv.port)  || 700;
 
   if (app.argv.useraccounts) {
-    haibu.options.permissions = permi;
-    console.log(haibu.options.permissions);
-    haibu.use(haibu.useraccounts, {"permissions" : permi});
+    haibu.use(haibu.useraccounts, {"permissions" : app.argv.permissions});
   }
 
   if (app.argv.coffee) {
