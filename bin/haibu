@@ -61,7 +61,7 @@ app.use(flatiron.plugins.cli, {
       alias: 'd',
       description: 'Change applications repertories.',
       string: true,
-      default: '/user/local'
+      default: '/usr/local'
     },
     help: {
       alias: 'h',
