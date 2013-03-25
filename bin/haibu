@@ -52,6 +52,14 @@ app.use(flatiron.plugins.cli, {
       description: 'Use the Haibu User Accounts plugin.',
       boolean: true
     },
+    permissions: {
+      alias: 'per',
+      description: 'Change applications directories permissions.',
+      check: function(argv) {
+        if (isNaN(parseInt(argv.permissions)))  return false;
+      },
+      default: 700
+    },
     coffee: {
       alias: 'c',
       description: 'Use the Haibu CoffeeScript plugin.',
@@ -71,7 +79,7 @@ var start = app.commands.start = function(address, port, env) {
   env     = env     || app.argv.env             || 'development';
 
   if (app.argv.useraccounts) {
-    haibu.use(haibu.useraccounts, {});
+    haibu.use(haibu.useraccounts, {"permissions" : app.argv.permissions});
   }
 
   if (app.argv.coffee) {
