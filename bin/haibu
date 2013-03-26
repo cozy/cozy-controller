@@ -61,7 +61,7 @@ app.use(flatiron.plugins.cli, {
       alias: 'd',
       description: 'Change applications repertories.',
       string: true,
-      default: '/usr/local'
+      default: '/usr/local/cozy'
     },
     help: {
       alias: 'h',
@@ -88,7 +88,11 @@ var start = app.commands.start = function(address, port, env) {
     haibu.use(haibu['advanced-replies'], {});
   }
 
-  haibu.config.set('directories:apps', app.argv.dir )
+  haibu.config.set('directories:apps', app.argv.dir+'/apps');
+  haibu.config.set('directories:autostart', app.argv.dir+'/autostart')
+  haibu.config.set('directories:config', app.argv.dir+'/config')
+  haibu.config.set('directories:packages', app.argv.dir+'/packages')
+  haibu.config.set('directories:tmp', app.argv.dir+'/tmp')
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
 
