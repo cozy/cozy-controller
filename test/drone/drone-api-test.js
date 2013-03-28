@@ -89,7 +89,10 @@ vows.describe('haibu/drone/api').addBatch(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+              update : { name: app.name }
+            })
           };
 
           request(options, this.callback);
@@ -314,7 +317,7 @@ vows.describe('haibu/drone/api').addBatch(
       "for an application with errors": {
         topic: function () {
           haibu.use(haibu.coffee, {});
-          app = data.apps[2];
+          app_notes = data.apps[2];
           options = {
             uri: 'http://localhost:9000/drones/notes/start',
             method: 'POST',
@@ -322,7 +325,7 @@ vows.describe('haibu/drone/api').addBatch(
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              start: app
+              start: app_notes
             })
           };
 
@@ -339,12 +342,16 @@ vows.describe('haibu/drone/api').addBatch(
     "a request against /drones/:id/brunch": {
       "when there is are running drones": {
         topic: function () {
+          app_notes = data.apps[2];
           var options = {
             uri: 'http://localhost:9000/drones/notes/brunch',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+              update : { name: app_notes.name }
+            })
           };
 
           request(options, this.callback);
@@ -353,31 +360,6 @@ vows.describe('haibu/drone/api').addBatch(
           var result = JSON.parse(body);
           assert.equal(response.statusCode, 200);
           assert.equal(result.brunch, true);
-        }
-      }
-    }
-  }
-}).addBatch({
-  "When using the drone server": {
-    "a request against /drones/:id/stop": {
-      "when there are no running drones": {
-        topic: function () {
-          app = data.apps[2];
-          var options = {
-            uri: 'http://localhost:9000/drones/notes/stop',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              stop : { name: app.name }
-            })
-          };
-
-          request(options, this.callback);
-        },
-        "should respond with 200": function (error, response, body) {
-          assert.equal(response.statusCode, 200);
         }
       }
     }

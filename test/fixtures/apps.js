@@ -47,7 +47,7 @@ exports.apps = [
   {
      "resource": "App",
      "name": "notes",
-     "user": "marak",
+     "user": "notes",
      "subdomain":"test",
      "state": "stopped",
      "maxDrones": 1,
