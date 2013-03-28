@@ -81,6 +81,29 @@ vows.describe('haibu/drone/api').addBatch(
   }
 }).addBatch({
   "When using the drone server": {
+    "a request against /drones/:id/brunch": {
+      "when there is are running drones": {
+        topic: function () {
+          var options = {
+            uri: 'http://localhost:9000/drones/test/brunch',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(response.statusCode, 200);
+          assert.equal(result.brunch, false);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
     "a request against /drones/:id/restart": {
       "when there are running drones": {
         topic: function () {
@@ -290,6 +313,105 @@ vows.describe('haibu/drone/api').addBatch(
     "a request against /drones/:id/start": {
       "for an application with errors": {
         topic: function () {
+          haibu.use(haibu.coffee, {});
+          app = data.apps[2];
+          options = {
+            uri: 'http://localhost:9000/drones/notes/start',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              start: app
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          assert.equal(response.statusCode, 200);
+        },
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/brunch": {
+      "when there is are running drones": {
+        topic: function () {
+          var options = {
+            uri: 'http://localhost:9000/drones/notes/brunch',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(response.statusCode, 200);
+          assert.equal(result.brunch, true);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/lightUpdate": {
+      "when there is are running drones": {
+        topic: function () {
+          app = data.apps[2];
+          var options = {
+            uri: 'http://localhost:9000/drones/notes/brunch',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body : JSON.stringify(app)
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(response.statusCode, 200);
+          assert.equal(result.lightUpdate, true);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/stop": {
+      "when there are no running drones": {
+        topic: function () {
+          app = data.apps[2];
+          var options = {
+            uri: 'http://localhost:9000/drones/notes/stop',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              stop : { name: app.name }
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          assert.equal(response.statusCode, 200);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/start": {
+      "for an application with errors": {
+        topic: function () {
           var sourceDir = path.join(__dirname, '..', 'fixtures', 'repositories', 'bad-start'),
               pkgJson = fs.readFileSync(path.join(sourceDir, 'package.json')),
               npmApp = JSON.parse(pkgJson),
@@ -297,7 +419,7 @@ vows.describe('haibu/drone/api').addBatch(
 
           npmApp.user = 'charlie';
           npmApp.repository.directory = sourceDir;
-          
+
           options = {
             uri: 'http://localhost:9000/drones/bad-start/start',
             method: 'POST',
@@ -317,9 +439,9 @@ vows.describe('haibu/drone/api').addBatch(
         "should respond with the appropriate error": function (error, response, body) {
           var result = JSON.parse(body);
           assert.equal(result.error.message, 'Error spawning drone');
-          
+
           //
-          // Assert that the correct error message from the drone was passed 
+          // Assert that the correct error message from the drone was passed
           // back up the callback chain.
           //
           var errLine = result.error.stderr.split('\n').filter(function (line) {

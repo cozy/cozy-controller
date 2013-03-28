@@ -43,5 +43,22 @@ exports.apps = [
      "scripts": {
        "start": "demo/chat.js"
      }
+  },
+  {
+     "resource": "App",
+     "name": "notes",
+     "user": "marak",
+     "subdomain":"test",
+     "state": "stopped",
+     "maxDrones": 1,
+     "drones": [],
+     "repository": {
+       "type": "git",
+       "url": "https://github.com/mycozycloud/cozy-notes.git",
+       "branch": "master"
+     },
+     "scripts": {
+       "start": "server.coffee"
+     }
   }
 ];
