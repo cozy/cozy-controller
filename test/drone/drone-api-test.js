@@ -377,7 +377,7 @@ vows.describe('haibu/drone/api').addBatch(
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              update : { name: app_notes.name }
+              update :  JSON.stringify(app)
             })
           };
 
