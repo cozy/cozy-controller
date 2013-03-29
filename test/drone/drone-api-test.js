@@ -314,7 +314,7 @@ vows.describe('haibu/drone/api').addBatch(
 }).addBatch({
   "When using the drone server": {
     "a request against /drones/:id/start": {
-      "for an application with errors": {
+      "for application notes": {
         topic: function () {
           haibu.use(haibu.coffee, {});
           app_notes = data.apps[2];
