@@ -117,7 +117,7 @@ vows.describe('haibu/drone/api').addBatch(
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              update :  app
+              update : app
             })
           };
 
@@ -125,8 +125,8 @@ vows.describe('haibu/drone/api').addBatch(
         },
         "should respond with 200": function (error, response, body) {
           var result = JSON.parse(body);
-          assert.equal(response.statusCode, 200);
           assert.equal(result.update, true);
+          assert.equal(response.statusCode, 200);
         }
       }
     }
@@ -422,7 +422,7 @@ vows.describe('haibu/drone/api').addBatch(
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              update :  app_notes
+              update : app_notes
             })
           };
 
