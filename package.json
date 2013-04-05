@@ -1,15 +1,15 @@
 {
-  "name": "haibu",
-  "description": "A node.js application server - spawn your own node.js clouds, on your own hardware",
-  "version": "0.10.0",
-  "author": "Nodejitsu Inc. <info@nodejitsu.com>",
+  "name": "cozy-controller",
+  "description": "Module used to start and stop application in Cozy",
+  "version": "0.5.0",
+  "author": "Cozy Cloud",
   "maintainers": [
-    "bmeck <bradley@nodejitsu.com>",
-    "indexzero <charlie@nodejitsu.com>"
+    "poupotte <zoe@cozycloud.cc>",
+    "frankrousseau <frank@cozycloud.cc>"
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/nodejitsu/haibu.git"
+    "url": "https://github.com/mycozycloud/cozy-controller.git"
   },
   "keywords": [
     "cloud computing",
@@ -39,7 +39,7 @@
   },
   "main": "./lib/haibu",
   "bin": {
-    "haibu": "./bin/haibu"
+    "cozy-controller": "./bin/cozy-controller"
   },
   "scripts": {
     "test": "vows test/*/*-test.js --isolate --spec"
