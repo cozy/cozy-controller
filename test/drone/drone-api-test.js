@@ -107,32 +107,6 @@ vows.describe('haibu/drone/api').addBatch(
   }
 }).addBatch({
   "When using the drone server": {
-    "a request against /drones/:id/light-update": {
-      "when there are running drones": {
-        topic: function () {
-          var options = {
-            uri: 'http://localhost:9000/drones/test/light-update',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              update : app
-            })
-          };
-
-          request(options, this.callback);
-        },
-        "should respond with 200": function (error, response, body) {
-          var result = JSON.parse(body);
-          assert.equal(result.update, true);
-          assert.equal(response.statusCode, 200);
-        }
-      }
-    }
-  }
-}).addBatch({
-  "When using the drone server": {
     "a request against /drones/:id/restart": {
       "when there are running drones": {
         topic: function () {
@@ -387,7 +361,6 @@ vows.describe('haibu/drone/api').addBatch(
     "a request against /drones/:id/start": {
       "for application notes": {
         topic: function () {
-          haibu.use(haibu.coffee, {});
           haibu.use(haibu.useraccounts,{"permission" : 733});
           app_notes = data.apps[2];
           options = {
