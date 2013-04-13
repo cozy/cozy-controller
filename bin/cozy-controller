@@ -85,7 +85,7 @@ var start = app.commands.start = function(address, port, env) {
   env     = env     || app.argv.env             || 'development';
 
   if (app.argv.useraccounts) {
-    haibu.use(haibu.useraccounts, {"permissions" : app.argv.permissions});
+    haibu.use(haibu.useraccounts, {"permissions": app.argv.permissions});
     haibu.config.set('permissions', app.argv.permissions);
   }
 
