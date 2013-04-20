@@ -19,7 +19,7 @@
   "dependencies": {
     "cloudfiles": "0.3.3",
     "eyes": "0.1.7",
-    "flatiron": "0.3.4",
+    "flatiron": "0.3.5",
     "forever-monitor": "1.1.0",
     "haibu-api": "0.9.0",
     "haibu-carapace": "0.7.1",
