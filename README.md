@@ -14,6 +14,14 @@ If you want further details, check out the
 [wiki](https://github.com/mycozycloud/cozy-controller/wiki) or 
 [Haibu original documentation](https://github.com/nodejitsu/haibu/blob/master/README.md)
 
+Installation:
+
+    npm install cozy-controller -g
+
+Run following command to see all available actions:
+
+    cozy-controller --help
+
 # About Cozy
 
 This app is suited to be deployed on the Cozy platform. Cozy is the personal
