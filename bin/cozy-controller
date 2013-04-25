@@ -102,7 +102,7 @@ var start = app.commands.start = function(address, port, env) {
   haibu.config.set('directories:config', app.argv.dir+'/config')
   haibu.config.set('directories:packages', app.argv.dir+'/packages')
   haibu.config.set('directories:tmp', app.argv.dir+'/tmp')
-  haibu.config.set('directories:pid', '/etc/cozy')
+  haibu.config.set('directories:pid', '/etc/cozy/controller_pid')
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
 
