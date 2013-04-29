@@ -71,6 +71,12 @@ app.use(flatiron.plugins.cli, {
       string: true,
       default: '/usr/local/cozy'
     },
+    authToken: {
+      alias: 'auth',
+      description: 'Add authentication token',
+      string: true,
+      default: ''
+    },
     help: {
       alias: 'h',
       description: 'You\'re looking at it!',
@@ -98,10 +104,14 @@ var start = app.commands.start = function(address, port, env) {
   }
 
   haibu.config.set('directories:apps', app.argv.dir+'/apps');
-  haibu.config.set('directories:autostart', app.argv.dir+'/autostart')
-  haibu.config.set('directories:config', app.argv.dir+'/config')
-  haibu.config.set('directories:packages', app.argv.dir+'/packages')
-  haibu.config.set('directories:tmp', app.argv.dir+'/tmp')
+  haibu.config.set('directories:autostart', app.argv.dir+'/autostart');
+  haibu.config.set('directories:config', app.argv.dir+'/config');
+  haibu.config.set('directories:packages', app.argv.dir+'/packages');
+  haibu.config.set('directories:tmp', app.argv.dir+'/tmp');
+
+  if (app.argv.authToken != '') {
+    haibu.config.set('authToken', app.argv.authToken);
+  }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
 
