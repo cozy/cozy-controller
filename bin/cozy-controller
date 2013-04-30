@@ -69,7 +69,13 @@ app.use(flatiron.plugins.cli, {
       alias: 'd',
       description: 'Change applications repertories.',
       string: true,
-      default: '/usr/local'
+      default: '/usr/local/cozy'
+    },
+    authToken: {
+      alias: 'auth',
+      description: 'Add authentication token',
+      string: true,
+      default: ''
     },
     help: {
       alias: 'h',
@@ -85,7 +91,8 @@ var start = app.commands.start = function(address, port, env) {
   env     = env     || app.argv.env             || 'development';
 
   if (app.argv.useraccounts) {
-    haibu.use(haibu.useraccounts, {"permissions" : app.argv.permissions});
+    haibu.use(haibu.useraccounts, {"permissions": app.argv.permissions});
+    haibu.config.set('permissions', app.argv.permissions);
   }
 
   if (app.argv.coffee) {
@@ -96,7 +103,16 @@ var start = app.commands.start = function(address, port, env) {
     haibu.use(haibu['advanced-replies'], {});
   }
 
-  haibu.config.set('directories:apps', app.argv.dir )
+  haibu.config.set('directories:apps', app.argv.dir+'/apps');
+  haibu.config.set('directories:autostart', app.argv.dir+'/autostart');
+  haibu.config.set('directories:config', app.argv.dir+'/config');
+  haibu.config.set('directories:packages', app.argv.dir+'/packages');
+  haibu.config.set('directories:tmp', app.argv.dir+'/tmp');
+  haibu.config.set('directories:pid', '/etc/cozy/pids')
+
+  if (app.argv.authToken != '') {
+    haibu.config.set('authToken', app.argv.authToken);
+  }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
 
