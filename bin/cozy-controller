@@ -3,6 +3,7 @@
 var path = require('path'),
     util = require('util'),
     haibu = require('../lib/haibu'),
+    fs = require('fs'),
     flatiron = require('flatiron'),
     app = flatiron.app;
 
@@ -74,8 +75,7 @@ app.use(flatiron.plugins.cli, {
     authToken: {
       alias: 'auth',
       description: 'Add authentication token',
-      string: true,
-      default: ''
+      boolean: true
     },
     help: {
       alias: 'h',
@@ -111,7 +111,10 @@ var start = app.commands.start = function(address, port, env) {
   haibu.config.set('directories:pid', '/etc/cozy/pids')
 
   if (app.argv.authToken != '') {
-    haibu.config.set('authToken', app.argv.authToken);
+    fs.readFile('/etc/cozy/controller.token', 'utf8', function(err, data) {
+      token = data.split('\n')[0]
+      haibu.config.set('authToken', token);
+    });
   }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
