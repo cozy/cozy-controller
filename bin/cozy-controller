@@ -2,6 +2,7 @@
 
 var path = require('path'),
     util = require('util'),
+    fs = require('fs'),
     haibu = require('../lib/haibu'),
     fs = require('fs'),
     flatiron = require('flatiron'),
@@ -118,6 +119,10 @@ var start = app.commands.start = function(address, port, env) {
   }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
+
+  pidFile = path.join(haibu.config.get('directories:pid'), 'controller.pid');
+  fs.chmod(pidFile, 0700);
+  fs.writeFileSync(pidFile, process.pid);
 
   haibu.drone.start({
     env: env,
