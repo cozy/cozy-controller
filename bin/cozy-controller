@@ -121,7 +121,6 @@ var start = app.commands.start = function(address, port, env) {
   fs.chmod(pidFile, 0700);
   fs.writeFileSync(pidFile, process.pid);
 
-
   haibu.drone.start({
     env: env,
     port: port,
