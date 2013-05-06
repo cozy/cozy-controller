@@ -25,6 +25,7 @@ app.user = 'marak';
 
 vows.describe('haibu/drone/api').addBatch(
   helpers.requireStart(port, function (_server) {
+    haibu.config.set('directories:pid', '/etc/cozy/pids');
     server = _server;
   })
 ).addBatch({
