@@ -60,5 +60,39 @@ exports.apps = [
      "scripts": {
        "start": "server.coffee"
      }
+  },
+  {
+     "resource": "App",
+     "name": "home",
+     "user": "home",
+     "subdomain":"test",
+     "state": "stopped",
+     "maxDrones": 1,
+     "drones": [],
+     "repository": {
+       "type": "git",
+       "url": "https://github.com/mycozycloud/cozy-home.git",
+       "branch": "master"
+     },
+     "scripts": {
+       "start": "server.coffee"
+     }
+  },
+  {
+     "resource": "App",
+     "name": "data-system",
+     "user": "data-system",
+     "subdomain":"test",
+     "state": "stopped",
+     "maxDrones": 1,
+     "drones": [],
+     "repository": {
+       "type": "git",
+       "url": "https://github.com/mycozycloud/cozy-data-system.git",
+       "branch": "master"
+     },
+     "scripts": {
+       "start": "server.coffee"
+     }
   }
 ];
