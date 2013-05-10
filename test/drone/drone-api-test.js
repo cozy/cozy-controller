@@ -25,6 +25,7 @@ app.user = 'marak';
 
 vows.describe('haibu/drone/api').addBatch(
   helpers.requireStart(port, function (_server) {
+    haibu.config.set('directories:pid', '/etc/cozy/pids');
     server = _server;
   })
 ).addBatch({
@@ -361,7 +362,6 @@ vows.describe('haibu/drone/api').addBatch(
     "a request against /drones/:id/start": {
       "for application notes": {
         topic: function () {
-          haibu.use(haibu.useraccounts,{"permission" : 733});
           app_notes = data.apps[2];
           options = {
             uri: 'http://localhost:9000/drones/notes/start',
@@ -432,6 +432,89 @@ vows.describe('haibu/drone/api').addBatch(
           var result = JSON.parse(body);
           assert.equal(response.statusCode, 200);
           assert.equal(result.brunch, true);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/stop": {
+      "for application notes": {
+        topic: function () {
+          app_notes = data.apps[2];
+          options = {
+            uri: 'http://localhost:9000/drones/notes/stop',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              stop: app_notes
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          assert.equal(response.statusCode, 200);
+        },
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/light-update": {
+      "when drone is stopped": {
+        topic: function () {
+          app_notes = data.apps[2];
+          var options = {
+            uri: 'http://localhost:9000/drones/notes/light-update',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              update : app_notes
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 500": function (error, response, body) {
+          assert.equal(response.statusCode, 500);
+        },
+        "should respond with the appropriate error": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(result.error.message, "Cannot update application that is not running.");
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/brunch": {
+      "when drone is stopped": {
+        topic: function () {
+          app_notes = data.apps[2];
+          var options = {
+            uri: 'http://localhost:9000/drones/notes/brunch',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              brunch : app_notes
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 500": function (error, response, body) {
+          assert.equal(response.statusCode, 500);
+        },
+        "should respond with the appropriate error": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(result.error.message, "Cannot update application that is not running.");
         }
       }
     }
