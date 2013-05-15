@@ -79,13 +79,11 @@ app.use(flatiron.plugins.cli, {
       boolean: true
     },
     tokensDir: {
-      alias: 'token',
       description: 'Change tokens directory',
       string:true,
       default: '/etc/cozy/tokens'
     },
     pidsDir: {
-      alias: 'pid',
       description: 'Change pids directory',
       string:true,
       default: '/etc/cozy/pids'
