@@ -109,7 +109,8 @@ var start = app.commands.start = function(address, port, env) {
   haibu.config.set('directories:config', app.argv.dir+'/config');
   haibu.config.set('directories:packages', app.argv.dir+'/packages');
   haibu.config.set('directories:tmp', app.argv.dir+'/tmp');
-  haibu.config.set('directories:pid', '/etc/cozy/pids')
+  haibu.config.set('directories:pid', '/etc/cozy/pids');
+  haibu.config.set('directories:token', '/etc/cozy/tokens');
 
   if (app.argv.authToken != '') {
     fs.readFile('/etc/cozy/controller.token', 'utf8', function(err, data) {
@@ -119,10 +120,14 @@ var start = app.commands.start = function(address, port, env) {
   }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
-
+  fs.mkdir(haibu.config.get('directories:pid'));
   pidFile = path.join(haibu.config.get('directories:pid'), 'controller.pid');
-  fs.chmod(pidFile, 0700);
-  fs.writeFileSync(pidFile, process.pid);
+  if (!fs.existsSync(pidFile)) {
+    fs.openSync(pidFile, 'w')
+  }
+  fs.chmod(pidFile, 0700, function (err) {
+    fs.writeFileSync(pidFile, process.pid);
+  });
 
   haibu.drone.start({
     env: env,
