@@ -112,6 +112,7 @@ var start = app.commands.start = function(address, port, env) {
   haibu.config.set('directories:pid', '/etc/cozy/pids')
 
   if (app.argv.authToken != '') {
+    fs.mkdir('/etc/cozy')
     fs.readFile('/etc/cozy/controller.token', 'utf8', function(err, data) {
       token = data.split('\n')[0]
       haibu.config.set('authToken', token);
@@ -119,7 +120,8 @@ var start = app.commands.start = function(address, port, env) {
   }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
-
+  fs.mkdir('/etc/cozy')
+  fs.mkdir('/etc/cozy/pids')
   pidFile = path.join(haibu.config.get('directories:pid'), 'controller.pid');
   fs.chmod(pidFile, 0700);
   fs.writeFileSync(pidFile, process.pid);
