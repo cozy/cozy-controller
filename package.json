@@ -1,7 +1,7 @@
 {
   "name": "cozy-controller",
   "description": "Module used to start and stop application in Cozy",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "author": "Cozy Cloud",
   "maintainers": [
     "poupotte <zoe@cozycloud.cc>",
