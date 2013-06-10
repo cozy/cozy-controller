@@ -19,3 +19,4 @@ test/data/repositories/charlie-*
 *.out
 config.json
 config/cache.json
+*.swp
