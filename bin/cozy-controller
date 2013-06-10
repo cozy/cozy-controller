@@ -143,3 +143,18 @@ if (app.argv._.length == 0 && !app.argv.help) {
 else {
   app.start();
 }
+
+
+// Small patch added to ensure that all drones are stopped when a SIGTERM
+// is received (supervisor sends SIGTERM signals to kill the cozy controller).
+stopDrones = function(callback) {
+  haibu.running.drone.destroy(true, function () {
+    callback();
+  });
+}
+
+process.on('SIGTERM', function() {
+  stopDrones(function() {
+      process.exit(0);
+  });
+});
