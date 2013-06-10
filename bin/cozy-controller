@@ -150,12 +150,13 @@ else {
 // so in most Cozy installations it let process spawned by Cozy Controller
 // as zombie process if the SIGTERM signal is not properly catched).
 stopDrones = function(callback) {
-  haibu.running.drone.destroy(true, function () {
+  haibu.running.drone.destroy(false, function () {
     callback();
   });
 }
 
 process.on('SIGTERM', function() {
+  console.log('SIGTERM');
   stopDrones(function() {
     process.exit(0);
   });
