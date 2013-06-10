@@ -145,8 +145,10 @@ else {
 }
 
 
-// Small patch added to ensure that all drones are stopped when a SIGTERM
-// is received (supervisor sends SIGTERM signals to kill the cozy controller).
+// Ensure that all drones are stopped when a SIGTERM signal
+// is received (supervisor sends SIGTERM signals to kill its running process,
+// so in most Cozy installations it let process spawned by Cozy Controller
+// as zombie process if the SIGTERM signal is not properly catched).
 stopDrones = function(callback) {
   haibu.running.drone.destroy(true, function () {
     callback();
@@ -155,6 +157,6 @@ stopDrones = function(callback) {
 
 process.on('SIGTERM', function() {
   stopDrones(function() {
-      process.exit(0);
+    process.exit(0);
   });
 });
