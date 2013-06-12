@@ -26,6 +26,12 @@ app.user = 'marak';
 vows.describe('haibu/drone/directories').addBatch(
   helpers.requireStart(port, function (_server) {
     haibu.config.set('directories:apps', '/usr/local/cozy/apps');
+    if (!fs.existsSync('/etc/cozy')){
+      fs.mkdirSync('/etc/cozy')
+    }
+    if (!fs.existsSync('/etc/cozy/pids')){
+      fs.mkdirSync('/etc/cozy/pids')
+    }
     server = _server;
   })
 ).addBatch({

@@ -123,16 +123,23 @@ var start = app.commands.start = function(address, port, env) {
   haibu.config.set('directories:token', app.argv.tokensDir);
 
   if (app.argv.authToken != '') {
-    fs.mkdir('/etc/cozy')
-    fs.readFile('/etc/cozy/controller.token', 'utf8', function(err, data) {
-      token = data.split('\n')[0]
-      haibu.config.set('authToken', token);
-    });
+    if (fs.existsSync('/etc/cozy/controller.token')){
+      fs.readFile('/etc/cozy/controller.token', 'utf8', function(err, data) {
+        token = data.split('\n')[0]
+        haibu.config.set('authToken', token);
+      });
+    } else {
+      console.log("Option auth cannot work : file '/etc/cozy/controller.token doesn't exist");
+    }
   }
 
   haibu.config.file({ file: path.join(__dirname, '..', 'config', 'config.json') });
-  fs.mkdir('/etc/cozy')
-  fs.mkdir('/etc/cozy/pids')
+  if (!fs.existsSync('/etc/cozy')){
+    fs.mkdirSync('/etc/cozy')
+  }
+  if (!fs.existsSync('/etc/cozy/pids')){
+    fs.mkdirSync('/etc/cozy/pids')
+  }
   pidFile = path.join(haibu.config.get('directories:pid'), 'controller.pid');
   if (!fs.existsSync(pidFile)) {
     fs.openSync(pidFile, 'w')

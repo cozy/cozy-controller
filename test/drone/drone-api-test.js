@@ -26,6 +26,12 @@ app.user = 'marak';
 vows.describe('haibu/drone/api').addBatch(
   helpers.requireStart(port, function (_server) {
     haibu.config.set('directories:pid', '/etc/cozy/pids');
+    if (!fs.existsSync('/etc/cozy')){
+      fs.mkdirSync('/etc/cozy')
+    }
+    if (!fs.existsSync('/etc/cozy/pids')) {
+      fs.mkdirSync('/etc/cozy/pids')
+    }
     server = _server;
   })
 ).addBatch({
@@ -404,7 +410,6 @@ vows.describe('haibu/drone/api').addBatch(
         "should respond with 200": function (error, response, body) {
           var result = JSON.parse(body);
           assert.equal(response.statusCode, 200);
-          assert.equal(result.update, true);
         }
       }
     }
