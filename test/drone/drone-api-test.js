@@ -366,17 +366,17 @@ vows.describe('haibu/drone/api').addBatch(
 }).addBatch({
   "When using the drone server": {
     "a request against /drones/:id/start": {
-      "for application notes": {
+      "for application todos": {
         topic: function () {
-          app_notes = data.apps[2];
+          app_todos = data.apps[2];
           options = {
-            uri: 'http://localhost:9000/drones/notes/start',
+            uri: 'http://localhost:9000/drones/todos/start',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              start: app_notes
+              start: app_todos
             })
           };
 
@@ -385,32 +385,6 @@ vows.describe('haibu/drone/api').addBatch(
         "should respond with 200": function (error, response, body) {
           assert.equal(response.statusCode, 200);
         },
-      }
-    }
-  }
-}).addBatch({
-  "When using the drone server": {
-    "a request against /drones/:id/light-update": {
-      "when there is are running drones": {
-        topic: function () {
-          app_notes = data.apps[2];
-          var options = {
-            uri: 'http://localhost:9000/drones/notes/light-update',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              update : app_notes
-            })
-          };
-
-          request(options, this.callback);
-        },
-        "should respond with 200": function (error, response, body) {
-          var result = JSON.parse(body);
-          assert.equal(response.statusCode, 200);
-        }
       }
     }
   }
@@ -419,15 +393,15 @@ vows.describe('haibu/drone/api').addBatch(
     "a request against /drones/:id/brunch": {
       "when there is are running drones": {
         topic: function () {
-          app_notes = data.apps[2];
+          app_todos = data.apps[2];
           var options = {
-            uri: 'http://localhost:9000/drones/notes/brunch',
+            uri: 'http://localhost:9000/drones/todos/brunch',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              brunch : app_notes
+              brunch : app_todos
             })
           };
 
@@ -443,10 +417,36 @@ vows.describe('haibu/drone/api').addBatch(
   }
 }).addBatch({
   "When using the drone server": {
+    "a request against /drones/:id/light-update": {
+      "when there is are running drones": {
+        topic: function () {
+          app_todos = data.apps[2];
+          var options = {
+            uri: 'http://localhost:9000/drones/todos/light-update',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              update : app_todos
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          var result = JSON.parse(body);
+          assert.equal(response.statusCode, 200);
+        }
+      }
+    }
+  }
+}).addBatch({
+  "When using the drone server": {
     "a request against /drones/:id/stop": {
       "for application notes": {
         topic: function () {
-          app_notes = data.apps[2];
+          app_todos = data.apps[2];
           options = {
             uri: 'http://localhost:9000/drones/notes/stop',
             method: 'POST',
@@ -454,7 +454,7 @@ vows.describe('haibu/drone/api').addBatch(
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              stop: app_notes
+              stop: app_todos
             })
           };
 
