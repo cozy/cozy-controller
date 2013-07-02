@@ -23,6 +23,7 @@ var ipAddress = '127.0.0.1',
 // Add a user property to the app
 //
 app.user = 'marak';
+haibu.config.set('directories:pid', '/etc/cozy/pids');
 
 vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
   "An instance of haibu.drone.Drone": {
@@ -35,7 +36,7 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
             host: ipAddress,
             maxRestart: 1
           });
-          
+
           drone.start(create, this.callback);
         },
         "should return with a valid drone": function (err, result) {
@@ -110,9 +111,9 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
             assert.isNull(err);
             assert.isArray(drones);
             assert.equal(drones.length, 1);
-            this.drone.stop(app.name, function () { 
+            this.drone.stop(app.name, function () {
               //
-              // TEST CLEAN UP 
+              // TEST CLEAN UP
               //
             });
           }
@@ -143,20 +144,20 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
               haibu.once(['drone', 'stop'], function (_, result) {
                 that.stopPid = result.process.pid;
               });
-              
+
               haibu.once(['drone', 'start'], function () {
-                that.callback.apply(that, arguments);                
+                that.callback.apply(that, arguments);
               })
-              
+
               drone.restart(create.name, function () {});
             });
           },
           "should emit the `drone:stop` event": function (_, result) {
             assert.equal(this.originalPid, this.stopPid);
             assert.notEqual(this.originalPid, result.process.pid);
-            this.drone.stop(app.name, function () { 
+            this.drone.stop(app.name, function () {
               //
-              // TEST CLEAN UP 
+              // TEST CLEAN UP
               //
             });
           }
@@ -176,7 +177,7 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
             host: ipAddress,
             maxRestart: 2
           });
-          
+
           drone.start(create, function (err, result) {
             drone.start(create, function (err, result) {
               drone.start(create, function (err, result) {
@@ -189,9 +190,9 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
           assert.isNull(err);
           assert.isArray(drones);
           assert.equal(drones.length, 3);
-          this.drone.stop(app.name, function () { 
+          this.drone.stop(app.name, function () {
             //
-            // TEST CLEAN UP 
+            // TEST CLEAN UP
             //
           });
         }
@@ -208,7 +209,7 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
                pkgJson = fs.readFileSync(path.join(sourceDir, 'package.json')),
                delayFail = JSON.parse(pkgJson),
                drone;
-            
+
            drone = this.drone = new Drone({
              minUptime: 2000,
              host: ipAddress,
@@ -223,19 +224,19 @@ vows.describe('haibu/drone/drone').addBatch(helpers.requireInit()).addBatch({
           topic: function () {
             var uid = Object.keys(this.drone.apps['delayed-fail'].drones)[0],
                 pid = this.drone.apps['delayed-fail'].drones[uid].data.pid;
-            
+
             setTimeout(this.callback.bind(this, null, uid, pid, this.drone), 3000);
           },
           "should have an updated pid for the drone": function (_, uid, pid, updated) {
             assert.isString(uid);
             assert.isNumber(pid);
-            assert.isObject(updated);            
+            assert.isObject(updated);
             assert.notEqual(pid, updated.apps['delayed-fail'].drones[uid].data.pid);
           },
           "the list() method should return an updated pid": function (_, uid, pid, drone) {
             var updatedPids = drone.apps['delayed-fail'].drones,
                 listed = drone.list()['delayed-fail'].drones[0];
-            
+
             assert.equal(listed.pid, updatedPids[listed.uid].data.pid);
           }
         }

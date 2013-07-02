@@ -32,6 +32,9 @@ vows.describe('haibu/drone/api').addBatch(
     if (!fs.existsSync('/etc/cozy/pids')) {
       fs.mkdirSync('/etc/cozy/pids')
     }
+    haibu.use(haibu.useraccounts, {"permissions": "755"});
+    haibu.config.set('permissions', "755");
+    haibu.config.set('directories:apps', '/usr/local/cozy/apps');
     server = _server;
   })
 ).addBatch({
