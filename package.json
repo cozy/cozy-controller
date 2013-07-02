@@ -22,7 +22,7 @@
     "flatiron": "0.3.5",
     "forever-monitor": "1.1.0",
     "haibu-api": "0.9.0",
-    "haibu-carapace": "0.7.1",
+    "cozy-controller-carapace": "0.7.1",
     "npm": "1.2.18",
     "optimist": "~0.3.5",
     "pkginfo": "0.2.3",
