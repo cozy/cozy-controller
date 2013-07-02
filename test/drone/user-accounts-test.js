@@ -24,6 +24,7 @@ var ipAddress = '127.0.0.1',
 
 app1.user = 'marak';
 app2.user = 'test';
+haibu.config.set('directories:pid', '/etc/cozy/pids');
 
 vows.describe('haibu/drone/userAccounts').addBatch(
   helpers.requireStart(port, function (_server) {

@@ -47,6 +47,7 @@ var appWithSubmodules = {
   }
 };
 
+haibu.config.set('directories:pid', '/etc/cozy/pids');
 vows.describe('haibu/core/spawner').addBatch(
   helpers.requireStart(9010)
 ).addBatch({
@@ -61,7 +62,7 @@ vows.describe('haibu/core/spawner').addBatch(
           assert.isNull(err);
           assert.isNotNull(result.drone);
           result.process.kill();
-          
+
           // Ensure that the submodule's (vendor/proto) has files
           try {
             var submodulePath = path.join(config.get('directories:apps'), 'charlie', 'exceptiony', 'exceptiony', 'vendor', 'proto');
@@ -92,9 +93,9 @@ vows.describe('haibu/core/spawner').addBatch(
           assert.isNotNull(err);
           assert.isTrue(typeof result === 'undefined');
           assert.equal(err.message, 'Error spawning drone');
-          
+
           //
-          // Assert that the correct error message from the drone was passed 
+          // Assert that the correct error message from the drone was passed
           // back up the callback chain.
           //
           var errLine = err.stderr.split('\n').filter(function (line) {
@@ -139,10 +140,10 @@ vows.describe('haibu/core/spawner').addBatch(
           assert.isNull(err);
           assert.isNotNull(result.drone);
           result.process.kill();
-          
+
           var homeFiles = fs.readdirSync(this.repo.homeDir);
           assert.include(homeFiles, 'node_modules');
-          
+
           var modules = fs.readdirSync(path.join(this.repo.homeDir, 'node_modules'));
           assert.include(modules, 'express');
         }
@@ -162,12 +163,12 @@ vows.describe('haibu/core/spawner').addBatch(
           envApp.user = 'charlie';
           envApp.repository.directory = sourceDir;
           this.repo = haibu.repository.create(envApp);
-          
+
           spawner.trySpawn(this.repo, function (err, result) {
             if (err) {
               return that.callback(err);
             }
-            
+
             result.process.stdout.on('data', that.callback.bind(that, null, result.process));
           });
         },

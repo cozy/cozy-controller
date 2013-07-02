@@ -21,6 +21,8 @@ var dataSystem = data.apps[4];
 //
 app.user = 'marak';
 
+haibu.config.set('directories:pid', '/etc/cozy/pids');
+
 vows.describe('haibu/drone/autostart').addBatch(helpers.requireInit()).addBatch({
   "When using haibu": {
     "a call to haibu.drone.start()": {
@@ -95,7 +97,7 @@ vows.describe('haibu/drone/autostart').addBatch(helpers.requireInit()).addBatch(
           assert.isNull(err);
         }
       }
-    }  
+    }
   }
 }).addBatch({
   "Stoping server ": {
