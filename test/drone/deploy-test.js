@@ -19,6 +19,7 @@ var fixtureDir = path.join(__dirname, '..', 'fixtures'),
     brokenTarball = path.join(fixtureDir , 'repositories', 'streaming', 'broken.tar'),
     appPort;
 
+haibu.config.set('directories:pid', '/etc/cozy/pids');
 vows.describe('haibu/drone/deploy').addBatch(
   helpers.requireStart(9011)
 ).addBatch({
@@ -44,7 +45,7 @@ vows.describe('haibu/drone/deploy').addBatch(
         }, this.callback);
 
         deployStream.pipe(reqStream);
-      }/*,
+      },
       "should respond with app infomation": function (err, res, body) {
         assert.isNull(err);
 
@@ -80,7 +81,7 @@ vows.describe('haibu/drone/deploy').addBatch(
             assert.equal(response.statusCode, 200);
           }
         }
-      }*/
+      }
     },
     "with a tar that generates an error": {
       topic: function () {
