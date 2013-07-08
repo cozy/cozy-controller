@@ -549,6 +549,31 @@ vows.describe('haibu/drone/api').addBatch(
     }
   }
 }).addBatch({
+  "When using the drone server": {
+    "a request against /drones/:id/start": {
+      "where start script is defined in package.json": {
+        topic: function () {
+          app = data.apps[5];
+          options = {
+            uri: 'http://localhost:9000/drones/todos/start',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              start: app
+            })
+          };
+
+          request(options, this.callback);
+        },
+        "should respond with 200": function (error, response, body) {
+          assert.equal(response.statusCode, 200);
+        },
+      }
+    }
+  }
+}).addBatch({
   "when the tests are over": {
     topic: function () {
       return false;

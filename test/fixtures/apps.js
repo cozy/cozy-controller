@@ -94,5 +94,25 @@ exports.apps = [
      "scripts": {
        "start": "server.coffee"
      }
+  },
+  {
+     "resource": "App",
+     "name": "test",
+     "user": "test",
+     "subdomain":"test",
+     "state": "stopped",
+     "maxDrones": 1,
+     "drones": [],
+     "directories": {
+       "home": "hellonode"
+     },
+     "repository": {
+       "type": "git",
+       "url": "https://github.com/Marak/hellonode.git",
+       "branch": "master"
+     },
+     "scripts": {
+       "start": "server.coffee"
+     }
   }
 ];
