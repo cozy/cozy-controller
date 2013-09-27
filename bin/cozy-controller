@@ -62,11 +62,6 @@ app.use(flatiron.plugins.cli, {
       },
       default: 700
     },
-    coffee: {
-      alias: 'c',
-      description: 'Use the Haibu CoffeeScript plugin.',
-      boolean: true
-    },
     dir: {
       alias: 'd',
       description: 'Change applications repertories.',
