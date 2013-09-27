@@ -96,6 +96,11 @@ app.use(flatiron.plugins.cli, {
   }
 });
 
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = "development"
+}
+
+
 var start = app.commands.start = function(address, port, env) {
   address = address || app.argv.address         || haibu.common.ipAddress();
   port    = port    || parseInt(app.argv.port)  || 9002;
