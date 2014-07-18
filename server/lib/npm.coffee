@@ -36,9 +36,11 @@ module.exports.install = (target, callback) =>
     #child.stdout.on 'data', (data) =>
     stderr = ''
     child.stderr.on 'data', (data) =>
+        console.log data
         stderr += data
 
     child.on 'close', (code) =>
+      console.log('close')
       if code isnt 0
           console.log("npm:install:err: NPM Install failed : #{stderr}")
           err = new Error('NPM Install failed')

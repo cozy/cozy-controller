@@ -9,17 +9,26 @@ module.exports = {
   'apps/:name/start': {
     post: applications.start
   },
+  'drones/:slug/start': {
+    post: applications.install
+  },
   'apps/:name/stop': {
     post: applications.stop
   },
-  'apps/:name/install': {
-    post: applications.install
+  'drones/:slug/stop': {
+    post: applications.stop
+  },
+  'apps/:name/update': {
+    post: applications.update
+  },
+  'drones/:name/light-update': {
+    post: applications.update
   },
   'apps/:name/uninstall': {
     post: applications.uninstall
   },
-  'apps/:name/update': {
-    post: applications.update
+  'drones/:slug/clean': {
+    post: applications.uninstall
   },
   'apps/all': {
     get: applications.all
@@ -27,19 +36,14 @@ module.exports = {
   'apps/started': {
     get: applications.running
   },
-  'diskinfo': {
-    get: disk.info
-  },
-  'drone/:slug/start': {
-    post: applications.install
-  },
-  'drone/:slug/stop': {
-    post: applications.stop
-  },
-  'drone/:slug/clean': {
-    post: applications.uninstall
-  },
-  'drone/running': {
-    get: applications.runnins
+  'drones/running': {
+    get: applications.running
   }
 };
+
+
+/*
+
+'diskinfo':
+    get: disk.info
+ */

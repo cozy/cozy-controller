@@ -13,159 +13,137 @@ exec = require('child_process').exec;
 
 mixin = require('flatiron').common.mixin;
 
-
-/*getSpawnOptions = (app, callback) ->
-    engine = (app.engines || app.engine || {node: app.engine}).node
-    engineDir = haibu.config.get('directories:node-installs')
-    nodeVersions = engineDir && fs.readdirSync(engineDir)
-    carapaceDir = haibu.config.get('directories:carapace-installs')
-    carapaceVersions = carapaceDir && fs.readdirSync(carapaceDir)
-    env = {}
-    command = 'node'
-    options = {}
-
-    if nodeVersions
-        engine = (app.engines || app.engine || {node: app.engine}).node;
-        if typeof engine !== 'string'
-          engine = '0.6.x'        
-        version = semver.maxSatisfying(nodeVersions, engine);
-        if (!version) 
-            var err = new Error('Error spawning drone: no matching engine found');
-            err.blame = 
-                type: 'user',
-                message: 'Repository configuration'
-            callback err
-        
-        nodeDir = path.join(engineDir, version)
-
-    if carapaceVersions
-        if typeof engine !== 'string'
-            engine = '0.4.x'
-        version = semver.maxSatisfying(carapaceVersions, engine);
-        if !version
-            var err = new Error 'Error spawning drone: no matching carapace found'
-            err.blame = 
-                type: 'user',
-                message: 'Repository configuration'
-            callback err        
-        options.carapaceBin = path.join(carapaceDir, version, 'node_modules', 'cozy-controller-carapace', 'bin', 'carapace');      
-    else 
-        options.carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
-
-    if (version) 
-     * Add node (should be configured with --no-npm) and -g modules to path of repo
-        if semver.lt(version, '0.6.5')
-            options.forkShim = carapaceVersions ? path.join(options.carapaceBin, '..', '..', '..', 'node-fork', 'lib', 'fork.js') : true;
-        env.NODE_VERSION = 'v'+version;
-        env.NODE_PREFIX = nodeDir;
-        env.NODE_PATH = path.join(nodeDir, 'lib', 'node_modules');
-        env.NODE_CHANNEL_FD = 0;
-        var concatPATH = (process.env.PATH ? ':' + process.env.PATH : '');
-        env.PATH = path.join(nodeDir, 'bin') + ':' + path.join(nodeDir, 'node_modules') + concatPATH;
-        var concatCPATH = (process.env.CPATH ? ':' + process.env.CPATH : '');
-        env.CPATH = path.join(nodeDir, 'include') + ':' + path.join(nodeDir, 'include', 'node') + concatCPATH;
-        var concatLIBRARY_PATH = (process.env.LIBRARY_PATH ? ':' + process.env.LIBRARY_PATH : '');
-        env.LIBRARY_PATH = path.join(nodeDir, 'lib') + ':' + path.join(nodeDir, 'lib', 'node') + concatLIBRARY_PATH;
-        options.cwd = nodeDir;
-        command = path.join(nodeDir, 'bin', 'node');
-
-    var carapaceEnv = haibu.config.get('carapace:env');
-    if (carapaceEnv) mixin(env, carapaceEnv);
-    if (app.env) mixin(env, app.env);
-    options.env = env;
-    options.command = command;
-    callback null, options;
- */
-
 module.exports.start = function(app, callback) {
-  var env, foreverOptions, logFile, logPath, onError, onExit, onRestart, onStart, onStderr, onStdout, onTimeout, server, timeout, token, _ref;
+  var carapaceBin, env, foreverOptions, onError, onExit, onPort, onRestart, onStart, onStderr, onStdout, onTimeout, process, responded, result, timeout, token, _ref;
+  result = {};
   if ((_ref = app.name) === "home" || _ref === "proxy" || _ref === "data-system") {
-    token = haibu.config.get('authToken') || "";
+    token = "test";
   } else {
     token = app.password;
   }
   env = {
-    "NAME": app.name,
-    "TOKEN": token
+    NAME: app.name,
+    TOKEN: token,
+    USER: app.user,
+    USERNAME: app.user,
+    SUDO_USER: app.user,
+    HOME: app.userDir
   };
   foreverOptions = {
     fork: true,
     silent: true,
     max: 5,
     stdio: ['ipc', 'pipe', 'pipe'],
-    cwd: repo.homeDir,
-    hideEnv: haibu.config.get('hideEnv'),
+    cwd: app.dir,
+    logFile: app.logFile,
+    outFile: app.logFile,
+    errFile: app.errFile,
     env: env,
     killTree: true,
     killTTL: 0,
     command: 'node'
   };
-  logPath = "/var/log/cozy/" + app.name + ".log";
-  if (fs.existsSync(logPath)) {
-    logFile = fs.createWriteStream(logPath);
+  if (!fs.existsSync(app.logFile)) {
+    fs.openSync(app.logFile, 'w');
   }
-  server = repo.startScript;
-  if (server.slice(server.lastIndexOf("."), server.length) === ".coffee") {
-    foreverOptions.options = ['--plugin', 'coffee'];
+  if (!fs.existsSync(app.errFile)) {
+    fs.openSync(app.errFile, 'w');
   }
-  fs.stat(repo.startScript, (function(_this) {
+  foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
+  if (app.server.slice(app.server.lastIndexOf("."), app.server.length) === ".coffee") {
+    foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
+  }
+  fs.stat(app.startScript, (function(_this) {
     return function(err, stats) {
       if (err != null) {
-        err = new Error("package.json error: can\'t find starting script: " + repo.startScript);
+        err = new Error("package.json error: can\'t find starting script: " + app.startScript);
         return callback(err);
       }
     };
   })(this));
-  this.process = new forever.Monitor(repo.startScript, foreverOptions);
+  foreverOptions.options.push(app.startScript);
+  carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
+  process = new forever.Monitor(carapaceBin, foreverOptions);
+  responded = false;
   onStdout = function(data) {
-    data = data.toString();
-    if (logFile != null) {
-      return logFile.write(data);
-    }
+    return data = data.toString();
   };
   onStderr = function(data) {
-    data = data.toString();
-    return console.log("" + app.name + ":error " + data);
+    return data = data.toString();
   };
-  onExit = function() {
-    this.process.removeListener('error', onError);
-    clearTimeout(timeout);
-    if (callback) {
-      return callback(new Error("" + app.name + " CANT START"));
-    } else {
-      console.log("" + app.name + " HAS FAILLED TOO MUCH");
-      return setTimeout(((function(_this) {
-        return function() {
+  onExit = (function(_this) {
+    return function() {
+      process.removeListener('error', onError);
+      clearTimeout(timeout);
+      console.log('callback on Exit');
+      if (callback) {
+        return callback(new Error("" + app.name + " CANT START"));
+      } else {
+        console.log("" + app.name + " HAS FAILLED TOO MUCH");
+        return setTimeout((function() {
           return process.exit(1);
-        };
-      })(this)), 1);
-    }
-  };
-  onError = function(err) {
-    return console.log(err);
-  };
-  onStart = function(monitor, data) {
-    callback(null);
-    return callback = null;
-  };
+        }), 1);
+      }
+    };
+  })(this);
+  onError = (function(_this) {
+    return function(err) {
+      if (!responded) {
+        err = err.toString();
+        responded = true;
+        callback(err);
+        process.removeListener('exit', onExit);
+        process.removeListener('message', onPort);
+        return clearTimeout(timeout);
+      }
+    };
+  })(this);
+  onStart = (function(_this) {
+    return function(monitor, data) {
+      return result = {
+        monitor: monitor,
+        process: monitor.child,
+        data: data,
+        pid: monitor.childData.pid,
+        pkg: app
+      };
+    };
+  })(this);
   onRestart = function() {
-    return console.log("{app.name}:restart");
+    return console.log("" + app.name + ":restart");
   };
-  onTimeout = function() {
-    var err;
-    this.process.removeListener('exit', onExit);
-    this.process.stop();
-    err = new Error('Error spawning drone');
-    err.stdout = stdout.join('\n');
-    err.stderr = stderr.join('\n');
-    return callback(err);
-  };
-  this.process.start();
-  timeout = setTimeout(onTimeout, haibu.config.get('portTimeout') || 8000000);
-  this.process.on('stdout', onStdout);
-  this.process.on('stderr', onStderr);
-  this.process.once('exit', onExit);
-  this.process.once('error', onError);
-  this.process.once('start', onStart);
-  return this.process.on('restart', onRestart);
+  onTimeout = (function(_this) {
+    return function() {
+      var err;
+      process.removeListener('exit', onExit);
+      process.stop();
+      err = new Error('Error spawning drone');
+      err.stdout = stdout.join('\n');
+      err.stderr = stderr.join('\n');
+      console.log('callback timeout');
+      return callback(err);
+    };
+  })(this);
+  onPort = (function(_this) {
+    return function(info) {
+      if (!responded && (info != null ? info.event : void 0) === 'port') {
+        responded = true;
+        result.port = info.data.port;
+        callback(null, result);
+        process.removeListener('exit', onExit);
+        process.removeListener('error', onError);
+        process.removeListener('message', onPort);
+        return clearTimeout(timeout);
+      }
+    };
+  })(this);
+  process.start();
+  timeout = setTimeout(onTimeout, 8000000);
+  process.on('stdout', onStdout);
+  process.on('stderr', onStderr);
+  process.once('exit', onExit);
+  process.once('error', onError);
+  process.once('start', onStart);
+  process.on('restart', onRestart);
+  return process.on('message', onPort);
 };

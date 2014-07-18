@@ -7,7 +7,7 @@ module.exports.install = (req, res, next) =>
         if err
             res.send 400, error:err
         else
-            res.send 200, app: result
+            res.send 200, "port": result.port
 
 
 module.exports.start = (req, res, next) ->
@@ -16,7 +16,8 @@ module.exports.start = (req, res, next) ->
         if err
             res.send 400, error:err
         else
-            res.send 200, app: result
+            console.
+            res.send 200, "port": result.port
 
 
 module.exports.stop = (req, res, next) ->

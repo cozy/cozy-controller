@@ -20,16 +20,12 @@ addUser = (app, callback) =>
     child.stderr.on 'data', (data) =>
         console.log data.toString()
     child.on 'exit', (code) =>
-        console.log(code)
         if code is 0
             callback()
         else
-            console.log code
             callback new Error('Unable to create user')
 
 startApp = (app, callback) =>
-    console.log 'startApp'
-    console.log app
     spawner.start app, (err, result) ->
         drones[app.name] = result
         if err?
@@ -49,12 +45,7 @@ module.exports.install = (manifest, callback) =>
         console.log("#{app.name}:already installed")
         console.log("#{app.name}:start application")
         # Start application
-        startApp app, (err, result) =>
-            console.log 'endStartApp'
-            if err?
-                callback err
-            else
-                callback null, result
+        startApp app, callback
     else
         # TODOS: if apps in stack -> stack.json !
         if app.name in ['data-system', 'home', 'proxy']  

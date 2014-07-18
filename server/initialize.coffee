@@ -87,10 +87,8 @@ start = (apps, callback) =>
 
 checkStart = (port, callback) =>
     client = new Client "http://localhost:#{port}"
-    client.get "", (err, res, body) =>
-        console.log body
-        console.log body.toString().indexOf('ECONNRESET')
-        if body? and body.toString().indexOf('ECONNRESET') is -1
+    client.get "", (err, res) =>
+        if res? and res.statusCode in [200, 403]
             callback()
         else
             checkStart port, callback
@@ -108,7 +106,7 @@ startStack = (data, app, callback) =>
                     callback "[Timeout] Data system doesn't start"
                 , 30000
                 checkStart result.port, () ->
-                    clearTimeout timeout
+                    clearTimeout(timeout)
                     console.log("#{app}: started")
                     callback()
     else
