@@ -1,5 +1,6 @@
 americano = require 'americano'
 init = require './server/initialize'
+controller = require './server/lib/controller'
 
 application = module.exports = (callback) ->
 
@@ -15,6 +16,14 @@ application = module.exports = (callback) ->
             americano.start options, (app, server) ->
         else
             console.log err
+
+    process.on 'uncaughtException', (err) ->
+        console.log err
+
+    process.on 'exit', (code) ->
+        controller.stopAll ()=>
+            process.exit(code)
+
 
 if not module.parent
     application()

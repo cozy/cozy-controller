@@ -48,7 +48,10 @@ initTokenFile = (callback) =>
 module.exports.init = (callback) =>
     initAppsFiles (err) =>
         initLogFiles (err) =>
-            initTokenFile (err) =>
+            if process.env.NODE_ENV is "production"
+                initTokenFile (err) =>
+                    callback()
+            else
                 callback()
 
 ### Autostart ###
@@ -115,33 +118,40 @@ startStack = (data, app, callback) =>
 
 module.exports.autostart = (callback) =>
     console.log("AUTOSTART")
+    test = false
     if couchDBStarted()
         # Start data-system
         console.log('couchDB: started')
         fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
-            if data?
-                data = JSON.parse(data)
-                startStack data, 'data-system', (err) =>
-                    if err?
-                        callback err
-                    else
-                        # Start others apps
-                        clientDS.setBasicAuth 'home', "test"
-                        clientDS.post '/request/application/all/', {}, (err, res, body) =>
-                            console.log err if err?
-                            start body, () =>
-                                console.log errors if errors isnt {}
-                                #callback err if err
-                                # Start home
-                                startStack data, 'home', (err) =>
-                                    console.log err if err?
-                                    # Start proxy
-                                    startStack data, 'proxy', (err) =>
+            if data? or data is ""
+                try
+                    data = JSON.parse(data)
+                catch
+                    test= true
+                    console.log "stack isn't installed"
+                    callback()
+                if not test
+                    startStack data, 'data-system', (err) =>
+                        if err?
+                            callback err
+                        else
+                            # Start others apps
+                            clientDS.setBasicAuth 'home', "test"
+                            clientDS.post '/request/application/all/', {}, (err, res, body) =>
+                                console.log err if err?
+                                start body, () =>
+                                    console.log errors if errors isnt {}
+                                    #callback err if err
+                                    # Start home
+                                    startStack data, 'home', (err) =>
                                         console.log err if err?
-                                        callback()       
+                                        # Start proxy
+                                        startStack data, 'proxy', (err) =>
+                                            console.log err if err?
+                                            callback()       
             else
-                err = new Error "stack isn't installed"
-                callback err
+                console.log "Cannot read stack file"
+                callback(err)
     else
         err = new Error "couchDB isn't started"
         callback err

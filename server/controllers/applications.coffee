@@ -2,7 +2,7 @@ controller = require ('../lib/controller')
 
 
 module.exports.install = (req, res, next) =>
-    manifest = req.body.start
+    manifest = req.body.star
     controller.install manifest, (err, result) =>
         if err
             res.send 400, error:err

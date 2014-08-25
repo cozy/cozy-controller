@@ -36,7 +36,6 @@ module.exports.install = (target, callback) =>
     #child.stdout.on 'data', (data) =>
     stderr = ''
     child.stderr.on 'data', (data) =>
-        console.log data
         stderr += data
 
     child.on 'close', (code) =>
