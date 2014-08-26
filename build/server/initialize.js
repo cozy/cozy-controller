@@ -91,9 +91,13 @@ module.exports.init = (function(_this) {
   return function(callback) {
     return initAppsFiles(function(err) {
       return initLogFiles(function(err) {
-        return initTokenFile(function(err) {
+        if (process.env.NODE_ENV === "production") {
+          return initTokenFile(function(err) {
+            return callback();
+          });
+        } else {
           return callback();
-        });
+        }
       });
     });
   };
@@ -125,7 +129,7 @@ errors = {};
 start = (function(_this) {
   return function(apps, callback) {
     var app;
-    if (apps.length > 0) {
+    if ((apps != null) && apps.length > 0) {
       app = apps.pop();
       app = app.value;
       app.repository = {
@@ -200,41 +204,50 @@ module.exports.autostart = (function(_this) {
   return function(callback) {
     var err;
     console.log("AUTOSTART");
+    err = false;
     if (couchDBStarted()) {
       console.log('couchDB: started');
       return fs.readFile('/usr/local/cozy/apps/stack.json', 'utf8', function(err, data) {
-        if (data != null) {
-          data = JSON.parse(data);
-          return startStack(data, 'data-system', function(err) {
-            if (err != null) {
-              return callback(err);
-            } else {
-              clientDS.setBasicAuth('home', "test");
-              return clientDS.post('/request/application/all/', {}, function(err, res, body) {
-                if (err != null) {
-                  console.log(err);
-                }
-                return start(body, function() {
-                  if (errors !== {}) {
-                    console.log(errors);
+        if ((data != null) || data === "") {
+          try {
+            data = JSON.parse(data);
+          } catch (_error) {
+            err = true;
+            console.log("stack isn't installed");
+            callback();
+          }
+          if (!err) {
+            return startStack(data, 'data-system', function(err) {
+              if (err != null) {
+                return callback(err);
+              } else {
+                clientDS.setBasicAuth('home', "test");
+                return clientDS.post('/request/application/all/', {}, function(err, res, body) {
+                  if (err != null) {
+                    console.log(err);
                   }
-                  return startStack(data, 'home', function(err) {
-                    if (err != null) {
-                      console.log(err);
+                  return start(body, function() {
+                    if (errors !== {}) {
+                      console.log(errors);
                     }
-                    return startStack(data, 'proxy', function(err) {
+                    return startStack(data, 'home', function(err) {
                       if (err != null) {
                         console.log(err);
                       }
-                      return callback();
+                      return startStack(data, 'proxy', function(err) {
+                        if (err != null) {
+                          console.log(err);
+                        }
+                        return callback();
+                      });
                     });
                   });
                 });
-              });
-            }
-          });
+              }
+            });
+          }
         } else {
-          err = new Error("stack isn't installed");
+          console.log("Cannot read stack file");
           return callback(err);
         }
       });

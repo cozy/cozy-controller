@@ -5,6 +5,13 @@ controller = require './lib/controller'
 couchDBClient = new Client 'http://localhost:5984'
 clientDS = new Client 'http://localhost:9101'
 
+
+randomString = (length=32) ->
+    string = ""
+    string += Math.random().toString(36).substr(2) while string.length < length
+    string.substr 0, length
+
+
 ### Initialize file : /usr/local/cozy/apps, /etc/cozy/controller.token, /var/log/cozy ###
 initAppsFiles = (callback) =>
     if not fs.existsSync '/usr/local/cozy'
@@ -41,14 +48,14 @@ initTokenFile = (callback) =>
         callback err if err?
         fs.chmod '/etc/cozy/stack.token', '0600', (err) =>
             callback err if err?
-            token = 'test'
-            fs.write fd, token, 0, 4, 0, (err) =>
+            token = randomString()
+            fs.writeFile '/etc/cozy/stack.token', token, (err) =>
                 callback(err) 
 
 module.exports.init = (callback) =>
     initAppsFiles (err) =>
         initLogFiles (err) =>
-            if process.env.NODE_ENV is "production"
+            if process.env.NODE_ENV is "production" or process.env.NODE_ENV is "test"
                 initTokenFile (err) =>
                     callback()
             else
@@ -68,7 +75,7 @@ couchDBStarted = (test=5) =>
             return false
 errors = {}
 start = (apps, callback) =>
-    if apps.length > 0
+    if apps? and apps.length > 0
         app = apps.pop()
         app = app.value
         app.repository =
@@ -118,7 +125,7 @@ startStack = (data, app, callback) =>
 
 module.exports.autostart = (callback) =>
     console.log("AUTOSTART")
-    test = false
+    err = false
     if couchDBStarted()
         # Start data-system
         console.log('couchDB: started')
@@ -127,10 +134,10 @@ module.exports.autostart = (callback) =>
                 try
                     data = JSON.parse(data)
                 catch
-                    test= true
+                    err = true
                     console.log "stack isn't installed"
                     callback()
-                if not test
+                if not err
                     startStack data, 'data-system', (err) =>
                         if err?
                             callback err

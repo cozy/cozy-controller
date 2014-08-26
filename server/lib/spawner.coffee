@@ -96,7 +96,7 @@ module.exports.start = (app, callback) ->
 
     onStart = (monitor, data) =>
         result =
-            monitor: monitor
+            monitor: process
             process: monitor.child
             data: data
             pid: monitor.childData.pid

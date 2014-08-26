@@ -30,14 +30,13 @@ startApp = (app, callback) =>
         callback 'Application already exists'
     else
         spawner.start app, (err, result) ->
-            if result?
-                drones[app.name] = result.pkg
             if err?
                 callback err
             else if not result?
                 err = new Error 'Unknown error from Spawner.'
                 callback err
             else
+                drones[app.name] = result.pkg
                 running[app.name] = result
                 callback null, result
 
@@ -45,8 +44,6 @@ module.exports.install = (manifest, callback) =>
     app = new App manifest
     app = app.app
     # Check if app exists
-    console.log drones
-    console.log app.dir
     if drones[app.name]? or fs.existsSync(app.dir)
         console.log("#{app.name}:already installed")
         console.log("#{app.name}:start application")
@@ -62,7 +59,6 @@ module.exports.install = (manifest, callback) =>
                     data = {}
                 data[app.name] = app
                 fs.open '/usr/local/cozy/apps/stack.json', 'w', (err, fd) =>
-                    console.log data
                     fs.write fd, JSON.stringify(data), 0, data.length, 0, (err) =>
                         console.log err
         # Create user if necessary
@@ -82,9 +78,7 @@ module.exports.install = (manifest, callback) =>
                         callback err if err?
                         console.log("#{app.name}:start application")
                         # Start application
-                        startApp app, (err, result) =>
-                            callback err if err?
-                            callback null, result
+                        startApp app, callback
 
 
 module.exports.start = (manifest, callback) ->
@@ -114,9 +108,11 @@ module.exports.stop = (name, callback) ->
         running[name].monitor.once 'error', onErr
         try 
             running[name].monitor.stop()
+            callback null, name
         catch err
+            console.log err
+            callback err, name
             onErr err
-        callback null, name
     else
         err = new Error 'Cannot stop an application not started'
         callback err
@@ -146,7 +142,6 @@ module.exports.uninstall = (name, callback) ->
         repo.delete app, (err) =>
             console.log("#{name}:delete directory")
             delete drones[name]
-            console.log drones
             callback err if err
             callback null, name
     else

@@ -38,12 +38,8 @@ module.exports = {
   },
   'drones/running': {
     get: applications.running
+  },
+  'diskinfo': {
+    get: disk.info
   }
 };
-
-
-/*
-
-'diskinfo':
-    get: disk.info
- */

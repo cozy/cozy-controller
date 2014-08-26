@@ -6,6 +6,9 @@ module.exports =
     'apps/:name/start':
         post: applications.start
 
+    'apps/:name/install':
+        post: applications.install
+
     # Old route
     'drones/:slug/start':
         post: applications.install

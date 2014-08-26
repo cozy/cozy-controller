@@ -6,7 +6,7 @@ controller = require('../lib/controller');
 module.exports.install = (function(_this) {
   return function(req, res, next) {
     var manifest;
-    manifest = req.body.start;
+    manifest = req.body.star;
     return controller.install(manifest, function(err, result) {
       if (err) {
         return res.send(400, {

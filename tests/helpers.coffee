@@ -4,6 +4,8 @@ logger = require('printit')
     date: false
     prefix: 'tests:helper'
 helpers = {}
+fs = require 'fs'
+exec = require('child_process').exec
 
 # Mandatory
 process.env.TOKEN = "token"
@@ -43,7 +45,7 @@ initializeApplication = require "#{helpers.prefix}server"
 
 helpers.startApp = (done) ->
 
-    @timeout 15000
+    @timeout 150000
     initializeApplication (app, server) =>
         @app = app
         @app.server = server
@@ -57,7 +59,6 @@ helpers.stopApp = (done) ->
     , 250
 
 helpers.clearDB = (db) -> (done) ->
-    @timeout 10000
     logger.info "Clearing DB..."
     db.destroy (err) ->
         logger.info "\t-> Database destroyed!"
@@ -72,6 +73,27 @@ helpers.clearDB = (db) -> (done) ->
                 logger.info "db.create err : ", err if err
                 done err
         , 1000
+
+helpers.cleanApp = (done) ->
+    @timeout 10000
+    if fs.existsSync '/etc/cozy/stack.token'
+        fs.unlinkSync '/etc/cozy/stack.token'
+    if fs.existsSync '/usr/local/cozy/apps/stack.json'
+        fs.unlinkSync '/usr/local/cozy/apps/stack.json'
+    if fs.existsSync '/var/log/cozy/data-system.log'
+        fs.unlinkSync '/var/log/cozy/data-system.log'
+    if fs.existsSync '/usr/local/cozy/apps/data-system'
+        exec 'rm -rf /usr/local/cozy/apps/data-system', (err,out) ->
+            console.log err
+            if fs.existsSync '/usr/local/cozy/apps/home'
+                exec 'rm -rf /usr/local/cozy/apps/home', (err,out) ->
+                    console.log err
+                    done()
+            else
+                done()
+    else 
+        done()
+
 
 helpers.randomString = (length=32) ->
     string = ""

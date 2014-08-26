@@ -31,7 +31,6 @@ module.exports.install = (function(_this) {
     setTimeout(child.kill.bind(child, 'SIGKILL'), 5 * 60 * 1000);
     stderr = '';
     child.stderr.on('data', function(data) {
-      console.log(data);
       return stderr += data;
     });
     return child.on('close', function(code) {

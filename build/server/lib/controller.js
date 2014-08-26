@@ -47,18 +47,24 @@ addUser = (function(_this) {
 
 startApp = (function(_this) {
   return function(app, callback) {
-    return spawner.start(app, function(err, result) {
-      drones[app.name] = result;
-      if (err != null) {
-        return callback(err);
-      } else if (result == null) {
-        err = new Error('Unknown error from Spawner.');
-        return callback(err);
-      } else {
-        running[app.name] = result;
-        return callback(null, result);
-      }
-    });
+    if (running[app] != null) {
+      return callback('Application already exists');
+    } else {
+      return spawner.start(app, function(err, result) {
+        if (result != null) {
+          drones[app.name] = result.pkg;
+        }
+        if (err != null) {
+          return callback(err);
+        } else if (result == null) {
+          err = new Error('Unknown error from Spawner.');
+          return callback(err);
+        } else {
+          running[app.name] = result;
+          return callback(null, result);
+        }
+      });
+    }
   };
 })(this);
 
@@ -67,6 +73,8 @@ module.exports.install = (function(_this) {
     var app, _ref;
     app = new App(manifest);
     app = app.app;
+    console.log(drones);
+    console.log(app.dir);
     if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
       console.log("" + app.name + ":already installed");
       console.log("" + app.name + ":start application");
@@ -74,7 +82,11 @@ module.exports.install = (function(_this) {
     } else {
       if ((_ref = app.name) === 'data-system' || _ref === 'home' || _ref === 'proxy') {
         fs.readFile('/usr/local/cozy/apps/stack.json', 'utf8', function(err, data) {
-          data = JSON.parse(data);
+          try {
+            data = JSON.parse(data);
+          } catch (_error) {
+            data = {};
+          }
           data[app.name] = app;
           return fs.open('/usr/local/cozy/apps/stack.json', 'w', function(err, fd) {
             console.log(data);
@@ -165,6 +177,31 @@ module.exports.stop = function(name, callback) {
   }
 };
 
+module.exports.stopAll = function(callback) {
+  var name, onErr, onStop, _i, _len, _results;
+  _results = [];
+  for (_i = 0, _len = running.length; _i < _len; _i++) {
+    name = running[_i];
+    console.log("" + name + ":stop application");
+    onStop = (function(_this) {
+      return function() {
+        return delete running[name];
+      };
+    })(this);
+    onErr = (function(_this) {
+      return function(err) {
+        return running[name].removeListener('stop', onStop);
+      };
+    })(this);
+    running[name].monitor.once('stop', onStop);
+    running[name].monitor.once('exit', onStop);
+    running[name].monitor.once('error', onErr);
+    running[name].monitor.stop();
+    _results.push(delete running[name]);
+  }
+  return _results;
+};
+
 module.exports.uninstall = function(name, callback) {
   var app, err;
   if (running[name] != null) {
@@ -178,6 +215,7 @@ module.exports.uninstall = function(name, callback) {
       return function(err) {
         console.log("" + name + ":delete directory");
         delete drones[name];
+        console.log(drones);
         if (err) {
           callback(err);
         }
@@ -186,6 +224,7 @@ module.exports.uninstall = function(name, callback) {
     })(this));
   } else {
     err = new Error('Application is not installed');
+    console.log(err);
     return callback(err);
   }
 };

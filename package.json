@@ -52,7 +52,10 @@
   },
   "devDependencies": {
     "winston-loggly": "0.6.0",
-    "vows": "~0.7.0"
+    "vows": "~0.7.0",
+    "should": "3.1.2",
+    "chai": "1.9.0",
+    "mocha": "1.17.1"
   },
   "main": "./lib/haibu",
   "bin": {
