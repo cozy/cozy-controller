@@ -126,8 +126,7 @@ startStack = (data, app, callback) =>
         callback err
 
 module.exports.autostart = (callback) =>
-    console.log("AUTOSTART")
-    err = false
+    console.log("### AUTOSTART ###")
     if couchDBStarted()
         # Start data-system
         console.log('couchDB: started')
@@ -136,10 +135,14 @@ module.exports.autostart = (callback) =>
                 try
                     data = JSON.parse(data)
                 catch
-                    err = true
                     console.log "stack isn't installed"
                     callback()
-                if not err
+                    err = true
+                if not err and not data['data-system']?
+                    console.log "stack isn't installed"
+                    callback()
+                    err = true
+                if not err?
                     startStack data, 'data-system', (err) =>
                         if err?
                             callback err

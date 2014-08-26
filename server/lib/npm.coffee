@@ -74,6 +74,5 @@ module.exports.install = (target, callback) =>
           if code isnt 0
               console.log 'npm:clean_cache:failure'
               console.log(stderr)
-              callback()
 
           callback()

@@ -1,5 +1,6 @@
 path = require 'path'
 exec = require('child_process').exec
+request = require 'request'
 
 module.exports.init = (app, callback) =>
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
@@ -8,41 +9,45 @@ module.exports.init = (app, callback) =>
         err.blame = 
             type: 'user'   
             message: 'Repository configuration present but provides invalid Git URL'
-        callback err
+        exec "rm -rf #{app.dir}", (error, res) ->
+            callback err
 
-    # Setup the git commands to be executed
-    commands = [
-        'cd ' + app.appDir + ' && git clone --depth 1 ' + app.repository.url,
-        'cd ' + app.dir
-    ]
+    url = app.repository.url
+    request.get url.substr(0, (url.length-4)), (err, res, body) ->
+        if res.statusCode isnt 200
+            err = new Error('Invalid git url: ' + url)
+            err.blame = 
+                type: 'user'   
+                message: 'Repository configuration present but provides invalid Git URL'
+            exec "rm -rf #{app.appDir}", {}, (error, res) ->
+                callback err
+        else
 
-    if app.repository.branch?
-        commands[1] += ' && git checkout ' + app.repository.branch
+            # Setup the git commands to be executed
+            commands = [
+                'cd ' + app.appDir + ' && git clone --depth 1 ' + app.repository.url,
+                'cd ' + app.dir
+            ]
 
-    commands[1] += ' && git submodule update --init --recursive'
+            if app.repository.branch?
+                commands[1] += ' && git checkout ' + app.repository.branch
 
-    executeUntilEmpty = () =>
-        command = commands.shift()
-        timeout = setTimeout () =>
-            clone.kill 'SIGTERM'
-            # Kill all git clone process
-            exec 'sudo pkill -9 -f  \'git clone ' + app.repository.url + '\''
-            callback err, false
-        , 300000
+            commands[1] += ' && git submodule update --init --recursive'
 
-        # Remark: Using 'exec' here because chaining 'spawn' is not effective here
-        config =
-            env: 
-                "USER": app.user
-        clone = exec command, config, (err, stdout, stderr) =>
-            clearTimeout timeout
-            if err?
-                callback err, false
-            else if commands.length > 0
-                executeUntilEmpty()
-            else if commands.length is 0
-                callback()
-    executeUntilEmpty()
+            executeUntilEmpty = () =>
+                command = commands.shift()
+                # Remark: Using 'exec' here because chaining 'spawn' is not effective here
+                config =
+                    env: 
+                        "USER": app.user
+                clone = exec command, config, (err, stdout, stderr) =>
+                    if err?
+                        callback err, false
+                    else if commands.length > 0
+                        executeUntilEmpty()
+                    else if commands.length is 0
+                        callback()
+            executeUntilEmpty()
 
 module.exports.update = (app, callback) =>  
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)

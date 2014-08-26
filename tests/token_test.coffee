@@ -1,12 +1,19 @@
 helpers = require "./helpers"
 client = helpers.getClient('http://localhost:8888')
 should = require('chai').Should()
+server = ""
 
-describe "Spawner", ->
+describe "Token", ->
 
-    before helpers.cleanApp 
-    before helpers.startApp
-    after helpers.stopApp
+
+    before (done) =>
+        @timeout 100000
+        helpers.startApp (appli) =>
+            server = appli
+            done()
+    after (done) =>
+        @timeout 10000
+        helpers.stopApp server, done
 
     describe "Request without token", ->
 

@@ -3,23 +3,28 @@ fs = require 'fs'
 should = require('chai').Should()
 Client = require('request-json').JsonClient
 client = ""
+dsPort = ""
+server = ""
 
 
 describe "Spawner", ->
 
     before helpers.cleanApp 
-    before helpers.startApp
-    before =>
-        client = helpers.getClient()
-
-    after helpers.stopApp
+    before (done) =>
+        @timeout 100000
+        helpers.startApp (appli) =>
+            server = appli
+            client = helpers.getClient()
+            done()
+    after (done) =>
+        @timeout 10000
+        helpers.stopApp server, done
 
     describe "Installation", ->
 
         describe "Installation with bad argument", ->
 
             it "When I try to install application", (done) ->
-                @timeout 100000
                 app = 
                     name: "data-system"
                     repository:
@@ -43,7 +48,7 @@ describe "Spawner", ->
         describe "Install data-system", ->
 
             it "When I install data-system", (done) ->
-                @timeout 100000
+                @timeout 500000
                 app = 
                     name: "data-system"
                     repository:
@@ -54,17 +59,16 @@ describe "Spawner", ->
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                     @res = res
                     @port = body.port
+                    dsPort = @port
                     done()
 
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
 
             it "And stack.token has been created", ->
-                console.log fs.existsSync('/etc/cozy/stack.token')
                 fs.existsSync('/etc/cozy/stack.token').should.be.ok
 
             it "And data-system has been added in stack.json", ->
-                console.log fs.existsSync('/usr/local/cozy/apps/stack.json')
                 fs.existsSync('/usr/local/cozy/apps/stack.json').should.be.ok
                 stack = fs.readFileSync('/usr/local/cozy/apps/stack.json', 'utf8')
                 exist = stack.indexOf 'data-system'
@@ -98,7 +102,6 @@ describe "Spawner", ->
                     done()
 
             it "Then statusCode should be 400", ->
-                console.log @res.statusCode
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Application name should be declared in body.stop.name'", ->
@@ -119,7 +122,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 200
 
             it "And data-system should be stopped", (done) ->
-                clientDS = new Client "http://localhost:8890"
+                clientDS = new Client "http://localhost:#{dsPort}"
                 clientDS.get '/', (err, res) ->
                     should.not.exist res
                     done()
@@ -164,6 +167,7 @@ describe "Spawner", ->
                 client.post 'apps/data-system/start', "start":app, (err, res, body) =>
                     @res = res
                     @port = body.port
+                    dsPort = @port
                     done()
 
             it "Then statusCode should be 200", ->
@@ -213,14 +217,13 @@ describe "Spawner", ->
                         start: "server.coffee"
                 client.post 'apps/data-system/uninstall', app, (err, res, body) =>
                     @res = res
-                    @port = body.port
                     done()
 
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
 
             it "And data-system should be stopped", (done) ->
-                clientDS = new Client "http://localhost:8890"
+                clientDS = new Client "http://localhost:#{dsPort}"
                 clientDS.get '/', (err, res) ->
                     should.not.exist res
                     done()

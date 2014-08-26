@@ -45,19 +45,15 @@ helpers.getClient = (url = null) ->
 
 initializeApplication = require "#{helpers.prefix}server"
 
-helpers.startApp = (done) ->
-
-    @timeout 150000
+helpers.startApp = (callback) ->
     initializeApplication (app, server) =>
         @app = app
         @app.server = server
-        done()
+        callback(app)
 
-helpers.stopApp = (done) ->
-
-    @timeout 10000
+helpers.stopApp = (app, done) ->
     setTimeout =>
-        @app.server.close done
+        app.server.close done
     , 250
 
 helpers.clearDB = (db) -> (done) ->

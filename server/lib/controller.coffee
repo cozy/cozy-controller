@@ -50,35 +50,37 @@ module.exports.install = (manifest, callback) =>
         # Start application
         startApp app, callback
     else
-        # If app is an stack application, we store this manifest in stack.json
-        if app.name in ['data-system', 'home', 'proxy']  
-            fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
-                try
-                    data = JSON.parse(data) 
-                catch
-                    data = {}
-                data[app.name] = app
-                fs.open '/usr/local/cozy/apps/stack.json', 'w', (err, fd) =>
-                    fs.write fd, JSON.stringify(data), 0, data.length, 0, (err) =>
-                        console.log err
         # Create user if necessary
         addUser app, () =>
             # Create repo (with permissions)  
             console.log("#{app.name}:create directory")
             repo.create app, (err) =>
-                drones[app.name] = app
                 callback err if err?
                 # Git clone
                 console.log("#{app.name}:git clone")
                 type[app.repository.type].init app, (err) =>
-                    callback err if err?
-                    # NPM install
-                    console.log("#{app.name}:npm install")
-                    npm.install app, (err) =>
-                        callback err if err?
-                        console.log("#{app.name}:start application")
-                        # Start application
-                        startApp app, callback
+                    if err?
+                        callback err
+                    else
+                        # NPM install
+                        console.log("#{app.name}:npm install")
+                        npm.install app, (err) =>
+                            callback err if err?
+                            console.log("#{app.name}:start application")                                                
+                            # If app is an stack application, we store this manifest in stack.json
+                            if app.name in ['data-system', 'home', 'proxy']  
+                                fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
+                                    try
+                                        data = JSON.parse(data) 
+                                    catch
+                                        data = {}
+                                    data[app.name] = app
+                                    fs.open '/usr/local/cozy/apps/stack.json', 'w', (err, fd) =>
+                                        fs.write fd, JSON.stringify(data), 0, data.length, 0, (err) =>
+                                            console.log err
+                            # Start application
+                            drones[app.name] = app
+                            startApp app, callback
 
 
 module.exports.start = (manifest, callback) ->
