@@ -1,13 +1,17 @@
 helpers = require "./helpers"
-client = helpers.getClient()
 fs = require 'fs'
 should = require('chai').Should()
 Client = require('request-json').JsonClient
+client = ""
+
 
 describe "Spawner", ->
 
     before helpers.cleanApp 
     before helpers.startApp
+    before =>
+        client = helpers.getClient()
+
     after helpers.stopApp
 
     describe "Installation", ->
@@ -226,3 +230,9 @@ describe "Spawner", ->
 
             it "And data-system repo should be removed", ->
                 fs.existsSync('/usr/local/cozy/apps/data-system').should.not.be.ok
+
+            it "And data-system has been removed from stack.json", ->
+                fs.existsSync('/usr/local/cozy/apps/stack.json').should.be.ok
+                stack = fs.readFileSync('/usr/local/cozy/apps/stack.json', 'utf8')
+                exist = stack.indexOf 'data-system'
+                exist.should.equal -1

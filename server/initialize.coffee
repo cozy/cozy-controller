@@ -1,6 +1,7 @@
 fs = require 'fs'
 Client = require('request-json').JsonClient
 controller = require './lib/controller'
+permission = require './middlewares/token'
 
 couchDBClient = new Client 'http://localhost:5984'
 clientDS = new Client 'http://localhost:9101'
@@ -50,6 +51,7 @@ initTokenFile = (callback) =>
             callback err if err?
             token = randomString()
             fs.writeFile '/etc/cozy/stack.token', token, (err) =>
+                permission.init(token)
                 callback(err) 
 
 module.exports.init = (callback) =>

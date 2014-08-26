@@ -1,48 +1,75 @@
 applications = require './applications'
 disk = require './disk'
+token = require '../middlewares/token'
 
 module.exports =
 
-    'apps/:name/start':
-        post: applications.start
+    'apps/:name/start': post: [
+            token.check
+            applications.start
+        ]
 
-    'apps/:name/install':
-        post: applications.install
-
-    # Old route
-    'drones/:slug/start':
-        post: applications.install
-
-    'apps/:name/stop':
-        post: applications.stop
+    'apps/:name/install':post: [
+            token.check
+            applications.install
+        ]
 
     # Old route
-    'drones/:slug/stop':
-        post: applications.stop
+    'drones/:slug/start': post: [
+            token.check
+            applications.install
+        ]
 
-    'apps/:name/update':
-        post: applications.update
-
-    # Old route
-    'drones/:name/light-update':
-        post: applications.update
-
-    'apps/:name/uninstall':
-            post: applications.uninstall
+    'apps/:name/stop': post: [
+            token.check
+            applications.stop
+        ]
 
     # Old route
-    'drones/:slug/clean':
-        post: applications.uninstall
+    'drones/:slug/stop': post: [
+            token.check
+            applications.stop
+        ]
 
-    'apps/all':
-        get: applications.all
+    'apps/:name/update': post: [
+            token.check
+            applications.update
+        ]
 
-    'apps/started':
-        get: applications.running
+    # Old route
+    'drones/:name/light-update': post: [
+            token.check
+            applications.update
+        ]
+
+    'apps/:name/uninstall': post: [
+            token.check
+            applications.uninstall
+        ]
+
+    # Old route
+    'drones/:slug/clean': post: [
+            token.check
+            applications.uninstall
+        ]
+
+    'apps/all': get: [
+            token.check
+            applications.all
+        ]
+
+    'apps/started': get: [
+            token.check
+            applications.running
+        ]
         
     # Old routes 
-    'drones/running':
-        get: applications.running
+    'drones/running': get: [
+            token.check
+            applications.running
+        ]
         
-    'diskinfo':
-        get: disk.info
+    'diskinfo': get: [
+            token.check
+            disk.info
+        ]
