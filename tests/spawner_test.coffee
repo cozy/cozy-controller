@@ -2,6 +2,7 @@ helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
 Client = require('request-json').JsonClient
+config = require('../server/lib/conf').get
 client = ""
 dsPort = ""
 server = ""
@@ -58,7 +59,7 @@ describe "Spawner", ->
                         start: "server.coffee"
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                     @res = res
-                    @port = body.port
+                    @port = body.drone.port
                     dsPort = @port
                     done()
 
@@ -66,7 +67,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 200
 
             it "And stack.token has been created", ->
-                fs.existsSync('/etc/cozy/stack.token').should.be.ok
+                fs.existsSync(config('file_token')).should.be.ok
 
             it "And data-system has been added in stack.json", ->
                 fs.existsSync('/usr/local/cozy/apps/stack.json').should.be.ok
@@ -166,7 +167,7 @@ describe "Spawner", ->
                         start: "server.coffee"
                 client.post 'apps/data-system/start', "start":app, (err, res, body) =>
                     @res = res
-                    @port = body.port
+                    @port = body.drone.port
                     dsPort = @port
                     done()
 

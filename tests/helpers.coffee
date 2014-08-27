@@ -39,7 +39,9 @@ helpers.getClient = (url = null) ->
     if url?
         return new Client url
     else
-        token = fs.readFileSync '/etc/cozy/stack.token', 'utf8'
+        config = require('../server/lib/conf').get
+        tokenFile = config('file_token')
+        token = fs.readFileSync tokenFile, 'utf8'
         client.setToken(token)
         return client
 

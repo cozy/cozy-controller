@@ -2,33 +2,28 @@ fs = require 'fs'
 spawner = require './spawner'
 npm = require './npm'
 repo = require './repo'
+user = require './user'
+stack = require './stack'
 type = []
 type['git'] = require './git'
-path = require 'path'
 App = require('./app').App
-spawn = require('child_process').spawn
+
+# drones contains all application
 drones = []
+# running contains all started application
 running = []    
+    
+stackApps = ['home', 'data-system', 'proxy']
 
-
-addUser = (app, callback) =>
-    env = {}
-    user = env.USER = app.user
-    appdir = env.HOME = app.userDir
-    child = spawn('bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], env: env)    
-
-    child.stderr.on 'data', (data) =>
-        console.log data.toString()
-    child.on 'exit', (code) =>
-        if code is 0
-            callback()
-        else
-            callback new Error('Unable to create user')
+## Helpers
 
 startApp = (app, callback) =>
-    if running[app]?
+    # Start Application
+    if running[app.name]?
+        # Check if an application with same already exists
         callback 'Application already exists'
     else
+        # Start application (with spawner)
         spawner.start app, (err, result) ->
             if err?
                 callback err
@@ -36,9 +31,22 @@ startApp = (app, callback) =>
                 err = new Error 'Unknown error from Spawner.'
                 callback err
             else
+                # Add application in drones and running variables
                 drones[app.name] = result.pkg
                 running[app.name] = result
                 callback null, result
+
+installDependencies = (app, test, callback) =>
+    test = test - 1
+    npm.install app, (err) =>
+        if err? and test is 0
+            callback err
+        else if err? 
+            installDependencies app, test, callback
+        else
+            callback()
+
+## Controller
 
 module.exports.install = (manifest, callback) =>
     app = new App manifest
@@ -51,7 +59,7 @@ module.exports.install = (manifest, callback) =>
         startApp app, callback
     else
         # Create user if necessary
-        addUser app, () =>
+        user.create app, () =>
             # Create repo (with permissions)  
             console.log("#{app.name}:create directory")
             repo.create app, (err) =>
@@ -64,23 +72,19 @@ module.exports.install = (manifest, callback) =>
                     else
                         # NPM install
                         console.log("#{app.name}:npm install")
-                        npm.install app, (err) =>
-                            callback err if err?
-                            console.log("#{app.name}:start application")                                                
-                            # If app is an stack application, we store this manifest in stack.json
-                            if app.name in ['data-system', 'home', 'proxy']  
-                                fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
-                                    try
-                                        data = JSON.parse(data) 
-                                    catch
-                                        data = {}
-                                    data[app.name] = app
-                                    fs.open '/usr/local/cozy/apps/stack.json', 'w', (err, fd) =>
-                                        fs.write fd, JSON.stringify(data), 0, data.length, 0, (err) =>
-                                            console.log err
-                            # Start application
-                            drones[app.name] = app
-                            startApp app, callback
+                        installDependencies app, 2, (err) =>
+                            if err?
+                                callback err
+                            else                                    
+                                console.log("#{app.name}:start application")                                                
+                                # If app is an stack application, 
+                                # we store this manifest in stack.json
+                                if app.name in stackApps  
+                                    stack.addApp app, (err) ->
+                                        console.log err
+                                # Start application
+                                drones[app.name] = app
+                                startApp app, callback
 
 
 module.exports.start = (manifest, callback) ->
@@ -100,17 +104,16 @@ module.exports.start = (manifest, callback) ->
 module.exports.stop = (name, callback) ->
     if running[name]?
         onStop = () =>
-            #running[name].removeListener('error', onErr)
             delete running[name]
+            callback null, name
         onErr = (err) =>
-            # Remark should we handle errors here
-            running[name].removeListener('stop', onStop)
+            callback err, name
         running[name].monitor.once 'stop', onStop
         running[name].monitor.once 'exit', onStop
         running[name].monitor.once 'error', onErr
         try 
             running[name].monitor.stop()
-            callback null, name
+            console.log "callback stop"
         catch err
             console.log err
             callback err, name
@@ -142,7 +145,7 @@ module.exports.uninstall = (name, callback) ->
         delete running[name]
 
     # If app is an stack application, we store this manifest in stack.json
-    if name in ['data-system', 'home', 'proxy']  
+    if name in stackApps 
         console.log("#{name}:remove from stack.json")
         fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
             try
@@ -186,6 +189,10 @@ module.exports.update = (name, callback) ->
                 callback null, result
         else
             callback null, app
+
+module.exports.addDrone = (app, callback) ->
+    drones[app.name] = app
+    callback()
 
 module.exports.all = (callback) ->
     callback null, drones

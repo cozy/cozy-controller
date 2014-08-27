@@ -9,13 +9,13 @@ application = module.exports = (callback) ->
         port: process.env.PORT or 9002
         host: process.env.HOST or "127.0.0.1"
         root: __dirname
-    init.init () =>
-    init.autostart (err) =>
-        if not err?
-            americano.start options, callback
-        else
-            console.log err
-            callback()
+    init.initFiles () =>
+        init.autostart (err) =>
+            if not err?
+                americano.start options, callback
+            else
+                console.log err
+                callback()
 
     process.on 'uncaughtException', (err) ->
         console.log err

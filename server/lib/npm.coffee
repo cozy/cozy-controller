@@ -1,5 +1,6 @@
 path = require 'path'
 spawn = require('child_process').spawn
+config = require('./conf').get
 
 
 module.exports.install = (target, callback) => 
@@ -15,17 +16,13 @@ module.exports.install = (target, callback) =>
       '--globalconfig', path.join(target.dir,'..','.globalconfig'),
       '--production'
     ]
-    ###if haibu.config.get('registry')?
+    if config('npm_registry')
         args.push('--registry')     
-        args.push(haibu.config.get('registry'))
-    if haibu.config.get('strict-ssl')?
+        args.push(config('npm_registry'))
+    if config('npm_strict_ssl')
         args.push('--strict-ssl')     
-        args.push(haibu.config.get('strict-ssl'))###  
+        args.push(config('npm_strict_ssl'))
     args.push('install')
-    ###args = [
-        '-u',
-        target.user
-        ].concat(args)###
     options =
         cwd: target.dir
     child = spawn 'sudo', args, options 
