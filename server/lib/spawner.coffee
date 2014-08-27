@@ -8,13 +8,14 @@ mixin = require('flatiron').common.mixin
 
 module.exports.start = (app, callback) ->
     result = {}
-    #@process.stop() if @process
+    @process.stop() if @process
 
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
         token = "test" #haibu.config.get('authToken') || ""
     else
         token = app.password;
+
     # Transmit application's name and token to drone
     env = 
         NAME: app.name
@@ -23,6 +24,7 @@ module.exports.start = (app, callback) ->
         USERNAME: app.user
         SUDO_USER: app.user
         HOME: app.userDir
+
     # Initialize forever options
     foreverOptions = 
         fork:      true
@@ -39,11 +41,27 @@ module.exports.start = (app, callback) ->
         killTTL:   0
         command:   'node'
 
-    # Create log files
-    if not fs.existsSync(app.logFile)
-        fs.openSync app.logFile, 'w'
-    if not fs.existsSync(app.errFile)
-        fs.openSync app.errFile, 'w'
+
+    ## Manage logFile and errFile
+    if fs.existsSync(app.logFile)
+        # If a logFile exists, create a backup
+        app.backup = app.logFile + "-backup"
+        if fs.existsSync(app.backup)
+            fs.unlink app.backup
+        fs.rename app.logFile, app.backup
+    # Create logFile
+    fs.openSync app.logFile, 'w'
+
+    if fs.existsSync(app.errFile)
+        # If errFile exists, create a backup
+        app.errBackup = app.errFile + "-backup"
+        if fs.existsSync(app.errBackup)
+            fs.unlink app.errBackup
+        fs.rename app.errFile, app.errBackup
+    # Create errFile
+    fs.openSync app.errFile, 'w'
+
+    # Initialize forever options
     foreverOptions.options = [
         '--plugin',
         'net',
@@ -51,6 +69,7 @@ module.exports.start = (app, callback) ->
         'setuid',
         '--setuid'
         app.user]
+
     # Check if server is in coffeescript
     if app.server.slice(app.server.lastIndexOf("."),app.server.length) is ".coffee"
         foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee'])
@@ -61,18 +80,14 @@ module.exports.start = (app, callback) ->
         if err?
             err = new Error "package.json error: can\'t find starting script: #{app.startScript}"
             callback err
+
+    # Initialize process
     foreverOptions.options.push(app.startScript);
     carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
     process = new forever.Monitor(carapaceBin, foreverOptions)
     responded = false
-    #process = new forever.Monitor(app.startScript, foreverOptions)
 
-    # Write output of application in his log file
-    onStdout = (data) ->
-        data = data.toString()
-
-    onStderr = (data) ->
-        data = data.toString()
+    ## Manage events of process
 
     onExit = () =>
         # Remove listeners to related events.
@@ -101,10 +116,6 @@ module.exports.start = (app, callback) ->
             data: data
             pid: monitor.childData.pid
             pkg: app
-        #console.log(data)
-        #process.removeListener 'exit', onExit
-        #callback null, data, process
-        #callback = null # avoid double call
 
     onRestart = () ->
         console.log "#{app.name}:restart"
@@ -132,13 +143,12 @@ module.exports.start = (app, callback) ->
             process.removeListener 'message', onPort
             clearTimeout timeout
 
+    # Start process
     process.start()
 
     timeout = setTimeout onTimeout, 8000000
 
     # Listen to the appropriate events and start the drone process.
-    process.on 'stdout', onStdout
-    process.on 'stderr', onStderr
     process.once 'exit', onExit
     process.once 'error', onError
     process.once 'start', onStart

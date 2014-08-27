@@ -73,7 +73,8 @@ helpers.clearDB = (db) -> (done) ->
         , 1000
 
 helpers.cleanApp = (done) ->
-    @timeout 10000
+    if @timeout?
+        @timeout 10000
     if fs.existsSync '/etc/cozy/stack.token'
         fs.unlinkSync '/etc/cozy/stack.token'
     if fs.existsSync '/usr/local/cozy/apps/stack.json'
