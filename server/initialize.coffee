@@ -18,25 +18,30 @@ randomString = (length=32) ->
 
 ### Files initialization ###
 
-## Init directory which contains applications source and file stack.json
-initAppsFiles = (callback) =>
-    if not fs.existsSync '/usr/local/cozy'
-        fs.mkdir '/usr/local/cozy', (err) =>
-            callback err if err?
-            fs.mkdir '/usr/local/cozy/apps', (err) =>
+initDir = (callback) =>
+    sourceDir = config('dir_source')
+    if sourceDir is '/usr/local/cozy/apps'
+        if not fs.existsSync '/usr/local/cozy'
+            fs.mkdir '/usr/local/cozy', (err) =>
                 callback err if err?
-                fs.open '/usr/local/cozy/apps/stack.json','w', (err) =>
-                    callback(err)
-    else if not fs.existsSync '/usr/local/cozy/apps'
-        fs.mkdir '/usr/local/cozy/apps', (err) =>
-            callback err if err?
-            fs.open '/usr/local/cozy/apps/stack.json','w', (err) =>
-                callback(err)
-    else if not fs.existsSync '/usr/local/cozy/apps/stack.json'
-        fs.open '/usr/local/cozy/apps/stack.json','w', (err) =>
-            callback(err)
+                fs.mkdir '/usr/local/cozy/apps', (err) =>
+                    callback err
+        else if not fs.existsSync '/usr/local/cozy/apps'
+            fs.mkdir '/usr/local/cozy/apps', (err) =>
+                callback err
+        else
+            callback()
     else
         callback()
+
+## Init directory which contains applications source and file stack.json
+initAppsFiles = (callback) =>
+    stackFile = config('file_stack')
+    initDir (err) =>
+        callback err if err?
+        fs.open stackFile,'w', (err) =>
+            callback(err)
+
 
 # Init directory which contains log files
 initLogFiles = (callback) =>
@@ -160,7 +165,7 @@ module.exports.autostart = (callback) =>
         if started
             # Start data-system
             console.log('couchDB: started')
-            fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
+            fs.readFile config('file_stack'), 'utf8', (err, data) =>
                 if data? or data is ""
                     try
                         data = JSON.parse(data)

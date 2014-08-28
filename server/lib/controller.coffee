@@ -147,15 +147,8 @@ module.exports.uninstall = (name, callback) ->
     # If app is an stack application, we store this manifest in stack.json
     if name in stackApps 
         console.log("#{name}:remove from stack.json")
-        fs.readFile '/usr/local/cozy/apps/stack.json', 'utf8', (err, data) =>
-            try
-                data = JSON.parse(data) 
-            catch
-                data = {}
-            delete data[name]
-            fs.open '/usr/local/cozy/apps/stack.json', 'w', (err, fd) =>
-                fs.write fd, JSON.stringify(data), 0, data.length, 0, (err) =>
-                    console.log err
+        stack.removeApp name, (err) ->
+            console.log err
 
     # Remove repo and log files
     if drones[name]?

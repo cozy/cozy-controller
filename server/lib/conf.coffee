@@ -31,7 +31,6 @@ module.exports.init = (callback) =>
                     data_system:    data.env.data_system || false
                     home:           data.env.home || false
                     proxy:          data.env.proxy || false
-            console.log conf
             callback()
 
 

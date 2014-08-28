@@ -70,8 +70,8 @@ describe "Spawner", ->
                 fs.existsSync(config('file_token')).should.be.ok
 
             it "And data-system has been added in stack.json", ->
-                fs.existsSync('/usr/local/cozy/apps/stack.json').should.be.ok
-                stack = fs.readFileSync('/usr/local/cozy/apps/stack.json', 'utf8')
+                fs.existsSync(config('file_stack')).should.be.ok
+                stack = fs.readFileSync(config('file_stack'), 'utf8')
                 exist = stack.indexOf 'data-system'
                 exist.should.not.equal -1
 
@@ -79,9 +79,9 @@ describe "Spawner", ->
                 fs.existsSync('/var/log/cozy/data-system.log').should.be.ok
 
             it "And data-system source should be imported (in /usr/local/cozy/apps/data-system/cozy-data-system", ->
-                fs.existsSync('/usr/local/cozy/apps/data-system').should.be.ok
-                fs.existsSync('/usr/local/cozy/apps/data-system/cozy-data-system').should.be.ok
-                fs.existsSync('/usr/local/cozy/apps/data-system/cozy-data-system/package.json').should.be.ok
+                fs.existsSync("#{config('dir_source')}/data-system").should.be.ok
+                fs.existsSync("#{config('dir_source')}/data-system/cozy-data-system").should.be.ok
+                fs.existsSync("#{config('dir_source')}/data-system/cozy-data-system/package.json").should.be.ok
 
             it "And data-system is started", (done) ->
                 clientDS = new Client "http://localhost:#{@port}"
@@ -236,7 +236,7 @@ describe "Spawner", ->
                 fs.existsSync('/usr/local/cozy/apps/data-system').should.not.be.ok
 
             it "And data-system has been removed from stack.json", ->
-                fs.existsSync('/usr/local/cozy/apps/stack.json').should.be.ok
-                stack = fs.readFileSync('/usr/local/cozy/apps/stack.json', 'utf8')
+                fs.existsSync(config('file_stack')).should.be.ok
+                stack = fs.readFileSync(config('file_stack'), 'utf8')
                 exist = stack.indexOf 'data-system'
                 exist.should.equal -1

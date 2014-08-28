@@ -1,10 +1,12 @@
 path = require "path"
-homeDir = '/usr/local/cozy/apps'
-
+config = require('./conf').get
 
 class exports.App
 
     constructor: (@app) ->
+        homeDir = config('dir_source')
+        logDir = config('dir_log')
+
         @app.userDir = path.join(homeDir, @app.name)
         @app.appDir = @app.userDir
         @app.user = 'cozy-' + @app.name
@@ -12,5 +14,5 @@ class exports.App
         @app.dir = path.join(@app.userDir, match[1])
         @app.server = @app.scripts.start
         @app.startScript = path.join(@app.dir, @app.server)
-        @app.logFile = "/var/log/cozy/#{app.name}.log"
-        @app.errFile = "/var/log/cozy/#{app.name}.err" 
+        @app.logFile = path.join(logDir, "/#{app.name}.log")
+        @app.errFile = path.join(logDir, "/#{app.name}.err")
