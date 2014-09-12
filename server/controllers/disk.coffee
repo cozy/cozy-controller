@@ -46,6 +46,8 @@ module.exports.info = (req, res, next) =>
                     if line.indexOf(databaseDirLine) is 0
                         dir = line.split('=')[1];
                 callback null, dir.trim()
+            else
+                callback err
 
     getCouchStoragePlace (err, dir) ->
         exec 'df -h', (err, resp) ->

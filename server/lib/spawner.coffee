@@ -4,7 +4,7 @@ path = require 'path'
 semver = require 'semver'
 exec = require('child_process').exec
 mixin = require('flatiron').common.mixin
-
+token = require('../middlewares/token')
 
 module.exports.start = (app, callback) ->
     result = {}
@@ -12,14 +12,14 @@ module.exports.start = (app, callback) ->
 
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
-        token = "test" #haibu.config.get('authToken') || ""
+        pwd = token.get()
     else
-        token = app.password;
+        pwd = app.password
 
     # Transmit application's name and token to drone
     env = 
         NAME: app.name
-        TOKEN: token
+        TOKEN: pwd
         USER: app.user
         USERNAME: app.user
         SUDO_USER: app.user

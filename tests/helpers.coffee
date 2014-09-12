@@ -6,6 +6,7 @@ logger = require('printit')
 helpers = {}
 fs = require 'fs'
 exec = require('child_process').exec
+controller = require '../server/lib/controller'
 
 # Mandatory
 process.env.TOKEN = "token"
@@ -55,7 +56,16 @@ helpers.startApp = (callback) ->
 
 helpers.stopApp = (app, done) ->
     setTimeout =>
-        app.server.close done
+        #exec 'ps -e u | grep node', (err, out) ->
+        #console.log out
+        controller.stopAll () =>
+        #console.log 'STOPALL'
+        #exec 'ps -e u | grep node', (err, out) ->
+            #console.log out
+            app.server.close () =>
+                #exec 'ps -e u | grep node', (err, out) ->
+                    #console.log out
+                done()
     , 250
 
 helpers.clearDB = (db) -> (done) ->
@@ -81,8 +91,8 @@ helpers.cleanApp = (done) ->
         fs.unlinkSync '/etc/cozy/stack.token'
     if fs.existsSync '/usr/local/cozy/apps/stack.json'
         fs.unlinkSync '/usr/local/cozy/apps/stack.json'
-    if fs.existsSync '/var/log/cozy/data-system.log'
-        fs.unlinkSync '/var/log/cozy/data-system.log'
+    #if fs.existsSync '/var/log/cozy/data-system.log'
+    #    fs.unlinkSync '/var/log/cozy/data-system.log'
     if fs.existsSync '/usr/local/cozy/apps/data-system'
         exec 'rm -rf /usr/local/cozy/apps/data-system', (err,out) ->
             console.log err

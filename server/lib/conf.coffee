@@ -1,12 +1,16 @@
 fs = require 'fs'
 
 conf = {}
+old_conf = {}
+patch = "0"
 
 readFile = (callback) =>
     if fs.existsSync '/etc/cozy/controller.json'
-        fs.readFile '/etc/cozy/controller.json', (err, data) =>
+        fs.readFile '/etc/cozy/controller.json', 'utf8', (err, data) =>
             try
+                console.log data
                 data = JSON.parse(data)
+                console.log data
                 callback null, data
             catch 
                 callback "Error : Configuration files isn't a correct json"
@@ -18,6 +22,11 @@ module.exports.init = (callback) =>
         if err?
             callback err
         else
+            if data.old?
+                old_conf =
+                    dir_log :           data.old.dir_log || false
+                    dir_source :        data.old.dir_source || false
+                    file_stack :        data.old.file_stack || false
             conf = 
                 npm_registry :      data.npm_registry || false
                 npm_strict_ssl :    data.npm_strict_ssl || false
@@ -31,9 +40,20 @@ module.exports.init = (callback) =>
                     data_system:    data.env.data_system || false
                     home:           data.env.home || false
                     proxy:          data.env.proxy || false
+            if data.patch?
+                patch = data.patch
             callback()
-
 
 
 module.exports.get = (arg) =>
     return conf[arg]
+
+module.exports.getOld = (arg) =>
+    return old_conf[arg]
+
+module.exports.patch = (arg) =>
+    return patch
+
+module.exports.removeOld = () =>    
+    fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
+        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>

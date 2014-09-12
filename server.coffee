@@ -9,8 +9,12 @@ application = module.exports = (callback) ->
         port: process.env.PORT or 9002
         host: process.env.HOST or "127.0.0.1"
         root: __dirname
-    init.initFiles () =>
+    init.init (err) =>
+        console.log err
+        callback(err) if err?
+
         init.autostart (err) =>
+            console.log err
             if not err?
                 americano.start options, callback
             else
@@ -18,11 +22,24 @@ application = module.exports = (callback) ->
                 callback()
 
     process.on 'uncaughtException', (err) ->
+        console.log "ERROR : "
         console.log err
 
     process.on 'exit', (code) ->
+        console.log "exit"
         controller.stopAll ()=>
             process.exit(code)
+
+    ###process.on 'close', (code) ->
+        controller.stopAll ()=>
+            console.log "stop"
+            process.exit(code)###
+
+    ###process.on "SIGINT", (code) ->
+        console.log "SIGINT"
+        controller.stopAll ()=>
+            process.exit(code)###
+
 
 
 if not module.parent

@@ -123,11 +123,13 @@ module.exports.stop = (name, callback) ->
         callback err
 
 module.exports.stopAll = (callback) ->
-    for name in running
+    console.log Object.keys(running)
+    for name in Object.keys(running)
         console.log("#{name}:stop application")
         onStop = () =>
             #running[name].removeListener('error', onErr)
             delete running[name]
+            console.log 'onStop'
         onErr = (err) =>
             # Remark should we handle errors here
             running[name].removeListener('stop', onStop)
@@ -135,7 +137,7 @@ module.exports.stopAll = (callback) ->
         running[name].monitor.once 'exit', onStop
         running[name].monitor.once 'error', onErr
         running[name].monitor.stop()
-        delete running[name]
+    callback()
 
 module.exports.uninstall = (name, callback) ->
     # Stop application

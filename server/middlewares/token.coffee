@@ -15,3 +15,7 @@ module.exports.check = (req, res, next) =>
             res.send 401,  "Application is not authenticated"
     else
         next()
+
+
+module.exports.get = () =>
+    return token
