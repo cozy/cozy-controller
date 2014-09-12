@@ -24,6 +24,7 @@ module.exports.start = (app, callback) ->
         USERNAME: app.user
         SUDO_USER: app.user
         HOME: app.userDir
+        NODE_ENV: process.env.NODE_ENV
 
     # Initialize forever options
     foreverOptions = 

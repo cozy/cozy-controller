@@ -13,7 +13,7 @@ module.exports.check = (function(_this) {
   return function(req, res, next) {
     var auth;
     if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
-      auth = req.header('x-auth-token');
+      auth = req.headers['x-auth-token'];
       if (auth !== "undefined" && (auth != null)) {
         if (auth !== token) {
           return res.send(403, "Application is not authorized");
