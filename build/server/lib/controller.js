@@ -62,6 +62,12 @@ installDependencies = (function(_this) {
   };
 })(this);
 
+module.exports.removeRunningApp = (function(_this) {
+  return function(name) {
+    return delete running[name];
+  };
+})(this);
+
 module.exports.install = (function(_this) {
   return function(manifest, callback) {
     var app;

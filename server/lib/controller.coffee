@@ -17,6 +17,7 @@ stackApps = ['home', 'data-system', 'proxy']
 
 ## Helpers
 
+
 startApp = (app, callback) =>
     # Start Application
     if running[app.name]?
@@ -47,6 +48,9 @@ installDependencies = (app, test, callback) =>
             callback()
 
 ## Controller
+
+module.exports.removeRunningApp = (name) =>
+    delete running[name]
 
 module.exports.install = (manifest, callback) =>
     app = new App manifest

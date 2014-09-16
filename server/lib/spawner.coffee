@@ -2,7 +2,8 @@ forever = require 'forever-monitor'
 fs = require 'fs'
 path = require 'path'
 exec = require('child_process').exec
-token = require('../middlewares/token')
+token = require '../middlewares/token'
+controller = require '../lib/controller'
 
 module.exports.start = (app, callback) ->
     result = {}
@@ -130,10 +131,8 @@ module.exports.start = (app, callback) ->
         onTimeout = () =>
             process.removeListener 'exit', onExit
             process.stop()
-
+            controller.removeRunningApp(app.name)
             err = new Error 'Error spawning drone'
-            err.stdout = stdout.join('\n');
-            err.stderr = stderr.join('\n');
 
             console.log 'callback timeout'
             callback err
