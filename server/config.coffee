@@ -1,15 +1,20 @@
-americano = require 'americano'
+americano = require('americano')
 
-
-config =
+module.exports =
+    common: [
+        americano.bodyParser(),
+        americano.methodOverride(),
+        americano.errorHandler({
+            dumpExceptions: true,
+            showStack: true
+        }),
+        americano.static(__dirname + '/../client/public', {
+            maxAge: 86400000
+        })
+    ],
     development: [
-        americano.logger 'dev'
-    ]
+        americano.logger('dev')
+    ],
     production: [
-        americano.logger 'short'
+        americano.logger('short')
     ]
-    plugins: [
-        'americano-cozy'
-    ]
-
-module.exports = config

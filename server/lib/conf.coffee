@@ -44,7 +44,6 @@ module.exports.init = (callback) =>
                 patch = data.patch
             callback()
 
-
 module.exports.get = (arg) =>
     return conf[arg]
 
@@ -54,6 +53,7 @@ module.exports.getOld = (arg) =>
 module.exports.patch = (arg) =>
     return patch
 
-module.exports.removeOld = () =>    
-    fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
-        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
+module.exports.removeOld = () =>  
+    if Object.keys(old_conf).length isnt 0
+        fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
+            fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>

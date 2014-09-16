@@ -22,8 +22,8 @@ application = module.exports = (callback) ->
                 callback()
 
     process.on 'uncaughtException', (err) ->
-        console.log "ERROR : "
         console.log err
+        console.log err.stack
 
     process.on 'exit', (code) ->
         console.log "exit"

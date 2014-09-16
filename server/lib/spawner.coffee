@@ -1,9 +1,7 @@
 forever = require 'forever-monitor'
 fs = require 'fs'
 path = require 'path'
-semver = require 'semver'
 exec = require('child_process').exec
-mixin = require('flatiron').common.mixin
 token = require('../middlewares/token')
 
 module.exports.start = (app, callback) ->

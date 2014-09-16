@@ -30,9 +30,12 @@ module.exports.start = (req, res, next) ->
 module.exports.stop = (req, res, next) ->
     # Stop application
     # Send an error if application isn't installed
-    if not req.body.stop or not req.body.stop.name
-        res.send 400, error: "Application name should be declared in body.stop.name"        
-    name = req.body.stop.name
+    if not req.body?
+        name = req.params.slug
+    else
+        if not req.body.stop or not req.body.stop.name
+            res.send 400, error: "Application name should be declared in body.stop.name"        
+        name = req.body.stop.name
     controller.stop name, (err, result) =>
         if err?
             res.send 400, error: err.toString()
@@ -42,10 +45,12 @@ module.exports.stop = (req, res, next) ->
 module.exports.uninstall = (req, res, next) ->
     # Uninstall application
     # Send an error if application isn't installed
-    if not req.body.name
-        res.send 400, error: "Application name should be declared in body.name"  
-    name = req.body.name
-    console.log name
+    if not req.body?
+        name = req.params.slug
+    else
+        if not req.body.name
+            res.send 400, error: "Application name should be declared in body.name"  
+        name = req.body.name
     controller.uninstall name, (err, result) =>
         if err
             res.send 400, error:err
