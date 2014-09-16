@@ -177,7 +177,7 @@ initTokenFile = (function(_this) {
     }
     return fs.open(tokenFile, 'w', function(err, fd) {
       if (err) {
-        return callback("We cannot create token file. As you sure, you have a good path ?");
+        return callback("We cannot create token file. " + "Are you sure, token file configuration is a good path ?");
       } else {
         return fs.chmod(tokenFile, '0600', function(err) {
           var token;

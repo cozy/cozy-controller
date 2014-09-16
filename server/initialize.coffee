@@ -107,7 +107,8 @@ initTokenFile = (callback) =>
         fs.unlinkSync tokenFile
     fs.open tokenFile, 'w', (err, fd) =>
         if err
-            callback "We cannot create token file. As you sure, you have a good path ?"
+            callback "We cannot create token file. " +
+                     "Are you sure, token file configuration is a good path ?"
         else
             fs.chmod tokenFile, '0600', (err) =>
                 callback err if err?

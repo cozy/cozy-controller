@@ -52,12 +52,6 @@ application = module.exports = function(callback) {
         };
       })(this));
     });
-
-    /*process.on 'close', (code) ->
-        controller.stopAll ()=>
-            console.log "stop"
-            process.exit(code)
-     */
     return process.on('SIGTERM', function() {
       console.log("exit");
       return controller.stopAll((function(_this) {
@@ -66,12 +60,6 @@ application = module.exports = function(callback) {
         };
       })(this));
     });
-
-    /*process.on "SIGINT", (code) ->
-        console.log "SIGINT"
-        controller.stopAll ()=>
-            process.exit(code)
-     */
   }
 };
 

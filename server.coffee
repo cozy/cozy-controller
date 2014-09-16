@@ -34,22 +34,10 @@ application = module.exports = (callback) ->
             controller.stopAll ()=>
                 process.exit(code)
 
-        ###process.on 'close', (code) ->
-            controller.stopAll ()=>
-                console.log "stop"
-                process.exit(code)###
-
         process.on 'SIGTERM', () ->
             console.log "exit"
             controller.stopAll ()=>
                 process.exit(code)
-
-        ###process.on "SIGINT", (code) ->
-            console.log "SIGINT"
-            controller.stopAll ()=>
-                process.exit(code)###
-
-
 
 if not module.parent
     application()
