@@ -222,7 +222,7 @@ module.exports.update = function(name, callback) {
   restart = false;
   if (running[name] != null) {
     console.log("" + name + ":stop application");
-    running[name].stop();
+    running[name].monitor.stop();
     restart = true;
   }
   app = drones[name];

@@ -171,7 +171,7 @@ module.exports.update = (name, callback) ->
     restart = false
     if running[name]?
         console.log("#{name}:stop application")
-        running[name].stop()
+        running[name].monitor.stop()
         restart = true
     app = drones[name]
     console.log("#{name}:update application")
