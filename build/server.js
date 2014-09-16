@@ -9,7 +9,7 @@ controller = require('./server/lib/controller');
 
 application = module.exports = function(callback) {
   var err, options;
-  if (process.env.USER !== 'root') {
+  if ((process.env.USER != null) && process.env.USER !== 'root') {
     err = "Are you sure, you are root ?";
     console.log(err);
     if (callback != null) {

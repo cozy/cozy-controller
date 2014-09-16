@@ -3,7 +3,7 @@ init = require './server/initialize'
 controller = require './server/lib/controller'
 
 application = module.exports = (callback) ->
-    if process.env.USER isnt 'root'
+    if process.env.USER? and process.env.USER isnt 'root'
         err = "Are you sure, you are root ?"
         console.log err
         callback(err) if callback?
