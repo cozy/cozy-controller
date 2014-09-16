@@ -12,9 +12,6 @@ module.exports.init = (function(_this) {
 module.exports.check = (function(_this) {
   return function(req, res, next) {
     var auth;
-    console.log('body : ');
-    console.log(req.body);
-    console.log(req);
     if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
       auth = req.headers['x-auth-token'];
       if (auth !== "undefined" && (auth != null)) {
