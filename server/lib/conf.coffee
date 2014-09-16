@@ -2,7 +2,7 @@ fs = require 'fs'
 
 ## Global variables
 conf = {}
-old_conf = {}
+oldConf = {}
 patch = "0"
 
 ###
@@ -25,7 +25,7 @@ readFile = (callback) =>
     Initialize configuration
         * Use configuration store in configuration file or default configuration
         * conf : Current configuration
-        * old_conf : Old configuration, usefull to move source code between different configurations for example
+        * oldConf : Old configuration, usefull to move source code between different configurations for example
         * patch : usefull between old and new controller
 ###
 module.exports.init = (callback) =>
@@ -34,7 +34,7 @@ module.exports.init = (callback) =>
             callback err
         else
             if data.old?
-                old_conf =
+                oldConf =
                     dir_log :           data.old.dir_log || false
                     dir_source :        data.old.dir_source || false
                     file_stack :        data.old.file_stack || false
@@ -65,7 +65,7 @@ module.exports.get = (arg) =>
     Return old configuration for <arg>
 ###
 module.exports.getOld = (arg) =>
-    return old_conf[arg]
+    return oldConf[arg]
 
 ###
     Return patch (is a number) :
@@ -81,6 +81,6 @@ module.exports.patch = (arg) =>
         * Usefull after changes (move code soource for example)
 ###
 module.exports.removeOld = () =>  
-    if Object.keys(old_conf).length isnt 0
+    if Object.keys(oldConf).length isnt 0
         fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
             fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
