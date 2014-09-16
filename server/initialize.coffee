@@ -10,7 +10,6 @@ oldConfig = require('./lib/conf').getOld
 patch = require './lib/patch'
 
 couchDBClient = new Client 'http://localhost:5984'
-clientDS = new Client 'http://localhost:9101'
 
 # Usefull to create stack token
 randomString = (length=32) ->
@@ -191,7 +190,7 @@ errors = {}
         * else
             * Add application in list of installed application
 ###
-start = (apps, callback) =>
+start = (apps, clientDS, callback) =>
     if apps? and apps.length > 0
         appli = apps.pop()
         app = appli.value
@@ -263,7 +262,7 @@ startStack = (data, app, callback) =>
                     clearTimeout(timeout)
                     console.log("#{app}: started")
                     setTimeout () =>
-                        callback()
+                        callback(null, result.port)
                     , 1000
     else
         err = new Error "#{app} isn't installed"
@@ -294,25 +293,28 @@ module.exports.autostart = (callback) =>
                         callback()
                         err = true
                     if not err?
-                        startStack data, 'data-system', (err) =>
+                        startStack data, 'data-system', (err, port) =>
                             if err?
                                 callback err
                             else
                                 # Start others apps
+                                clientDS = new Client "http://localhost:#{port}"
                                 clientDS.setBasicAuth 'home', permission.get()
                                 clientDS.post '/request/application/all/', {}, 
                                     (err, res, body) =>
-                                        console.log err if err?
-                                        start body, (errors) =>
-                                            console.log errors if errors isnt {}
-                                            #callback err if err
-                                            # Start home
-                                            startStack data, 'home', (err) =>
-                                                console.log err if err?
-                                                # Start proxy
-                                                startStack data, 'proxy', (err) =>
+                                        if res.statusCode is 404
+                                            callback()
+                                        else
+                                            start body, clientDS, (errors) =>
+                                                console.log errors if errors isnt {}
+                                                #callback err if err
+                                                # Start home
+                                                startStack data, 'home', (err) =>
                                                     console.log err if err?
-                                                    callback()       
+                                                    # Start proxy
+                                                    startStack data, 'proxy', (err) =>
+                                                        console.log err if err?
+                                                        callback()
                 else
                     console.log "Cannot read stack file"
                     callback(err)
