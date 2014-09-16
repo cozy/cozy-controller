@@ -1,7 +1,9 @@
 fs = require 'fs'
 exec = require('child_process').exec
 
-
+###
+    Return disk space information
+###
 module.exports.info = (req, res, next) =>
     freeMemCmd =
         "free | grep cache: | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
@@ -15,7 +17,8 @@ module.exports.info = (req, res, next) =>
             val = "" + (parseFloat(val) * 1000)
         return val
 
-
+    # Extract disk information from couchDB stored in dir and response <resp>
+    # of command df -H
     extractDataFromDfResult =  (dir, resp) ->
         data = {}
         lines = resp.split('\n')

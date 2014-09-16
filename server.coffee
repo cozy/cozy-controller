@@ -39,6 +39,11 @@ application = module.exports = (callback) ->
                 console.log "stop"
                 process.exit(code)###
 
+        process.on 'SIGTERM', () ->
+            console.log "exit"
+            controller.stopAll ()=>
+                process.exit(code)
+
         ###process.on "SIGINT", (code) ->
             console.log "SIGINT"
             controller.stopAll ()=>

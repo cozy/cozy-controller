@@ -19,8 +19,11 @@ randomString = (length=32) ->
     string.substr 0, length
 
 
-### Files initialization ###
+############################ Files initialization ##############################
 
+###
+    Initialize directory for application source code
+###
 initNewDir = (callback) =>
     sourceDir = config('dir_source')
     if sourceDir is '/usr/local/cozy/apps'
@@ -37,6 +40,9 @@ initNewDir = (callback) =>
     else
         callback()
 
+###
+    Remove old source directory if configuration has changed
+###
 removeOldDir = (callback) =>
     newDir = config('dir_source')
     oldDir = oldConfig('dir_source')
@@ -47,7 +53,11 @@ removeOldDir = (callback) =>
             fs.rename oldDir, newDir, (err) =>
                 callback(err)
 
-
+###
+    Initialize source directory
+        * Create new directory
+        * Remove old directory if necessary
+###
 initDir = (callback) =>
     initNewDir (err) =>
         if err?
@@ -56,9 +66,11 @@ initDir = (callback) =>
             if oldConfig('dir_source')
                 removeOldDir callback
             else
-                callback()
+                callback()           
 
-## Init directory which contains applications source and file stack.json
+### 
+    Initialize source code directory and stack.json file
+###
 initAppsFiles = (callback) =>
     console.log 'init: source dir'
     stackFile = config('file_stack')
@@ -72,8 +84,9 @@ initAppsFiles = (callback) =>
             else
                 callback()
 
-
-# Init directory which contains log files
+###
+    Initialize directory which contains log files
+###
 initLogFiles = (callback) =>
     console.log 'init: log files'
     if not fs.existsSync '/var/log/cozy'
@@ -82,7 +95,9 @@ initLogFiles = (callback) =>
     else
         callback()
 
-# Init stack token stored in '/etc/cozy/stack.token'
+###
+    Init stack token stored in '/etc/cozy/stack.token'
+###
 initTokenFile = (callback) =>
     console.log "init : token file"
     tokenFile = config('file_token')
@@ -101,6 +116,12 @@ initTokenFile = (callback) =>
                     permission.init(token)
                     callback(err) 
 
+### 
+    Initialize files :
+        * Initialize configuration
+        * Apply patch if necessary
+        * Initialize files
+###
 module.exports.init = (callback) =>
     conf.init (err) =>
         if err
@@ -117,22 +138,33 @@ module.exports.init = (callback) =>
             else
                 initFiles callback
 
+### 
+    Initialize files :
+        * Initialize stack file and directory of source code
+        * Initialize log files
+        * Initialize token file
+###
 initFiles = (callback) =>
-    console.log "initFiles"
     initAppsFiles (err) =>
         if err
             callback err
         else
             initLogFiles (err) =>
                 conf.removeOld()
-                if process.env.NODE_ENV is "production" or process.env.NODE_ENV is "test"
-                    initTokenFile callback
+                if process.env.NODE_ENV is "production" or 
+                    process.env.NODE_ENV is "test"
+                        initTokenFile callback
                 else
                     callback()
 
-### Autostart ###
 
-# Test if couchDB is started
+############################### Autostart ######################################
+
+###
+    Check if couchDB is started
+        * If couchDB isn't startec check again after 5 secondes
+        * Return error after <test> (by default 5) tests
+###
 couchDBStarted = (test=5, callback) =>
     couchDBClient.get '/', (err, res, body) =>
         if not err?
@@ -145,8 +177,19 @@ couchDBStarted = (test=5, callback) =>
             else
                 callback false
 
+# Store all error in application started
 errors = {}
-# Start all applications (other than stack applications)
+
+###
+    Start all applications (other than stack applications)
+        * Recover manifest application from document stored in database
+        * If it state is 'installed'
+            * Start application
+            * Check if application is started
+            * Update application port in database
+        * else
+            * Add application in list of installed application
+###
 start = (apps, callback) =>
     if apps? and apps.length > 0
         appli = apps.pop()
@@ -179,7 +222,12 @@ start = (apps, callback) =>
     else
         callback()
 
-# Check if application is started
+###
+    Check if application is started
+        * Try to request application
+        * If status code is not 200, 403 or 500 return an error
+        (proxy return 500)
+###
 checkStart = (port, callback) =>
     client = new Client "http://localhost:#{port}"
     client.get "", (err, res) =>
@@ -190,7 +238,13 @@ checkStart = (port, callback) =>
         else
             checkStart port, callback
 
-# Start stack application
+###
+    Start stack application <app> defined in <data>
+        * Check if application is defined in <data>
+        * Start application
+        * Check if application is started
+
+###
 startStack = (data, app, callback) =>
     if data[app]?
         console.log("#{app}: starting ...")
@@ -214,14 +268,18 @@ startStack = (data, app, callback) =>
         err = new Error "#{app} isn't installed"
         callback err
 
-# Autostart : Stack (dans /usr/local/cozy/stack.json) + apps via couchDB
+###
+    Autostart :
+        * Stack application are declared in file stack 
+            ( /usr/local/cozy/stack.json by default)
+        *  Other applications are declared in couchDB
+###
 module.exports.autostart = (callback) =>
     console.log("### AUTOSTART ###")
     couchDBStarted 5, (started) =>
         if started
             # Start data-system
             console.log('couchDB: started')
-            console.log config('file_stack')
             fs.readFile config('file_stack'), 'utf8', (err, data) =>
                 if data? or data is ""
                     try
@@ -241,18 +299,19 @@ module.exports.autostart = (callback) =>
                             else
                                 # Start others apps
                                 clientDS.setBasicAuth 'home', permission.get()
-                                clientDS.post '/request/application/all/', {}, (err, res, body) =>
-                                    console.log err if err?
-                                    start body, (errors) =>
-                                        console.log errors if errors isnt {}
-                                        #callback err if err
-                                        # Start home
-                                        startStack data, 'home', (err) =>
-                                            console.log err if err?
-                                            # Start proxy
-                                            startStack data, 'proxy', (err) =>
+                                clientDS.post '/request/application/all/', {}, 
+                                    (err, res, body) =>
+                                        console.log err if err?
+                                        start body, (errors) =>
+                                            console.log errors if errors isnt {}
+                                            #callback err if err
+                                            # Start home
+                                            startStack data, 'home', (err) =>
                                                 console.log err if err?
-                                                callback()       
+                                                # Start proxy
+                                                startStack data, 'proxy', (err) =>
+                                                    console.log err if err?
+                                                    callback()       
                 else
                     console.log "Cannot read stack file"
                     callback(err)

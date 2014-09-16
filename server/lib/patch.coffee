@@ -18,6 +18,7 @@ getRepo = (name) =>
         if rep.indexOf('.') is -1
             return rep
 
+# Move directory from <source> to <dest>
 move = (source, dest, callback) ->
     child = spawn 'sudo', ["mv", source, dest]
     child.stderr.setEncoding('utf8')
@@ -30,6 +31,7 @@ move = (source, dest, callback) ->
         else   
             callback()
 
+# Remove directory <dir>
 rm = (dir, callback) ->
     child = spawn 'sudo', ["rm", "-rf", dir]
     child.stderr.setEncoding('utf8')

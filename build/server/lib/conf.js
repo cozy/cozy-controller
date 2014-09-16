@@ -9,14 +9,19 @@ old_conf = {};
 
 patch = "0";
 
+
+/*
+    Read configuration file
+        * Use default configuration if file doesn't exist
+        * Return error if configuration file is not a correct json
+ */
+
 readFile = (function(_this) {
   return function(callback) {
     if (fs.existsSync('/etc/cozy/controller.json')) {
       return fs.readFile('/etc/cozy/controller.json', 'utf8', function(err, data) {
         try {
-          console.log(data);
           data = JSON.parse(data);
-          console.log(data);
           return callback(null, data);
         } catch (_error) {
           return callback("Error : Configuration files isn't a correct json");
@@ -27,6 +32,15 @@ readFile = (function(_this) {
     }
   };
 })(this);
+
+
+/*
+    Initialize configuration
+        * Use configuration store in configuration file or default configuration
+        * conf : Current configuration
+        * old_conf : Old configuration, usefull to move source code between different configurations for example
+        * patch : usefull between old and new controller
+ */
 
 module.exports.init = (function(_this) {
   return function(callback) {
@@ -66,11 +80,21 @@ module.exports.init = (function(_this) {
   };
 })(this);
 
+
+/*
+    Return configuration for <arg>
+ */
+
 module.exports.get = (function(_this) {
   return function(arg) {
     return conf[arg];
   };
 })(this);
+
+
+/*
+    Return old configuration for <arg>
+ */
 
 module.exports.getOld = (function(_this) {
   return function(arg) {
@@ -78,11 +102,25 @@ module.exports.getOld = (function(_this) {
   };
 })(this);
 
+
+/*
+    Return patch (is a number) :
+        0 -> no patch
+        1 -> Patch between haibu and cozy-controller
+ */
+
 module.exports.patch = (function(_this) {
   return function(arg) {
     return patch;
   };
 })(this);
+
+
+/*
+    Remove Old configuration
+        * Rewrite file configuration without old configuration
+        * Usefull after changes (move code soource for example)
+ */
 
 module.exports.removeOld = (function(_this) {
   return function() {

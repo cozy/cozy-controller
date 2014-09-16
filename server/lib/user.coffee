@@ -1,6 +1,10 @@
 spawn = require('child_process').spawn
 path = require 'path'
 
+###
+    Create user cozy-<app>
+        Use script adduser.sh
+###
 module.exports.create = (app, callback) =>    # 
     env = {}
     user = env.USER = app.user
@@ -15,6 +19,9 @@ module.exports.create = (app, callback) =>    #
         else
             callback new Error('Unable to create user')
 
+###
+    Remove appplication user
+###
 module.exports.remove = (app, callback) =>    # 
     ## TODOS
     callback()

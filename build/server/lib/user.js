@@ -5,6 +5,12 @@ spawn = require('child_process').spawn;
 
 path = require('path');
 
+
+/*
+    Create user cozy-<app>
+        Use script adduser.sh
+ */
+
 module.exports.create = (function(_this) {
   return function(app, callback) {
     var appdir, child, env, user;
@@ -26,6 +32,11 @@ module.exports.create = (function(_this) {
     });
   };
 })(this);
+
+
+/*
+    Remove appplication user
+ */
 
 module.exports.remove = (function(_this) {
   return function(app, callback) {

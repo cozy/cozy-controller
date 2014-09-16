@@ -13,6 +13,11 @@ token = require('../middlewares/token');
 
 controller = require('../lib/controller');
 
+
+/*
+    Start application <app> with forever-monitor and carapace
+ */
+
 module.exports.start = function(app, callback) {
   var env, foreverOptions, pwd, result, _ref;
   result = {};

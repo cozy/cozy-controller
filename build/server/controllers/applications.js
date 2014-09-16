@@ -3,6 +3,13 @@ var controller;
 
 controller = require('../lib/controller');
 
+
+/*
+    Install application. 
+        * Check if application is declared in body.start
+        * if application is already installed, just start it
+ */
+
 module.exports.install = (function(_this) {
   return function(req, res, next) {
     var manifest;
@@ -27,6 +34,14 @@ module.exports.install = (function(_this) {
     });
   };
 })(this);
+
+
+/*
+    Start application
+        * Check if application is declared in body.start
+        * Check if application is installed
+        * Start application
+ */
 
 module.exports.start = function(req, res, next) {
   var manifest;
@@ -53,14 +68,22 @@ module.exports.start = function(req, res, next) {
   })(this));
 };
 
+
+/*
+    Stop application
+        * Check if application is installed
+        * Stop application
+ */
+
 module.exports.stop = function(req, res, next) {
-  var name;
+  var err, name;
   if (req.body == null) {
     name = req.params.slug;
   } else {
     if (!req.body.stop || !req.body.stop.name) {
+      err = "Application name should be declared in body.stop.name";
       res.send(400, {
-        error: "Application name should be declared in body.stop.name"
+        error: err
       });
     }
     name = req.body.stop.name;
@@ -80,14 +103,22 @@ module.exports.stop = function(req, res, next) {
   })(this));
 };
 
+
+/*
+    Uninstall application
+        * Check if application is installed
+        * Uninstall application
+ */
+
 module.exports.uninstall = function(req, res, next) {
-  var name;
+  var err, name;
   if (req.body == null) {
     name = req.params.slug;
   } else {
     if (!req.body.name) {
+      err = "Application name should be declared in body.name";
       res.send(400, {
-        error: "Application name should be declared in body.name"
+        error: err
       });
     }
     name = req.body.name;
@@ -107,11 +138,19 @@ module.exports.uninstall = function(req, res, next) {
   })(this));
 };
 
+
+/*
+    Update application
+        * Check if application is installed
+        * Update appplication
+ */
+
 module.exports.update = function(req, res, next) {
-  var name;
+  var err, name;
   if (!req.body.update || !req.body.update.name) {
+    err = "Application name should be declared in body.update.name";
     res.send(400, {
-      error: "Application name should be declared in body.update.name"
+      error: err
     });
   }
   name = req.body.update.name;
@@ -130,6 +169,11 @@ module.exports.update = function(req, res, next) {
   })(this));
 };
 
+
+/*
+    Return a list with all applications
+ */
+
 module.exports.all = function(req, res, next) {
   return controller.all((function(_this) {
     return function(err, result) {
@@ -145,6 +189,11 @@ module.exports.all = function(req, res, next) {
     };
   })(this));
 };
+
+
+/*
+    Return a list with all started applications
+ */
 
 module.exports.running = function(req, res, next) {
   return controller.running((function(_this) {

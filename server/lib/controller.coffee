@@ -8,16 +8,25 @@ type = []
 type['git'] = require './git'
 App = require('./app').App
 
+
+########################### Global variables ###################################
+
 # drones contains all application
 drones = []
 # running contains all started application
 running = []    
-    
+
 stackApps = ['home', 'data-system', 'proxy']
 
-## Helpers
 
+############################### Helpers ########################################
 
+###
+    Start Application <app>
+        * check if application isn't started
+        * start process
+        * add application in drones and running 
+###
 startApp = (app, callback) =>
     # Start Application
     if running[app.name]?
@@ -37,6 +46,55 @@ startApp = (app, callback) =>
                 running[app.name] = result
                 callback null, result
 
+###
+    Stop all applications in tab <apps>
+###
+stopApps = (apps, callback) ->
+    if apps.length > 0
+        app = apps.pop()
+        stopApp app, () ->
+            console.log("#{app}:stop application")
+            stopApps apps, callback
+    else
+        callback()
+
+###
+    Stop application <name>
+        * Stop process
+        * Catch event exit (or error)
+        * Delete application in running
+###
+stopApp = (name, callback) =>
+    monitor = running[name].monitor
+    onStop = () =>
+        # Avoid double callback
+        monitor.removeListener 'error', onErr
+        monitor.removeListener 'exit', onStop
+        monitor.removeListener 'stop', onStop
+        delete running[name]
+        callback null, name
+    onErr = (err) =>
+        # Avoid double callback
+        monitor.removeListener 'stop', onStop
+        monitor.removeListener 'exit', onStop
+        callback err, name
+
+    monitor.once 'stop', onStop
+    monitor.once 'exit', onStop
+    monitor.once 'error', onErr
+    try 
+        monitor.stop()
+        # Wait event exit to callback
+    catch err
+        console.log err
+        callback err, name
+        onErr err
+
+###
+    Install depdencies of application <app> <test> times
+        * Try to install dependencies (npm install)
+        * If installation return an error, try again (if <test> isnt 0)
+###
 installDependencies = (app, test, callback) =>
     test = test - 1
     npm.install app, (err) =>
@@ -47,11 +105,26 @@ installDependencies = (app, test, callback) =>
         else
             callback()
 
-## Controller
 
+############################## Controller ######################################
+
+###
+    Remove application <name> from running
+        Userfull if application exit with timeout
+###
 module.exports.removeRunningApp = (name) =>
     delete running[name]
 
+###
+    Install applicaton defineed by <manifest>
+        * Check if application isn't already installed
+        * Create user cozy-<name> if necessary
+        * Create application repo for source code
+        * Clone source in repo
+        * Install dependencies
+        * If application is a stack application, add application in stack.json
+        * Start process
+###
 module.exports.install = (manifest, callback) =>
     app = new App manifest
     app = app.app
@@ -90,7 +163,11 @@ module.exports.install = (manifest, callback) =>
                                 drones[app.name] = app
                                 startApp app, callback
 
-
+###
+    Start aplication defined by <manifest>
+        * Check if application is installed
+        * Start process
+###
 module.exports.start = (manifest, callback) ->
     app = new App manifest
     app = app.app
@@ -104,60 +181,48 @@ module.exports.start = (manifest, callback) ->
         err = new Error 'Cannot start an application not installed'
         callback err
 
-
+###
+    Stop application <name>
+        * Check if application is started
+        * Stop process
+###
 module.exports.stop = (name, callback) ->
     if running[name]?
-        onStop = () =>
-            delete running[name]
-            callback null, name
-        onErr = (err) =>
-            callback err, name
-        running[name].monitor.once 'stop', onStop
-        running[name].monitor.once 'exit', onStop
-        running[name].monitor.once 'error', onErr
-        try 
-            running[name].monitor.stop()
-            console.log "callback stop"
-        catch err
-            console.log err
-            callback err, name
-            onErr err
+        stopApp name, callback
     else
         err = new Error 'Cannot stop an application not started'
         callback err
 
+###
+    Stop all started applications
+        Usefull when controller is stopped
+###
 module.exports.stopAll = (callback) ->
-    console.log Object.keys(running)
-    for name in Object.keys(running)
-        console.log("#{name}:stop application")
-        onStop = () =>
-            #running[name].removeListener('error', onErr)
-            delete running[name]
-            console.log 'onStop'
-        onErr = (err) =>
-            # Remark should we handle errors here
-            running[name].removeListener('stop', onStop)
-        running[name].monitor.once 'stop', onStop
-        running[name].monitor.once 'exit', onStop
-        running[name].monitor.once 'error', onErr
-        running[name].monitor.stop()
-    callback()
+    stopApps Object.keys(running), callback
 
+###
+    Uninstall application <name>
+        * Check if application is installed
+        * Stop application if appplication is started
+        * Remove from stack.json if application is a stack application
+        * Remove code source
+        * Delete application from drones (and running if necessary)
+###
 module.exports.uninstall = (name, callback) ->
-    # Stop application
-    if running[name]?
-        console.log("#{name}:stop application")
-        running[name].monitor.stop()
-        delete running[name]
-
-    # If app is an stack application, we store this manifest in stack.json
-    if name in stackApps 
-        console.log("#{name}:remove from stack.json")
-        stack.removeApp name, (err) ->
-            console.log err
-
-    # Remove repo and log files
     if drones[name]?
+        # Stop application
+        if running[name]?
+            console.log("#{name}:stop application")
+            running[name].monitor.stop()
+            delete running[name]
+
+        # If app is an stack application, we store this manifest in stack.json
+        if name in stackApps 
+            console.log("#{name}:remove from stack.json")
+            stack.removeApp name, (err) ->
+                console.log err
+
+        # Remove repo and log files
         app = drones[name]
         # Remove repo
         repo.delete app, (err) =>
@@ -171,32 +236,59 @@ module.exports.uninstall = (name, callback) ->
         console.log err
         callback err
 
+###
+    Update an application <name>
+        * Check if application is installed
+        * Stop application if application is started
+        * Update code source (git pull / npm install)
+        * Restart application if it was started
+###
 module.exports.update = (name, callback) ->
-    restart = false
-    if running[name]?
-        console.log("#{name}:stop application")
-        running[name].monitor.stop()
-        delete running[name]
-        restart = true
-    app = drones[name]
-    console.log("#{name}:update application")
-    type[app.repository.type].update app, (err) =>
-        callback err if err?
-        if restart
-            startApp app, (err, result) =>
-                console.log("#{name}:start application")
-                callback err if err?
-                callback null, result
-        else
-            callback null, app
+    if drones[name]?
+        restart = false
+        if running[name]?
+            console.log("#{name}:stop application")
+            stopApp name, callback
+            restart = true
+        app = drones[name]
+        console.log("#{name}:update application")
+        type[app.repository.type].update app, (err) =>
+            if err?
+                callback err
+            else
+                installDependencies app, 2, (err) =>
+                    if err?
+                        callback err
+                    else    
+                        if restart
+                            startApp app, (err, result) =>
+                                console.log("#{name}:start application")
+                                callback err if err?
+                                callback null, result
+                        else
+                            callback null, app
+    else
+        err = new Error 'Application is not installed'
+        console.log err
+        callback err
 
+###
+    Add application <app> in drone
+        Usefull for autostart
+###
 module.exports.addDrone = (app, callback) ->
     drones[app.name] = app
     callback()
 
+###
+    Return all applications (started or stopped)
+###
 module.exports.all = (callback) ->
     callback null, drones
 
+###
+    Return all started applications
+###
 module.exports.running = (callback) ->
     apps = []
     for app in drones

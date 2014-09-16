@@ -1,6 +1,12 @@
 fs = require 'fs'
 spawn = require('child_process').spawn
 
+###
+    Create repository of <app>
+        * Create application directory
+        * Change directory permissions
+        * Chage directory owner
+###
 module.exports.create = (app, callback) =>
     if app.repository?.type is 'git'
         changeOwner = (path, callback) =>
@@ -21,6 +27,7 @@ module.exports.create = (app, callback) =>
                                 if mkAppErr?
                                     callback mkAppErr, false
                     callback null, true
+                    
             if userErr?
                 fs.mkdir app.userDir, "0755", (mkUserErr) =>
                     changeOwner app.userDir, (err) =>
@@ -33,7 +40,11 @@ module.exports.create = (app, callback) =>
         err = new Error "Controller can spawn only git repo"
         callback err
 
-
+###
+    Delete repository of <app>
+        * Remove app directory
+        * Remove log files
+###
 module.exports.delete = (app, callback) =>
     child = spawn 'rm', ['-rf', app.userDir]
     child.on 'exit', (code) =>

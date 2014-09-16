@@ -44,7 +44,7 @@ application = module.exports = function(callback) {
       console.log(err);
       return console.log(err.stack);
     });
-    return process.on('exit', function(code) {
+    process.on('exit', function(code) {
       console.log("exit");
       return controller.stopAll((function(_this) {
         return function() {
@@ -58,6 +58,14 @@ application = module.exports = function(callback) {
             console.log "stop"
             process.exit(code)
      */
+    return process.on('SIGTERM', function() {
+      console.log("exit");
+      return controller.stopAll((function(_this) {
+        return function() {
+          return process.exit(code);
+        };
+      })(this));
+    });
 
     /*process.on "SIGINT", (code) ->
         console.log "SIGINT"

@@ -5,6 +5,14 @@ fs = require('fs');
 
 spawn = require('child_process').spawn;
 
+
+/*
+    Create repository of <app>
+        * Create application directory
+        * Change directory permissions
+        * Chage directory owner
+ */
+
 module.exports.create = (function(_this) {
   return function(app, callback) {
     var changeOwner, err, _ref;
@@ -55,6 +63,13 @@ module.exports.create = (function(_this) {
     }
   };
 })(this);
+
+
+/*
+    Delete repository of <app>
+        * Remove app directory
+        * Remove log files
+ */
 
 module.exports["delete"] = (function(_this) {
   return function(app, callback) {

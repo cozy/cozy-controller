@@ -7,6 +7,17 @@ exec = require('child_process').exec;
 
 request = require('request');
 
+
+/*
+    Initialize repository of <app>
+        * Check if git url exist
+            * url isn't a github url
+            * repo doesn't exist in github
+        * Clone repo (with one depth)
+        * Change branch if necessary
+        * Init submodule
+ */
+
 module.exports.init = (function(_this) {
   return function(app, callback) {
     var err, match, url;
@@ -64,6 +75,15 @@ module.exports.init = (function(_this) {
     });
   };
 })(this);
+
+
+/*
+    Update repository of <app>
+        * Check if git url exist
+            * url isn't a github url
+        * Pull changes
+        * Update submodule
+ */
 
 module.exports.update = (function(_this) {
   return function(app, callback) {

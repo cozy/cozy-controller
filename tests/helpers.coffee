@@ -60,8 +60,6 @@ helpers.stopApp = (app, done) ->
         #console.log out
         controller.stopAll () =>
         #console.log 'STOPALL'
-        #exec 'ps -e u | grep node', (err, out) ->
-            #console.log out
             app.server.close () =>
                 #exec 'ps -e u | grep node', (err, out) ->
                     #console.log out
@@ -91,6 +89,8 @@ helpers.cleanApp = (done) ->
         fs.unlinkSync '/etc/cozy/stack.token'
     if fs.existsSync '/usr/local/cozy/apps/stack.json'
         fs.unlinkSync '/usr/local/cozy/apps/stack.json'
+    if fs.existsSync '/usr/local/cozy/stack.json'
+        fs.unlinkSync '/usr/local/cozy/stack.json'
     #if fs.existsSync '/var/log/cozy/data-system.log'
     #    fs.unlinkSync '/var/log/cozy/data-system.log'
     if fs.existsSync '/usr/local/cozy/apps/data-system'

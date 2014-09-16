@@ -3,11 +3,24 @@ var token;
 
 token = "";
 
+
+/*
+    Initalise token in RAM
+ */
+
 module.exports.init = (function(_this) {
   return function(current_token) {
     return token = current_token;
   };
 })(this);
+
+
+/*
+    Check if request in authenticated :
+        * Return 401 as error code if request hasn't a token
+        * return 403 as error code if token is bad
+        * Continue if token is correct
+ */
 
 module.exports.check = (function(_this) {
   return function(req, res, next) {
@@ -28,6 +41,12 @@ module.exports.check = (function(_this) {
     }
   };
 })(this);
+
+
+/*
+    Return token 
+        Usefull in spawner to transmit token to stack application
+ */
 
 module.exports.get = (function(_this) {
   return function() {

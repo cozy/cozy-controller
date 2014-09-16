@@ -38,7 +38,9 @@ randomString = function(length) {
 };
 
 
-/* Files initialization */
+/*
+    Initialize directory for application source code
+ */
 
 initNewDir = (function(_this) {
   return function(callback) {
@@ -67,6 +69,11 @@ initNewDir = (function(_this) {
   };
 })(this);
 
+
+/*
+    Remove old source directory if configuration has changed
+ */
+
 removeOldDir = (function(_this) {
   return function(callback) {
     var newDir, oldDir;
@@ -84,6 +91,13 @@ removeOldDir = (function(_this) {
   };
 })(this);
 
+
+/*
+    Initialize source directory
+        * Create new directory
+        * Remove old directory if necessary
+ */
+
 initDir = (function(_this) {
   return function(callback) {
     return initNewDir(function(err) {
@@ -99,6 +113,11 @@ initDir = (function(_this) {
     });
   };
 })(this);
+
+
+/* 
+    Initialize source code directory and stack.json file
+ */
 
 initAppsFiles = (function(_this) {
   return function(callback) {
@@ -122,6 +141,11 @@ initAppsFiles = (function(_this) {
   };
 })(this);
 
+
+/*
+    Initialize directory which contains log files
+ */
+
 initLogFiles = (function(_this) {
   return function(callback) {
     console.log('init: log files');
@@ -134,6 +158,11 @@ initLogFiles = (function(_this) {
     }
   };
 })(this);
+
+
+/*
+    Init stack token stored in '/etc/cozy/stack.token'
+ */
 
 initTokenFile = (function(_this) {
   return function(callback) {
@@ -166,6 +195,14 @@ initTokenFile = (function(_this) {
   };
 })(this);
 
+
+/* 
+    Initialize files :
+        * Initialize configuration
+        * Apply patch if necessary
+        * Initialize files
+ */
+
 module.exports.init = (function(_this) {
   return function(callback) {
     return conf.init(function(err) {
@@ -191,9 +228,16 @@ module.exports.init = (function(_this) {
   };
 })(this);
 
+
+/* 
+    Initialize files :
+        * Initialize stack file and directory of source code
+        * Initialize log files
+        * Initialize token file
+ */
+
 initFiles = (function(_this) {
   return function(callback) {
-    console.log("initFiles");
     return initAppsFiles(function(err) {
       if (err) {
         return callback(err);
@@ -212,7 +256,11 @@ initFiles = (function(_this) {
 })(this);
 
 
-/* Autostart */
+/*
+    Check if couchDB is started
+        * If couchDB isn't startec check again after 5 secondes
+        * Return error after <test> (by default 5) tests
+ */
 
 couchDBStarted = (function(_this) {
   return function(test, callback) {
@@ -236,6 +284,18 @@ couchDBStarted = (function(_this) {
 })(this);
 
 errors = {};
+
+
+/*
+    Start all applications (other than stack applications)
+        * Recover manifest application from document stored in database
+        * If it state is 'installed'
+            * Start application
+            * Check if application is started
+            * Update application port in database
+        * else
+            * Add application in list of installed application
+ */
 
 start = (function(_this) {
   return function(apps, callback) {
@@ -281,6 +341,14 @@ start = (function(_this) {
   };
 })(this);
 
+
+/*
+    Check if application is started
+        * Try to request application
+        * If status code is not 200, 403 or 500 return an error
+        (proxy return 500)
+ */
+
 checkStart = (function(_this) {
   return function(port, callback) {
     var client;
@@ -298,6 +366,14 @@ checkStart = (function(_this) {
     });
   };
 })(this);
+
+
+/*
+    Start stack application <app> defined in <data>
+        * Check if application is defined in <data>
+        * Start application
+        * Check if application is started
+ */
 
 startStack = (function(_this) {
   return function(data, app, callback) {
@@ -333,6 +409,14 @@ startStack = (function(_this) {
   };
 })(this);
 
+
+/*
+    Autostart :
+        * Stack application are declared in file stack 
+            ( /usr/local/cozy/stack.json by default)
+        *  Other applications are declared in couchDB
+ */
+
 module.exports.autostart = (function(_this) {
   return function(callback) {
     console.log("### AUTOSTART ###");
@@ -340,7 +424,6 @@ module.exports.autostart = (function(_this) {
       var err;
       if (started) {
         console.log('couchDB: started');
-        console.log(config('file_stack'));
         return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
           if ((data != null) || data === "") {
             try {

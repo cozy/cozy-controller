@@ -5,6 +5,11 @@ fs = require('fs');
 
 exec = require('child_process').exec;
 
+
+/*
+    Return disk space information
+ */
+
 module.exports.info = (function(_this) {
   return function(req, res, next) {
     var extractDataFromDfResult, extractValueFromDfValue, freeMemCmd, getCouchStoragePlace;

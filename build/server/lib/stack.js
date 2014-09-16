@@ -5,10 +5,17 @@ fs = require('fs');
 
 config = require('./conf').get;
 
+
+/*
+    Add application <app> in stack.json
+        * read stack file
+        * parse date (in json)
+        * add application <app>
+        * write stack file with new stack applications
+ */
+
 module.exports.addApp = (function(_this) {
   return function(app, callback) {
-    console.log("add App");
-    console.log(config('file_sack'));
     return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
       try {
         data = JSON.parse(data);
@@ -22,6 +29,15 @@ module.exports.addApp = (function(_this) {
     });
   };
 })(this);
+
+
+/*
+    Remove application <name> from stack.json
+        * read stack file
+        * parse date (in json)
+        * remove application <name>
+        * write stack file with new stack applications
+ */
 
 module.exports.removeApp = (function(_this) {
   return function(name, callback) {

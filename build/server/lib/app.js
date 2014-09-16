@@ -5,6 +5,11 @@ path = require("path");
 
 config = require('./conf').get;
 
+
+/*
+    Usefull to translate application stored in database in manifest
+ */
+
 exports.App = (function() {
   function App(app) {
     var homeDir, logDir, match;

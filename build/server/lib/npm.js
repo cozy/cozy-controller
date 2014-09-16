@@ -7,6 +7,14 @@ spawn = require('child_process').spawn;
 
 config = require('./conf').get;
 
+
+/*
+  Install dependencies 
+      * Use strict-ssl or specific npm_registry in function of configuration
+      * Npm install
+      * Remove npm cache
+ */
+
 module.exports.install = (function(_this) {
   return function(target, callback) {
     var args, child, options, stderr;

@@ -2,9 +2,19 @@ path = require 'path'
 exec = require('child_process').exec
 request = require 'request'
 
+###
+    Initialize repository of <app>
+        * Check if git url exist
+            * url isn't a github url
+            * repo doesn't exist in github
+        * Clone repo (with one depth)
+        * Change branch if necessary
+        * Init submodule
+###
 module.exports.init = (app, callback) =>
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
     if not match
+        # Url isn't a github url
         err = new Error('Invalid git url: ' + app.repository.url)
         err.blame = 
             type: 'user'   
@@ -15,6 +25,7 @@ module.exports.init = (app, callback) =>
     url = app.repository.url
     request.get url.substr(0, (url.length-4)), (err, res, body) ->
         if res.statusCode isnt 200
+            # Repo doesn't exist in github
             err = new Error('Invalid git url: ' + url)
             err.blame = 
                 type: 'user'   
@@ -49,6 +60,13 @@ module.exports.init = (app, callback) =>
                         callback()
             executeUntilEmpty()
 
+###
+    Update repository of <app>
+        * Check if git url exist
+            * url isn't a github url
+        * Pull changes
+        * Update submodule
+###
 module.exports.update = (app, callback) =>  
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
     if not match

@@ -1,6 +1,9 @@
 path = require "path"
 config = require('./conf').get
 
+###
+    Usefull to translate application stored in database in manifest
+###
 class exports.App
 
     constructor: (@app) ->

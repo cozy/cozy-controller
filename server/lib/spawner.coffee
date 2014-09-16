@@ -5,6 +5,9 @@ exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
 
+###
+    Start application <app> with forever-monitor and carapace
+###
 module.exports.start = (app, callback) ->
     result = {}
     @process.stop() if @process
