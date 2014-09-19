@@ -7,7 +7,6 @@ App = require('./lib/app').App
 conf = require './lib/conf'
 config = require('./lib/conf').get
 oldConfig = require('./lib/conf').getOld
-patch = require './lib/patch'
 
 couchDBClient = new Client 'http://localhost:5984'
 

@@ -60,7 +60,7 @@ module.exports.init = (callback) =>
                 dir_log :           data.dir_log || '/var/log/cozy'
                 dir_source :        data.dir_source || '/usr/local/cozy/apps'
                 file_token :        data.file_token || '/etc/cozy/stack.token'
-                file_stack :        data.file_stack || '/usr/local/cozy/apps/stack.json'
+            conf.file_stack = data.dir_source + '/stack.json'
             if data.env?
                 conf.env =
                     global:         data.env.global || false
@@ -87,7 +87,13 @@ module.exports.getOld = (arg) =>
         * Usefull after changes (move code soource for example)
 ###
 module.exports.backupConfig= () =>  
+    displayConf =
+        npm_registry : conf.npm_registry
+        npm_strict_ssl : conf.npm_strict_ssl
+        dir_log : conf.dir_log
+        dir_source : conf.dir_source
+
     fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
-        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
+        fs.write fd, JSON.stringify(displayConf), 0, displayConf.length, 0, () =>
     fs.open "/etc/cozy/.controller-backup.json", 'w', (err, fd) =>
-        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
+        fs.write fd, JSON.stringify(displayConf), 0, displayConf.length, 0, () =>

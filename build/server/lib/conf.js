@@ -80,9 +80,9 @@ module.exports.init = (function(_this) {
           npm_strict_ssl: data.npm_strict_ssl || false,
           dir_log: data.dir_log || '/var/log/cozy',
           dir_source: data.dir_source || '/usr/local/cozy/apps',
-          file_token: data.file_token || '/etc/cozy/stack.token',
-          file_stack: data.file_stack || '/usr/local/cozy/apps/stack.json'
+          file_token: data.file_token || '/etc/cozy/stack.token'
         };
+        conf.file_stack = data.dir_source + '/stack.json';
         if (data.env != null) {
           conf.env = {
             global: data.env.global || false,
@@ -128,11 +128,18 @@ module.exports.getOld = (function(_this) {
 
 module.exports.backupConfig = (function(_this) {
   return function() {
+    var displayConf;
+    displayConf = {
+      npm_registry: conf.npm_registry,
+      npm_strict_ssl: conf.npm_strict_ssl,
+      dir_log: conf.dir_log,
+      dir_source: conf.dir_source
+    };
     fs.open("/etc/cozy/controller.json", 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(conf), 0, conf.length, 0, function() {});
+      return fs.write(fd, JSON.stringify(displayConf), 0, displayConf.length, 0, function() {});
     });
     return fs.open("/etc/cozy/.controller-backup.json", 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(conf), 0, conf.length, 0, function() {});
+      return fs.write(fd, JSON.stringify(displayConf), 0, displayConf.length, 0, function() {});
     });
   };
 })(this);
