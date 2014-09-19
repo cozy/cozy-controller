@@ -37,13 +37,7 @@ module.exports.start = (req, res, next) ->
         * Stop application
 ###
 module.exports.stop = (req, res, next) ->
-    if not req.body?
-        name = req.params.slug
-    else
-        if not req.body.stop or not req.body.stop.name
-            err = "Application name should be declared in body.stop.name"   
-            res.send 400, error: err
-        name = req.body.stop.name
+    name = req.params.name
     controller.stop name, (err, result) =>
         if err?
             res.send 400, error: err.toString()
@@ -56,13 +50,7 @@ module.exports.stop = (req, res, next) ->
         * Uninstall application
 ###
 module.exports.uninstall = (req, res, next) ->
-    if not req.body?
-        name = req.params.slug
-    else
-        if not req.body.name
-            err = "Application name should be declared in body.name"
-            res.send 400, error: err
-        name = req.body.name
+    name = req.params.name
     controller.uninstall name, (err, result) =>
         if err
             res.send 400, error:err
@@ -75,10 +63,7 @@ module.exports.uninstall = (req, res, next) ->
         * Update appplication
 ###
 module.exports.update = (req, res, next) ->
-    if not req.body.update or not req.body.update.name
-        err = "Application name should be declared in body.update.name"
-        res.send 400, error: err
-    name = req.body.update.name
+    name = req.params.name
     controller.update name, (err, result) =>
         if err
             res.send 400, error:err

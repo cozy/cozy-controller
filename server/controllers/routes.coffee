@@ -15,7 +15,7 @@ module.exports =
         ]
 
     # Old route
-    'drones/:slug/start': post: [
+    'drones/:name/start': post: [
             token.check
             applications.install
         ]
@@ -26,7 +26,7 @@ module.exports =
         ]
 
     # Old route
-    'drones/:slug/stop': post: [
+    'drones/:name/stop': post: [
             token.check
             applications.stop
         ]
@@ -48,7 +48,7 @@ module.exports =
         ]
 
     # Old route
-    'drones/:slug/clean': post: [
+    'drones/:name/clean': post: [
             token.check
             applications.uninstall
         ]

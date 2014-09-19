@@ -17,7 +17,7 @@ module.exports.check = (req, res, next) =>
         auth = req.headers['x-auth-token']
         if auth isnt "undefined" and auth?
             if auth isnt token
-                res.send 403, "Application is not authorized"
+                res.send 401, "Token is not correct"
             else
                 next()
         else

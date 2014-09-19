@@ -127,16 +127,9 @@ module.exports.init = (callback) =>
         if err
             callback err 
         else
-            if conf.patch() is "1"
-                patch.apply (err) =>
-                    if err
-                        callback err
-                    else
-                        initFiles (err) =>
-                            conf.removeOld()
-                            callback err
-            else
-                initFiles callback
+            initFiles (err) =>
+                conf.backupConfig()
+                callback err
 
 ### 
     Initialize files :
@@ -150,7 +143,7 @@ initFiles = (callback) =>
             callback err
         else
             initLogFiles (err) =>
-                conf.removeOld()
+                conf.backupConfig()
                 if process.env.NODE_ENV is "production" or 
                     process.env.NODE_ENV is "test"
                         initTokenFile callback
@@ -207,18 +200,18 @@ start = (apps, clientDS, callback) =>
                     console.log("#{app.name}: error")
                     console.log err
                     errors[app.name] = new Error "Application doesn't started" 
-                    start apps, callback
+                    controller.addDrone app, () =>
+                        start apps, clientDS, callback
                 else
                     appli = appli.value
                     appli.port = result.port
-                    clientDS.setBasicAuth 'home', permission.get()
                     clientDS.put '/data/', appli, (err, res, body) =>
                         console.log("#{app.name}: started")
-                        start apps, callback
+                        start apps, clientDS, callback
         else
             app = new App(app)
             controller.addDrone app.app, () =>
-                start apps, callback
+                start apps, clientDS, callback
     else
         callback()
 

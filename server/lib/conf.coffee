@@ -15,12 +15,21 @@ readFile = (callback) =>
         fs.readFile '/etc/cozy/controller.json', 'utf8', (err, data) =>
             try
                 data = JSON.parse(data)
-                callback null, data
+                data.old = {}
             catch 
                 callback "Error : Configuration files isn't a correct json"
+            if fs.existsSync '/etc/cozy/.controller-backup.json'
+                fs.readFile '/etc/cozy/.controller-backup.json', 'utf8', (err, oldData) =>
+                    try
+                        data.old = JSON.parse(oldData)
+                        callback null, data
+                    catch 
+                        callback null, data
+            else
+                callback null, data
     else
         callback null, {}
-
+    
 ###
     Initialize configuration
         * Use configuration store in configuration file or default configuration
@@ -33,11 +42,18 @@ module.exports.init = (callback) =>
         if err?
             callback err
         else
-            if data.old?
-                oldConf =
-                    dir_log :           data.old.dir_log || false
-                    dir_source :        data.old.dir_source || false
-                    file_stack :        data.old.file_stack || false
+            if data.old.dir_log isnt data.dir_log
+                oldConf.dir_log = data.old.dir_log 
+            else 
+                oldConf.dir_log = false
+            if data.old.dir_source isnt data.dir_source
+                oldConf.dir_source = data.old.dir_source 
+            else 
+                oldConf.dir_source = false
+            if data.old.file_stack isnt data.file_stack
+                oldConf.file_stack = data.old.file_stack 
+            else 
+                oldConf.file_stack = false
             conf = 
                 npm_registry :      data.npm_registry || false
                 npm_strict_ssl :    data.npm_strict_ssl || false
@@ -51,8 +67,6 @@ module.exports.init = (callback) =>
                     data_system:    data.env.data_system || false
                     home:           data.env.home || false
                     proxy:          data.env.proxy || false
-            if data.patch?
-                patch = data.patch
             callback()
 
 ###
@@ -68,19 +82,12 @@ module.exports.getOld = (arg) =>
     return oldConf[arg]
 
 ###
-    Return patch (is a number) :
-        0 -> no patch
-        1 -> Patch between haibu and cozy-controller
-###
-module.exports.patch = (arg) =>
-    return patch
-
-###
     Remove Old configuration
         * Rewrite file configuration without old configuration
         * Usefull after changes (move code soource for example)
 ###
-module.exports.removeOld = () =>  
-    if Object.keys(oldConf).length isnt 0
-        fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
-            fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
+module.exports.backupConfig= () =>  
+    fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
+        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
+    fs.open "/etc/cozy/.controller-backup.json", 'w', (err, fd) =>
+        fs.write fd, JSON.stringify(conf), 0, conf.length, 0, () =>
