@@ -57,24 +57,10 @@ readFile = (function(_this) {
 module.exports.init = (function(_this) {
   return function(callback) {
     return readFile(function(err, data) {
+      var _ref, _ref1, _ref2;
       if (err != null) {
         return callback(err);
       } else {
-        if (data.old.dir_log !== data.dir_log) {
-          oldConf.dir_log = data.old.dir_log;
-        } else {
-          oldConf.dir_log = false;
-        }
-        if (data.old.dir_source !== data.dir_source) {
-          oldConf.dir_source = data.old.dir_source;
-        } else {
-          oldConf.dir_source = false;
-        }
-        if (data.old.file_stack !== data.file_stack) {
-          oldConf.file_stack = data.old.file_stack;
-        } else {
-          oldConf.file_stack = false;
-        }
         conf = {
           npm_registry: data.npm_registry || false,
           npm_strict_ssl: data.npm_strict_ssl || false,
@@ -82,7 +68,24 @@ module.exports.init = (function(_this) {
           dir_source: data.dir_source || '/usr/local/cozy/apps',
           file_token: data.file_token || '/etc/cozy/stack.token'
         };
-        conf.file_stack = data.dir_source + '/stack.json';
+        conf.file_stack = conf.dir_source + '/stack.json';
+        console.log(data.old);
+        console.log;
+        if ((((_ref = data.old) != null ? _ref.dir_log : void 0) != null) && data.old.dir_log !== conf.dir_log) {
+          oldConf.dir_log = data.old.dir_log;
+        } else {
+          oldConf.dir_log = false;
+        }
+        if ((((_ref1 = data.old) != null ? _ref1.dir_source : void 0) != null) && data.old.dir_source !== conf.dir_source) {
+          oldConf.dir_source = data.old.dir_source;
+        } else {
+          oldConf.dir_source = false;
+        }
+        if ((((_ref2 = data.old) != null ? _ref2.file_stack : void 0) != null) && data.old.file_stack !== conf.file_stack) {
+          oldConf.file_stack = data.old.file_stack;
+        } else {
+          oldConf.file_stack = false;
+        }
         if (data.env != null) {
           conf.env = {
             global: data.env.global || false,

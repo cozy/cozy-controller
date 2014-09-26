@@ -42,25 +42,25 @@ module.exports.init = (callback) =>
         if err?
             callback err
         else
-            if data.old.dir_log isnt data.dir_log
-                oldConf.dir_log = data.old.dir_log 
-            else 
-                oldConf.dir_log = false
-            if data.old.dir_source isnt data.dir_source
-                oldConf.dir_source = data.old.dir_source 
-            else 
-                oldConf.dir_source = false
-            if data.old.file_stack isnt data.file_stack
-                oldConf.file_stack = data.old.file_stack 
-            else 
-                oldConf.file_stack = false
-            conf = 
+            conf =
                 npm_registry :      data.npm_registry || false
                 npm_strict_ssl :    data.npm_strict_ssl || false
                 dir_log :           data.dir_log || '/var/log/cozy'
                 dir_source :        data.dir_source || '/usr/local/cozy/apps'
                 file_token :        data.file_token || '/etc/cozy/stack.token'
-            conf.file_stack = data.dir_source + '/stack.json'
+            conf.file_stack = conf.dir_source + '/stack.json'
+            if data.old?.dir_log? and data.old.dir_log isnt conf.dir_log
+                oldConf.dir_log = data.old.dir_log 
+            else 
+                oldConf.dir_log = false
+            if data.old?.dir_source? and data.old.dir_source isnt conf.dir_source
+                oldConf.dir_source = data.old.dir_source 
+            else 
+                oldConf.dir_source = false
+            if data.old?.file_stack? and data.old.file_stack isnt conf.file_stack
+                oldConf.file_stack = data.old.file_stack 
+            else 
+                oldConf.file_stack = false
             if data.env?
                 conf.env =
                     global:         data.env.global || false
