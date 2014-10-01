@@ -43,11 +43,11 @@ module.exports.init = (callback) =>
             callback err
         else
             ###conf =
-                npm_registry :      data.npm_registry || false
-                npm_strict_ssl :    data.npm_strict_ssl || false
-                dir_log :           data.dir_log || '/var/log/cozy'
-                dir_source :        data.dir_source || '/usr/local/cozy/apps'
-                file_token :        data.file_token || '/etc/cozy/stack.token'
+                npm_registry :      data.npm_registry or false
+                npm_strict_ssl :    data.npm_strict_ssl or false
+                dir_log :           data.dir_log or '/var/log/cozy'
+                dir_source :        data.dir_source or '/usr/local/cozy/apps'
+                file_token :        data.file_token or '/etc/cozy/stack.token'
             conf.file_stack = conf.dir_source + '/stack.json'
             if data.old?.dir_log? and data.old.dir_log isnt conf.dir_log
                 oldConf.dir_log = data.old.dir_log 
@@ -62,18 +62,18 @@ module.exports.init = (callback) =>
             else 
                 oldConf.file_stack = false###
             conf =
-                npm_registry :   data.npm_registry || false
-                npm_strict_ssl : data.npm_strict_ssl || false
+                npm_registry :   data.npm_registry or false
+                npm_strict_ssl : data.npm_strict_ssl or false
                 dir_log :        '/var/log/cozy'
                 dir_source :     '/usr/local/cozy/apps'
                 file_token :     '/etc/cozy/stack.token'
             conf.file_stack = conf.dir_source + '/stack.json'
             if data.env?
                 conf.env =
-                    global:         data.env.global || false
-                    "data-system":  data.env['data-system'] || false
-                    home:           data.env.home || false
-                    proxy:          data.env.proxy || false
+                    global:         data.env.global or false
+                    "data-system":  data.env['data-system'] or false
+                    home:           data.env.home or false
+                    proxy:          data.env.proxy or false
             callback()
 
 ###
