@@ -49,6 +49,9 @@ helpers.getClient = (url = null) ->
 initializeApplication = require "#{helpers.prefix}server"
 
 helpers.startApp = (callback) ->
+    console.log 'startApp : '
+    controller.all (err, apps) ->
+        console.log apps
     initializeApplication (app, server) =>
         @app = app
         @app.server = server
@@ -60,10 +63,11 @@ helpers.stopApp = (app, done) ->
         #console.log out
         controller.stopAll () =>
         #console.log 'STOPALL'
-            app.server.close () =>
-                #exec 'ps -e u | grep node', (err, out) ->
-                    #console.log out
-                done()
+            controller.removeDrones () =>
+                @app.server.close () =>
+                    #exec 'ps -e u | grep node', (err, out) ->
+                        #console.log out
+                    done()
     , 250
 
 helpers.clearDB = (db) -> (done) ->

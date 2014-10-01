@@ -27,7 +27,7 @@ describe "Git", ->
                     type: "git"
                 scripts:
                     start: "server.coffee"
-            client.post 'apps/data-system/install', "start": app, (err, res, body) =>
+            client.post 'apps/data-systel/install', "start": app, (err, res, body) =>
                 @res = res
                 @body = body
                 done()

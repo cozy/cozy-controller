@@ -28,6 +28,7 @@ stackApps = ['home', 'data-system', 'proxy']
         * add application in drones and running 
 ###
 startApp = (app, callback) =>
+    console.log "startApp : #{app.name}"
     # Start Application
     if running[app.name]?
         # Check if an application with same already exists
@@ -221,20 +222,20 @@ module.exports.uninstall = (name, callback) ->
             console.log("#{name}:remove from stack.json")
             stack.removeApp name, (err) ->
                 console.log err
-
         # Remove repo and log files
         app = drones[name]
         # Remove repo
         repo.delete app, (err) =>
             console.log("#{name}:delete directory")
             # Remove drone in RAM
-            delete drones[name]
+            if drones[name]?
+                delete drones[name]
             callback err if err
             callback null, name
     else
-        err = new Error 'Application is not installed'
-        console.log err
+        err = new Error 'Cannot uninstall an application not installed'
         callback err
+
 
 ###
     Update an application <name>
@@ -279,6 +280,16 @@ module.exports.update = (name, callback) ->
 module.exports.addDrone = (app, callback) ->
     drones[app.name] = app
     callback()
+
+###
+    remove drones
+        Usefull for tests
+###
+module.exports.removeDrones = (callback) ->
+    drones = []
+    running = []
+    callback()
+
 
 ###
     Return all applications (started or stopped)

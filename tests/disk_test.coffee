@@ -35,4 +35,3 @@ describe "Disk info", ->
 
     it "And body should be have usedDiskSpace attribute", ->
         should.exist @body.usedDiskSpace
-

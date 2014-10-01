@@ -36,6 +36,7 @@ stackApps = ['home', 'data-system', 'proxy'];
 
 startApp = (function(_this) {
   return function(app, callback) {
+    console.log("startApp : " + app.name);
     if (running[app.name] != null) {
       return callback('Application already exists');
     } else {
@@ -284,7 +285,9 @@ module.exports.uninstall = function(name, callback) {
     return repo["delete"](app, (function(_this) {
       return function(err) {
         console.log("" + name + ":delete directory");
-        delete drones[name];
+        if (drones[name] != null) {
+          delete drones[name];
+        }
         if (err) {
           callback(err);
         }
@@ -292,8 +295,7 @@ module.exports.uninstall = function(name, callback) {
       };
     })(this));
   } else {
-    err = new Error('Application is not installed');
-    console.log(err);
+    err = new Error('Cannot uninstall an application not installed');
     return callback(err);
   }
 };
@@ -358,6 +360,18 @@ module.exports.update = function(name, callback) {
 
 module.exports.addDrone = function(app, callback) {
   drones[app.name] = app;
+  return callback();
+};
+
+
+/*
+    remove drones
+        Usefull for tests
+ */
+
+module.exports.removeDrones = function(callback) {
+  drones = [];
+  running = [];
   return callback();
 };
 

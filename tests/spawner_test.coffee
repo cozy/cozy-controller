@@ -84,20 +84,20 @@ describe "Spawner", ->
                 fs.existsSync("#{config('dir_source')}/data-system/cozy-data-system/package.json").should.be.ok
 
             it "And data-system is started", (done) ->
-                clientDS = new Client "http://localhost:#{@port}"
+                clientDS = new Client "http://localhost:#{@port}/"
                 clientDS.get '/', (err, res) ->
                     res.statusCode.should.equal 200
                     done()
 
     describe "Stop application", ->
 
-        describe "Stop application with bad argument", ->
+        describe "Stop application which isn't installed", ->
 
             it "When I try to stop application", (done) ->
                 @timeout 100000
                 app = 
-                    name: "data-system"
-                client.post 'apps/data-system/stop', app, (err, res, body) =>
+                    name: "data-systel"
+                client.post 'apps/data-systel/stop', app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -105,9 +105,9 @@ describe "Spawner", ->
             it "Then statusCode should be 400", ->
                 @res.statusCode.should.equal 400
 
-            it "Then body.error should be 'Application name should be declared in body.stop.name'", ->
+            it "Then body.error should be 'Error: Cannot stop an application not started'", ->
                 should.exist @body.error
-                @body.error.should.equal 'Application name should be declared in body.stop.name'
+                @body.error.should.equal 'Error: Cannot stop an application not started'
 
         describe "Stop data-system", ->
 
@@ -182,7 +182,7 @@ describe "Spawner", ->
 
     describe "Uninstall application", ->
 
-        describe "Unisntall application with bad argument", ->
+        describe "Unisntall application not installed", ->
 
             it "When I try to uninstall application", (done) ->
                 @timeout 100000
@@ -192,7 +192,7 @@ describe "Spawner", ->
                         type: "git"
                     scripts:
                         start: "server.coffee"
-                client.post 'apps/data-system/uninstall', app, (err, res, body) =>
+                client.post 'apps/data-systel/uninstall', app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -200,9 +200,10 @@ describe "Spawner", ->
             it "Then statusCode should be 400", ->
                 @res.statusCode.should.equal 400
 
-            it "Then body.error should be 'Application name should be declared in body.name'", ->
+            it "Then body.error should be 'Error: Cannot uninstall an application not installed'", ->
+                console.log @body
                 should.exist @body.error
-                @body.error.should.equal 'Application name should be declared in body.name'
+                @body.error.should.equal 'Error: Cannot uninstall an application not installed'
 
 
         describe "Uninstall data-system", ->

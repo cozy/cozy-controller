@@ -57,39 +57,42 @@ readFile = (function(_this) {
 module.exports.init = (function(_this) {
   return function(callback) {
     return readFile(function(err, data) {
-      var _ref, _ref1, _ref2;
       if (err != null) {
         return callback(err);
       } else {
+
+        /*conf =
+            npm_registry :      data.npm_registry || false
+            npm_strict_ssl :    data.npm_strict_ssl || false
+            dir_log :           data.dir_log || '/var/log/cozy'
+            dir_source :        data.dir_source || '/usr/local/cozy/apps'
+            file_token :        data.file_token || '/etc/cozy/stack.token'
+        conf.file_stack = conf.dir_source + '/stack.json'
+        if data.old?.dir_log? and data.old.dir_log isnt conf.dir_log
+            oldConf.dir_log = data.old.dir_log 
+        else 
+            oldConf.dir_log = false
+        if data.old?.dir_source? and data.old.dir_source isnt conf.dir_source
+            oldConf.dir_source = data.old.dir_source 
+        else 
+            oldConf.dir_source = false
+        if data.old?.file_stack? and data.old.file_stack isnt conf.file_stack
+            oldConf.file_stack = data.old.file_stack 
+        else 
+            oldConf.file_stack = false
+         */
         conf = {
           npm_registry: data.npm_registry || false,
           npm_strict_ssl: data.npm_strict_ssl || false,
-          dir_log: data.dir_log || '/var/log/cozy',
-          dir_source: data.dir_source || '/usr/local/cozy/apps',
-          file_token: data.file_token || '/etc/cozy/stack.token'
+          dir_log: '/var/log/cozy',
+          dir_source: '/usr/local/cozy/apps',
+          file_token: '/etc/cozy/stack.token'
         };
         conf.file_stack = conf.dir_source + '/stack.json';
-        console.log(data.old);
-        console.log;
-        if ((((_ref = data.old) != null ? _ref.dir_log : void 0) != null) && data.old.dir_log !== conf.dir_log) {
-          oldConf.dir_log = data.old.dir_log;
-        } else {
-          oldConf.dir_log = false;
-        }
-        if ((((_ref1 = data.old) != null ? _ref1.dir_source : void 0) != null) && data.old.dir_source !== conf.dir_source) {
-          oldConf.dir_source = data.old.dir_source;
-        } else {
-          oldConf.dir_source = false;
-        }
-        if ((((_ref2 = data.old) != null ? _ref2.file_stack : void 0) != null) && data.old.file_stack !== conf.file_stack) {
-          oldConf.file_stack = data.old.file_stack;
-        } else {
-          oldConf.file_stack = false;
-        }
         if (data.env != null) {
           conf.env = {
             global: data.env.global || false,
-            data_system: data.env.data_system || false,
+            "data-system": data.env['data-system'] || false,
             home: data.env.home || false,
             proxy: data.env.proxy || false
           };
@@ -136,7 +139,8 @@ module.exports.backupConfig = (function(_this) {
       npm_registry: conf.npm_registry,
       npm_strict_ssl: conf.npm_strict_ssl,
       dir_log: conf.dir_log,
-      dir_source: conf.dir_source
+      dir_source: conf.dir_source,
+      env: conf.env
     };
     fs.open("/etc/cozy/controller.json", 'w', function(err, fd) {
       return fs.write(fd, JSON.stringify(displayConf), 0, displayConf.length, 0, function() {});

@@ -107,7 +107,7 @@ module.exports.uninstall = function(req, res, next) {
     return function(err, result) {
       if (err) {
         return res.send(400, {
-          error: err
+          error: err.toString()
         });
       } else {
         return res.send(200, {
@@ -132,7 +132,7 @@ module.exports.update = function(req, res, next) {
     return function(err, result) {
       if (err) {
         return res.send(400, {
-          error: err
+          error: err.toString()
         });
       } else {
         return res.send(200, {

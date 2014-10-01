@@ -53,7 +53,7 @@ module.exports.uninstall = (req, res, next) ->
     name = req.params.name
     controller.uninstall name, (err, result) =>
         if err
-            res.send 400, error:err
+            res.send 400, error:err.toString()
         else
             res.send 200, app: result
 
@@ -66,7 +66,7 @@ module.exports.update = (req, res, next) ->
     name = req.params.name
     controller.update name, (err, result) =>
         if err
-            res.send 400, error:err
+            res.send 400, error:err.toString()
         else
             res.send 200, app: result
 

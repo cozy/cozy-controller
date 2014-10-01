@@ -1,6 +1,9 @@
 americano = require 'americano'
 init = require './server/initialize'
+autostart = require './server/lib/autostart'
 controller = require './server/lib/controller'
+
+## Changement de configuration : pas pris en compte
 
 application = module.exports = (callback) ->
     if process.env.USER? and process.env.USER isnt 'root'
@@ -18,10 +21,11 @@ application = module.exports = (callback) ->
             console.log err
             callback(err) if err?
 
-            init.autostart (err) =>
+            autostart.start (err) =>
                 if not err?
                     americano.start options, callback
                 else
+                    console.log "ERRROR : "
                     console.log err
                     callback(err) if callback?
 

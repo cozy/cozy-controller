@@ -41,9 +41,9 @@ describe "Token", ->
                 @body = body
                 done()
 
-        it "Then statusCode should be 403", ->
-            @res.statusCode.should.equal 403
+        it "Then statusCode should be 401", ->
+            @res.statusCode.should.equal 401
 
 
-        it "Then body should be 'Application is not authorized'", ->
-            @body.should.equal 'Application is not authorized'
+        it "Then body should be 'Token is not correct'", ->
+            @body.should.equal 'Token is not correct'

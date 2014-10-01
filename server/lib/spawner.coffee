@@ -4,6 +4,7 @@ path = require 'path'
 exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
+config = require('../lib/conf').get
 
 ###
     Start application <app> with forever-monitor and carapace
@@ -27,6 +28,21 @@ module.exports.start = (app, callback) ->
         SUDO_USER: app.user
         HOME: app.userDir
         NODE_ENV: process.env.NODE_ENV
+
+    # Add specific environment varialbe for this application
+    # Declared in file configuration
+    if config("env")?[app.name]
+        environment = config("env")[app.name]
+        for key in Object.keys(environment)
+            env[key] = environment[key]
+
+    # Add environment variable for all applications
+    # Declared in file configuration
+    if config("env")?.global
+        environment = config("env").global
+        console.log environment
+        for key in Object.keys(environment)
+            env[key] = environment[key]
 
     # Initialize forever options
     foreverOptions = 
@@ -74,7 +90,9 @@ module.exports.start = (app, callback) ->
         app.user]
 
         #foreverOptions.command = 'coffee'
-    fs.readFile "#{app.dir}/package.json", (err, data) =>
+    console.log app.dir
+    fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) =>
+        console.log data
         data = JSON.parse(data)
         if data.scripts?.start?
             start = data.scripts.start.split(' ')
