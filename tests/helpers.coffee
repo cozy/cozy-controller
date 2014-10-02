@@ -1,5 +1,5 @@
 http = require 'http'
-Client = require('request-json').JsonClient
+Client = require('request-json-light').JsonClient
 logger = require('printit')
     date: false
     prefix: 'tests:helper'

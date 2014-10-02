@@ -1,7 +1,7 @@
 helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
-Client = require('request-json').JsonClient
+Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 client = ""
 dsPort = ""

@@ -1,5 +1,5 @@
 fs = require 'fs'
-Client = require('request-json').JsonClient
+Client = require('request-json-light').JsonClient
 controller = require './controller'
 permission = require '../middlewares/token'
 App = require('./app').App

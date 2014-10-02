@@ -88,11 +88,9 @@ module.exports.start = function(app, callback) {
   }
   fs.openSync(app.errFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
-  console.log(app.dir);
   return fs.readFile("" + app.dir + "/package.json", 'utf8', (function(_this) {
     return function(err, data) {
       var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, start, timeout, _ref5;
-      console.log(data);
       data = JSON.parse(data);
       if (((_ref5 = data.scripts) != null ? _ref5.start : void 0) != null) {
         start = data.scripts.start.split(' ');

@@ -28,7 +28,6 @@ stackApps = ['home', 'data-system', 'proxy']
         * add application in drones and running 
 ###
 startApp = (app, callback) =>
-    console.log "startApp : #{app.name}"
     # Start Application
     if running[app.name]?
         # Check if an application with same already exists

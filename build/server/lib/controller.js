@@ -36,7 +36,6 @@ stackApps = ['home', 'data-system', 'proxy'];
 
 startApp = (function(_this) {
   return function(app, callback) {
-    console.log("startApp : " + app.name);
     if (running[app.name] != null) {
       return callback('Application already exists');
     } else {

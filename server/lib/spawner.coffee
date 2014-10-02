@@ -90,9 +90,7 @@ module.exports.start = (app, callback) ->
         app.user]
 
         #foreverOptions.command = 'coffee'
-    console.log app.dir
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) =>
-        console.log data
         data = JSON.parse(data)
         if data.scripts?.start?
             start = data.scripts.start.split(' ')

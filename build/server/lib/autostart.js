@@ -3,7 +3,7 @@ var App, Client, checkStart, config, controller, couchDBClient, couchDBStarted, 
 
 fs = require('fs');
 
-Client = require('request-json').JsonClient;
+Client = require('request-json-light').JsonClient;
 
 controller = require('./controller');
 
