@@ -18,6 +18,7 @@ application = module.exports = (callback) ->
             host: process.env.HOST or "127.0.0.1"
             root: __dirname
         init.init (err) =>
+            console.log "Error during configuration initialization : "
             console.log err
             callback(err) if err?
 
@@ -25,21 +26,22 @@ application = module.exports = (callback) ->
                 if not err?
                     americano.start options, callback
                 else
-                    console.log "ERRROR : "
+                    console.log "Error during autostart : "
                     console.log err
                     callback(err) if callback?
 
         process.on 'uncaughtException', (err) ->
+            console.log "WARNING : "
             console.log err
             console.log err.stack
 
         process.on 'exit', (code) ->
-            console.log "exit"
+            console.log "Process exit"
             controller.stopAll ()=>
                 process.exit(code)
 
         process.on 'SIGTERM', () ->
-            console.log "exit"
+            console.log "Process is stopped"
             controller.stopAll ()=>
                 process.exit(code)
 
