@@ -37,7 +37,7 @@ application = module.exports = (callback) ->
             console.log err.stack
 
         process.on 'exit', (code) ->
-            console.log "Process exit"
+            console.log "Process exit with code #{code}"
             controller.stopAll ()=>
                 process.exit(code)
 

@@ -50,7 +50,7 @@ application = module.exports = function(callback) {
       return console.log(err.stack);
     });
     process.on('exit', function(code) {
-      console.log("Process exit");
+      console.log("Process exit with code " + code);
       return controller.stopAll((function(_this) {
         return function() {
           return process.exit(code);

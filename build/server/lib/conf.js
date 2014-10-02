@@ -18,27 +18,20 @@ patch = "0";
 
 readFile = (function(_this) {
   return function(callback) {
+    var data;
     if (fs.existsSync('/etc/cozy/controller.json')) {
-      return fs.readFile('/etc/cozy/controller.json', 'utf8', function(err, data) {
-        try {
-          data = JSON.parse(data);
-          data.old = {};
-        } catch (_error) {
-          callback("Error : Configuration files isn't a correct json");
-        }
-        if (fs.existsSync('/etc/cozy/.controller-backup.json')) {
-          return fs.readFile('/etc/cozy/.controller-backup.json', 'utf8', function(err, oldData) {
-            try {
-              data.old = JSON.parse(oldData);
-              return callback(null, data);
-            } catch (_error) {
-              return callback(null, data);
-            }
-          });
-        } else {
-          return callback(null, data);
-        }
-      });
+      try {
+        data = require('/etc/cozy/controller.json');
+        data.old = {};
+      } catch (_error) {
+        callback(null, {});
+      }
+      if (fs.existsSync('/etc/cozy/.controller-backup.json')) {
+        data.old = require('/etc/cozy/.controller-backup.json');
+        return callback(null, data);
+      } else {
+        return callback(null, data);
+      }
     } else {
       return callback(null, {});
     }
@@ -57,6 +50,7 @@ readFile = (function(_this) {
 module.exports.init = (function(_this) {
   return function(callback) {
     return readFile(function(err, data) {
+      console.log(data);
       if (err != null) {
         return callback(err);
       } else {

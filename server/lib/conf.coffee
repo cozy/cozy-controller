@@ -12,21 +12,16 @@ patch = "0"
 ###
 readFile = (callback) =>
     if fs.existsSync '/etc/cozy/controller.json'
-        fs.readFile '/etc/cozy/controller.json', 'utf8', (err, data) =>
-            try
-                data = JSON.parse(data)
-                data.old = {}
-            catch 
-                callback "Error : Configuration files isn't a correct json"
-            if fs.existsSync '/etc/cozy/.controller-backup.json'
-                fs.readFile '/etc/cozy/.controller-backup.json', 'utf8', (err, oldData) =>
-                    try
-                        data.old = JSON.parse(oldData)
-                        callback null, data
-                    catch 
-                        callback null, data
-            else
-                callback null, data
+        try
+            data = require '/etc/cozy/controller.json'
+            data.old = {}
+        catch
+            callback null, {}
+        if fs.existsSync '/etc/cozy/.controller-backup.json'
+            data.old = require '/etc/cozy/.controller-backup.json'
+            callback null, data
+        else
+            callback null, data
     else
         callback null, {}
     
@@ -39,6 +34,7 @@ readFile = (callback) =>
 ###
 module.exports.init = (callback) =>
     readFile (err, data) =>
+        console.log data
         if err?
             callback err
         else
