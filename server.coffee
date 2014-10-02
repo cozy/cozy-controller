@@ -18,9 +18,10 @@ application = module.exports = (callback) ->
             host: process.env.HOST or "127.0.0.1"
             root: __dirname
         init.init (err) =>
-            console.log "Error during configuration initialization : "
-            console.log err
-            callback(err) if err?
+            if err?
+                console.log "Error during configuration initialization : "
+                console.log err
+                callback(err)
 
             autostart.start (err) =>
                 if not err?

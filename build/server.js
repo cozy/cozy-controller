@@ -26,15 +26,16 @@ application = module.exports = function(callback) {
     };
     init.init((function(_this) {
       return function(err) {
-        console.log(err);
         if (err != null) {
+          console.log("Error during configuration initialization : ");
+          console.log(err);
           callback(err);
         }
         return autostart.start(function(err) {
           if (err == null) {
             return americano.start(options, callback);
           } else {
-            console.log("ERRROR : ");
+            console.log("Error during autostart : ");
             console.log(err);
             if (callback != null) {
               return callback(err);
@@ -44,11 +45,12 @@ application = module.exports = function(callback) {
       };
     })(this));
     process.on('uncaughtException', function(err) {
+      console.log("WARNING : ");
       console.log(err);
       return console.log(err.stack);
     });
     process.on('exit', function(code) {
-      console.log("exit");
+      console.log("Process exit");
       return controller.stopAll((function(_this) {
         return function() {
           return process.exit(code);
@@ -56,7 +58,7 @@ application = module.exports = function(callback) {
       })(this));
     });
     return process.on('SIGTERM', function() {
-      console.log("exit");
+      console.log("Process is stopped");
       return controller.stopAll((function(_this) {
         return function() {
           return process.exit(code);
