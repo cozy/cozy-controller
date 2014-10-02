@@ -96,8 +96,7 @@ module.exports.backupConfig= () =>
         dir_log : conf.dir_log
         dir_source : conf.dir_source
         env : conf.env
-
-    fs.open "/etc/cozy/controller.json", 'w', (err, fd) =>
-        fs.write fd, JSON.stringify(displayConf), 0, displayConf.length, 0, () =>
-    fs.open "/etc/cozy/.controller-backup.json", 'w', (err, fd) =>
-        fs.write fd, JSON.stringify(displayConf), 0, displayConf.length, 0, () =>
+    fs.writeFile "/etc/cozy/controller.json", JSON.stringify(displayConf), (err) =>
+        console.log err  if err?
+        fs.writeFile "/etc/cozy/.controller-backup.json", JSON.stringify(displayConf), (err) =>
+            console.log err  if err?

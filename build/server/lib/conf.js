@@ -136,11 +136,15 @@ module.exports.backupConfig = (function(_this) {
       dir_source: conf.dir_source,
       env: conf.env
     };
-    fs.open("/etc/cozy/controller.json", 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(displayConf), 0, displayConf.length, 0, function() {});
-    });
-    return fs.open("/etc/cozy/.controller-backup.json", 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(displayConf), 0, displayConf.length, 0, function() {});
+    return fs.writeFile("/etc/cozy/controller.json", JSON.stringify(displayConf), function(err) {
+      if (err != null) {
+        console.log(err);
+      }
+      return fs.writeFile("/etc/cozy/.controller-backup.json", JSON.stringify(displayConf), function(err) {
+        if (err != null) {
+          return console.log(err);
+        }
+      });
     });
   };
 })(this);
