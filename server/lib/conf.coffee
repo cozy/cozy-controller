@@ -34,7 +34,6 @@ readFile = (callback) =>
 ###
 module.exports.init = (callback) =>
     readFile (err, data) =>
-        console.log data
         if err?
             callback err
         else

@@ -33,6 +33,7 @@ application = module.exports = function(callback) {
         }
         return autostart.start(function(err) {
           if (err == null) {
+            console.log("### START SERVER ###");
             return americano.start(options, callback);
           } else {
             console.log("Error during autostart : ");

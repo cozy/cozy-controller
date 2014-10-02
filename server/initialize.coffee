@@ -6,6 +6,7 @@ config = require('./lib/conf').get
 oldConfig = require('./lib/conf').getOld
 path = require 'path'
 mkdirp = require 'mkdirp'
+patch = require './lib/patch'
 
 # Usefull to create stack token
 randomString = (length=32) ->
@@ -93,10 +94,17 @@ initFiles = (callback) =>
         * Rewrite file configuration
 ###
 module.exports.init = (callback) =>
-    conf.init (err) =>
-        if err
-            callback err 
-        else
-            initFiles (err) =>  
-                conf.backupConfig()
-                callback err
+    console.log "### FILE INITIALIZATION ###"
+    initialize = () =>
+        conf.init (err) =>
+            if err
+                callback err 
+            else
+                initFiles (err) =>  
+                    conf.backupConfig()
+                    callback err
+    if not fs.existsSync '/etc/cozy/.patch'
+        patch.apply () =>
+            initialize()
+    else
+        initialize()

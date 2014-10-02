@@ -25,6 +25,7 @@ application = module.exports = (callback) ->
 
             autostart.start (err) =>
                 if not err?
+                    console.log "### START SERVER ###"
                     americano.start options, callback
                 else
                     console.log "Error during autostart : "

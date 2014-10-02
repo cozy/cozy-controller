@@ -50,7 +50,6 @@ readFile = (function(_this) {
 module.exports.init = (function(_this) {
   return function(callback) {
     return readFile(function(err, data) {
-      console.log(data);
       if (err != null) {
         return callback(err);
       } else {
