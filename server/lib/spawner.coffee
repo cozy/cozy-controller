@@ -99,7 +99,7 @@ module.exports.start = (app, callback) ->
             # Check if server is in coffeescript
             if start[0] is "coffee"
                 foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee'])
-        if not start? and (app.server.slice(server.lastIndexOf("."),app.server.length) is ".coffee")
+        if not start? and (app.server.slice(app.server.lastIndexOf("."),app.server.length) is ".coffee")
             foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee'])
 
 

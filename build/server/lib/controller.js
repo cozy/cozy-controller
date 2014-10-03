@@ -125,6 +125,7 @@ installDependencies = (function(_this) {
       if ((err != null) && test === 0) {
         return callback(err);
       } else if (err != null) {
+        console.log('TRY AGAIN ...');
         return installDependencies(app, test, callback);
       } else {
         return callback();
@@ -167,6 +168,7 @@ module.exports.install = (function(_this) {
       console.log("" + app.name + ":start application");
       return startApp(app, callback);
     } else {
+      drones[app.name] = app;
       return user.create(app, function() {
         console.log("" + app.name + ":create directory");
         return repo.create(app, function(err) {
@@ -186,11 +188,8 @@ module.exports.install = (function(_this) {
                 } else {
                   console.log("" + app.name + ":start application");
                   if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
-                    stack.addApp(app, function(err) {
-                      return console.log(err);
-                    });
+                    stack.addApp(app, callback);
                   }
-                  drones[app.name] = app;
                   return startApp(app, callback);
                 }
               });

@@ -99,7 +99,7 @@ module.exports.start = function(app, callback) {
           foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
         }
       }
-      if ((start == null) && (app.server.slice(server.lastIndexOf("."), app.server.length) === ".coffee")) {
+      if ((start == null) && (app.server.slice(app.server.lastIndexOf("."), app.server.length) === ".coffee")) {
         foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
       }
       fs.stat(app.startScript, function(err, stats) {

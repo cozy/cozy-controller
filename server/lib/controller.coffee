@@ -101,6 +101,7 @@ installDependencies = (app, test, callback) =>
         if err? and test is 0
             callback err
         else if err? 
+            console.log 'TRY AGAIN ...'
             installDependencies app, test, callback
         else
             callback()
@@ -135,6 +136,7 @@ module.exports.install = (manifest, callback) =>
         # Start application
         startApp app, callback
     else
+        drones[app.name] = app
         # Create user if necessary
         user.create app, () =>
             # Create repo (with permissions)  
@@ -157,10 +159,8 @@ module.exports.install = (manifest, callback) =>
                                 # If app is an stack application, 
                                 # we store this manifest in stack.json
                                 if app.name in stackApps  
-                                    stack.addApp app, (err) ->
-                                        console.log err
+                                    stack.addApp app, callback
                                 # Start application
-                                drones[app.name] = app
                                 startApp app, callback
 
 ###
