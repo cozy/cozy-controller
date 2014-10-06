@@ -50,7 +50,6 @@ module.exports.start = function(app, callback) {
   }
   if ((_ref3 = config("env")) != null ? _ref3.global : void 0) {
     environment = config("env").global;
-    console.log(environment);
     _ref4 = Object.keys(environment);
     for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
       key = _ref4[_j];

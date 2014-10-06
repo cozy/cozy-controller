@@ -40,7 +40,6 @@ module.exports.start = (app, callback) ->
     # Declared in file configuration
     if config("env")?.global
         environment = config("env").global
-        console.log environment
         for key in Object.keys(environment)
             env[key] = environment[key]
 
