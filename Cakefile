@@ -78,7 +78,7 @@ task "coverage", "Generate code coverage of tests", ->
                 logger.info "Instrumented files generated."
                 env = "COVERAGE=true NODE_ENV=test " + \
                       "DB_NAME=cozy_test AXON_PORT=9223"
-                command = "#{env} mocha tests/ " + \
+                command = "#{env} cake tests " + \
                           "--compilers coffee:coffee-script/register " + \
                           "--reporter html-cov > coverage/coverage.html"
                 logger.info "Generating code coverage..."

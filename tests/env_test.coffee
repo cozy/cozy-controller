@@ -1,7 +1,6 @@
 helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
-server = ""
 client = ""
 conf = require('../server/lib/conf')
 
@@ -9,15 +8,14 @@ conf = require('../server/lib/conf')
 describe "Environment variable", ->
 
     before helpers.cleanApp 
-    before (done) =>
+    before (done) ->
         @timeout 100000
-        helpers.startApp (appli) =>
-            server = appli
+        helpers.startApp () =>
             client = helpers.getClient()
             done()
-    after (done) =>
-        @timeout 20000
-        helpers.stopApp server, done
+    after (done) ->
+        @timeout 10000
+        helpers.stopApp done
 
     describe "Initialization", ->
 

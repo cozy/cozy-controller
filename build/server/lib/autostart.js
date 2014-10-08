@@ -22,26 +22,24 @@ couchDBClient = new Client('http://localhost:5984');
         * Return error after <test> (by default 5) tests
  */
 
-couchDBStarted = (function(_this) {
-  return function(test, callback) {
-    if (test == null) {
-      test = 5;
-    }
-    return couchDBClient.get('/', function(err, res, body) {
-      if (err == null) {
-        return callback(true);
+couchDBStarted = function(test, callback) {
+  if (test == null) {
+    test = 5;
+  }
+  return couchDBClient.get('/', function(err, res, body) {
+    if (err == null) {
+      return callback(true);
+    } else {
+      if (test > 0) {
+        return setTimeout(function() {
+          return couchDBStarted(test - 1, callback);
+        }, 5 * 1000);
       } else {
-        if (test > 0) {
-          return setTimeout(function() {
-            return couchDBStarted(test - 1, callback);
-          }, 5 * 1000);
-        } else {
-          return callback(false);
-        }
+        return callback(false);
       }
-    });
-  };
-})(this);
+    }
+  });
+};
 
 
 /*
@@ -74,42 +72,44 @@ errors = {};
             * Add application in list of installed application
  */
 
-start = (function(_this) {
-  return function(apps, clientDS, callback) {
-    var app, appli;
-    if ((apps != null) && apps.length > 0) {
-      appli = apps.pop();
-      app = getManifest(appli.value);
-      if (app.state === "installed") {
-        console.log("" + app.name + ": starting ...");
-        return controller.start(app, function(err, result) {
-          if (err != null) {
-            console.log("" + app.name + ": error");
-            console.log(err);
-            errors[app.name] = new Error("Application doesn't started");
-            return controller.addDrone(app, function() {
+start = function(apps, clientDS, callback) {
+  var app, appli;
+  if ((apps != null) && apps.length > 0) {
+    appli = apps.pop();
+    app = getManifest(appli.value);
+    if (app.state === "installed") {
+      console.log("" + app.name + ": starting ...");
+      return controller.start(app, function(err, result) {
+        if (err != null) {
+          console.log("" + app.name + ": error");
+          console.log(err);
+          errors[app.name] = new Error("Application doesn't started");
+          return controller.addDrone(app, (function(_this) {
+            return function() {
               return start(apps, clientDS, callback);
-            });
-          } else {
-            appli = appli.value;
-            appli.port = result.port;
-            return clientDS.put('/data/', appli, function(err, res, body) {
-              console.log("" + app.name + ": started");
-              return start(apps, clientDS, callback);
-            });
-          }
-        });
-      } else {
-        app = new App(app);
-        return controller.addDrone(app.app, function() {
-          return start(apps, clientDS, callback);
-        });
-      }
+            };
+          })(this));
+        } else {
+          appli = appli.value;
+          appli.port = result.port;
+          return clientDS.put('/data/', appli, function(err, res, body) {
+            console.log("" + app.name + ": started");
+            return start(apps, clientDS, callback);
+          });
+        }
+      });
     } else {
-      return callback();
+      app = new App(app);
+      return controller.addDrone(app.app, (function(_this) {
+        return function() {
+          return start(apps, clientDS, callback);
+        };
+      })(this));
     }
-  };
-})(this);
+  } else {
+    return callback();
+  }
+};
 
 
 /*
@@ -119,51 +119,47 @@ start = (function(_this) {
         (proxy return 500)
  */
 
-checkStart = (function(_this) {
-  return function(port, callback) {
-    var client;
-    client = new Client("http://localhost:" + port);
-    return client.get("", function(err, res) {
-      var _ref;
-      if ((res != null) && ((_ref = res.statusCode) === 200 || _ref === 403 || _ref === 500)) {
-        if (res.statusCode === 500) {
-          console.log("Warning : receives error 500");
-        }
-        return callback();
-      } else {
-        return checkStart(port, callback);
+checkStart = function(port, callback) {
+  var client;
+  client = new Client("http://localhost:" + port);
+  return client.get("", function(err, res) {
+    var _ref;
+    if ((res != null) && ((_ref = res.statusCode) === 200 || _ref === 403 || _ref === 500)) {
+      if (res.statusCode === 500) {
+        console.log("Warning : receives error 500");
       }
-    });
-  };
-})(this);
+      return callback();
+    } else {
+      return checkStart(port, callback);
+    }
+  });
+};
 
 
 /*
     Recover stack applications
-        * Read stack file 
+        * Read stack file
         * Parse file
-        * Return error if file stack doesn't exist 
+        * Return error if file stack doesn't exist
             or if isn't in correct json
         * Return stack manifest
  */
 
 recoverStackApp = function(callback) {
-  return fs.readFile(config('file_stack'), 'utf8', (function(_this) {
-    return function(err, data) {
-      if ((data != null) || data === "") {
-        try {
-          data = JSON.parse(data);
-          return callback(null, data);
-        } catch (_error) {
-          console.log("stack isn't installed");
-          return callback("stack isn't installed");
-        }
-      } else {
-        console.log("Cannot read stack file");
-        return callback("Cannot read stack file");
+  return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
+    if ((data != null) || data === "") {
+      try {
+        data = JSON.parse(data);
+        return callback(null, data);
+      } catch (_error) {
+        console.log("stack isn't installed");
+        return callback("stack isn't installed");
       }
-    };
-  })(this));
+    } else {
+      console.log("Cannot read stack file");
+      return callback("Cannot read stack file");
+    }
+  });
 };
 
 
@@ -174,101 +170,94 @@ recoverStackApp = function(callback) {
         * Check if application is started
  */
 
-startStack = (function(_this) {
-  return function(stackManifest, app, callback) {
-    var err;
-    if (stackManifest[app] != null) {
-      console.log("" + app + ": starting ...");
-      return controller.start(stackManifest[app], function(err, result) {
-        var timeout;
-        if ((err != null) || !result) {
-          console.log(err);
-          err = new Error("" + app + " doesn't started");
-          return callback(err);
-        } else {
-          console.log("" + app + ": checking ...");
-          timeout = setTimeout(function() {
-            return callback("[Timeout] " + app + " doesn't start");
-          }, 30000);
-          return checkStart(result.port, function() {
-            clearTimeout(timeout);
-            console.log("" + app + ": started");
-            return setTimeout((function(_this) {
-              return function() {
-                return callback(null, result.port);
-              };
-            })(this), 1000);
-          });
-        }
-      });
-    } else {
-      err = new Error("" + app + " isn't installed");
-      return callback();
-    }
-  };
-})(this);
+startStack = function(stackManifest, app, callback) {
+  var err;
+  if (stackManifest[app] != null) {
+    console.log("" + app + ": starting ...");
+    return controller.start(stackManifest[app], function(err, result) {
+      var timeout;
+      if ((err != null) || !result) {
+        console.log(err);
+        err = new Error("" + app + " doesn't started");
+        return callback(err);
+      } else {
+        console.log("" + app + ": checking ...");
+        timeout = setTimeout(function() {
+          return callback("[Timeout] " + app + " doesn't start");
+        }, 30000);
+        return checkStart(result.port, function() {
+          clearTimeout(timeout);
+          console.log("" + app + ": started");
+          return setTimeout(function() {
+            return callback(null, result.port);
+          }, 1000);
+        });
+      }
+    });
+  } else {
+    err = new Error("" + app + " isn't installed");
+    return callback();
+  }
+};
 
 
 /*
     Autostart :
-        * Stack application are declared in file stack 
+        * Stack application are declared in file stack
             /usr/local/cozy/stack.json by default
         *  Other applications are declared in couchDB
  */
 
-module.exports.start = (function(_this) {
-  return function(callback) {
-    console.log("### AUTOSTART ###");
-    return couchDBStarted(5, function(started) {
-      var err;
-      if (started) {
-        console.log('couchDB: started');
-        return recoverStackApp(function(err, stackManifest) {
-          if (err != null) {
-            return callback();
-          } else if (stackManifest['data-system'] == null) {
-            console.log("stack isn't installed");
-            return callback();
-          } else {
-            return startStack(stackManifest, 'data-system', (function(_this) {
-              return function(err, port) {
-                var clientDS;
-                if (err != null) {
-                  return callback(err);
+module.exports.start = function(callback) {
+  console.log("### AUTOSTART ###");
+  return couchDBStarted(5, function(started) {
+    var err;
+    if (started) {
+      console.log('couchDB: started');
+      return recoverStackApp(function(err, manifest) {
+        if (err != null) {
+          return callback();
+        } else if (manifest['data-system'] == null) {
+          console.log("stack isn't installed");
+          return callback();
+        } else {
+          return startStack(manifest, 'data-system', function(err, port) {
+            var clientDS, path;
+            if (err != null) {
+              return callback(err);
+            } else {
+              clientDS = new Client("http://localhost:" + port);
+              clientDS.setBasicAuth('home', permission.get());
+              path = '/request/application/all/';
+              return clientDS.post(path, {}, function(err, res, body) {
+                if (res.statusCode === 404) {
+                  return callback();
                 } else {
-                  clientDS = new Client("http://localhost:" + port);
-                  clientDS.setBasicAuth('home', permission.get());
-                  return clientDS.post('/request/application/all/', {}, function(err, res, body) {
-                    if (res.statusCode === 404) {
-                      return callback();
-                    } else {
-                      return start(body, clientDS, function(errors) {
-                        if (errors !== {}) {
-                          console.log(errors);
-                        }
-                        return startStack(stackManifest, 'home', function(err) {
-                          if (err != null) {
-                            console.log(err);
-                          }
-                          return startStack(stackManifest, 'proxy', function(err) {
-                            if (err != null) {
-                              console.log(err);
-                            }
-                            return callback();
-                          });
-                        });
-                      });
+                  return start(body, clientDS, function(errors) {
+                    if (errors !== {}) {
+                      console.log(errors);
                     }
+                    startStack(manifest, 'home', function(err) {
+                      if (err != null) {
+                        return console.log(err);
+                      }
+                    });
+                    return startStack(manifest, 'proxy', function(err) {
+                      if (err != null) {
+                        console.log(err);
+                      }
+                      return callback();
+                    });
                   });
                 }
-              };
-            })(this));
-          }
-        });
-      } else {
-        err = new Error("couchDB isn't started");
-        return callback(err);
-      }
-    });
-  };
-})(this);
+              });
+            }
+          });
+        }
+      });
+    } else {
+      err = new Error("couchDB isn't started");
+      return callback(err);
+    }
+  });
+};

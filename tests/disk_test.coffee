@@ -1,22 +1,23 @@
-helpers = require "./helpers"
+###helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
-server = ""
-client = ""
 
 
 describe "Disk info", ->
-
+    server = ""
+    client = ""
     before helpers.cleanApp 
-    before (done) =>
+
+    before (done) ->
         @timeout 100000
-        helpers.startApp (appli) =>
-            server = appli
+        helpers.startApp () =>
             client = helpers.getClient()
             done()
-    after (done) =>
+
+    after (done) ->
         @timeout 20000
-        helpers.stopApp server, done
+        helpers.stopApp () ->
+            done()
 
     it "When I get disk info", (done) ->
         client.get 'diskinfo', (err, res, body) =>
@@ -34,4 +35,4 @@ describe "Disk info", ->
         should.exist @body.totalDiskSpace
 
     it "And body should be have usedDiskSpace attribute", ->
-        should.exist @body.usedDiskSpace
+        should.exist @body.usedDiskSpace###

@@ -26,7 +26,14 @@ application = module.exports = (callback) ->
             autostart.start (err) =>
                 if not err?
                     console.log "### START SERVER ###"
-                    americano.start options, callback
+                    americano.start options, (app, server) ->
+
+                        server.on 'close', (code) ->
+                            console.log "Server close with code #{code}"
+                            controller.stopAll () =>
+                                console.log "All application are stopped"
+
+                        callback app, server
                 else
                     console.log "Error during autostart : "
                     console.log err
@@ -35,7 +42,7 @@ application = module.exports = (callback) ->
         process.on 'uncaughtException', (err) ->
             console.log "WARNING : "
             console.log err
-            console.log err.stack
+            #console.log err.stack
 
         process.on 'exit', (code) ->
             console.log "Process exit with code #{code}"

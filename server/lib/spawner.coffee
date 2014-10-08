@@ -29,6 +29,9 @@ module.exports.start = (app, callback) ->
         HOME: app.userDir
         NODE_ENV: process.env.NODE_ENV
 
+    if process.env.DB_NAME?
+        env.DB_NAME = process.env.DB_NAME
+
     # Add specific environment varialbe for this application
     # Declared in file configuration
     if config("env")?[app.name]

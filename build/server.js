@@ -34,7 +34,17 @@ application = module.exports = function(callback) {
         return autostart.start(function(err) {
           if (err == null) {
             console.log("### START SERVER ###");
-            return americano.start(options, callback);
+            return americano.start(options, function(app, server) {
+              server.on('close', function(code) {
+                console.log("Server close with code " + code);
+                return controller.stopAll((function(_this) {
+                  return function() {
+                    return console.log("All application are stopped");
+                  };
+                })(this));
+              });
+              return callback(app, server);
+            });
           } else {
             console.log("Error during autostart : ");
             console.log(err);
@@ -47,8 +57,7 @@ application = module.exports = function(callback) {
     })(this));
     process.on('uncaughtException', function(err) {
       console.log("WARNING : ");
-      console.log(err);
-      return console.log(err.stack);
+      return console.log(err);
     });
     process.on('exit', function(code) {
       console.log("Process exit with code " + code);

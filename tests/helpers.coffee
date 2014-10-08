@@ -8,6 +8,8 @@ fs = require 'fs'
 exec = require('child_process').exec
 controller = require '../server/lib/controller'
 
+path = require('path')
+
 # Mandatory
 process.env.TOKEN = "token"
 
@@ -20,8 +22,8 @@ else
 
 # server management
 helpers.options =
-    serverHost: process.env.HOST or 'localhost'
-    serverPort: process.env.PORT or 8888
+    serverHost: process.env.HOST or "localhost"
+    #serverPort: process.env.PORT or 8888
 
     # default port must also be changed in server/lib/indexer.coffee
     indexerPort: process.env.INDEXER_PORT or 9092
@@ -29,45 +31,38 @@ helpers.options =
     axonPort: parseInt process.env.AXON_PORT or 9105
 
 # default client
-client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
+client = new Client "http://localhost:9002/"
 
 # set the configuration for the server
-process.env.HOST = helpers.options.serverHost
-process.env.PORT = helpers.options.serverPort
+#process.env.HOST = helpers.options.serverHost
+#process.env.PORT = helpers.options.serverPort
 
 # Returns a client if url is given, default app client otherwise
 helpers.getClient = (url = null) ->
     if url?
         return new Client url
     else
-        config = require('../server/lib/conf').get
-        tokenFile = config('file_token')
-        token = fs.readFileSync tokenFile, 'utf8'
+        token = fs.readFileSync "/etc/cozy/stack.token", 'utf8'
         client.setToken(token)
         return client
 
-initializeApplication = require "#{helpers.prefix}server"
+initializeApplication = (callback) =>
+    src = path.join(path.dirname(fs.realpathSync(__filename)), '..', 'lib')
+    require(path.join(src, '../build/server'))(callback)
+
 
 helpers.startApp = (callback) ->
-    console.log 'startApp : '
-    controller.all (err, apps) ->
-        console.log apps
     initializeApplication (app, server) =>
         @app = app
         @app.server = server
-        callback(app)
+        callback app
 
-helpers.stopApp = (app, done) ->
+helpers.stopApp = (done) ->
     setTimeout =>
-        #exec 'ps -e u | grep node', (err, out) ->
-        #console.log out
-        controller.stopAll () =>
-        #console.log 'STOPALL'
-            controller.removeDrones () =>
-                @app.server.close () =>
-                    #exec 'ps -e u | grep node', (err, out) ->
-                        #console.log out
-                    done()
+        @app.server.close () =>
+            setTimeout =>
+                done()
+            , 6000
     , 250
 
 helpers.clearDB = (db) -> (done) ->
@@ -103,7 +98,10 @@ helpers.cleanApp = (done) ->
             if fs.existsSync '/usr/local/cozy/apps/home'
                 exec 'rm -rf /usr/local/cozy/apps/home', (err,out) ->
                     console.log err
-                    done()
+                if fs.existsSync '/usr/local/cozy/apps/proxy'
+                    exec 'rm -rf /usr/local/cozy/apps/proxy', (err,out) ->
+                        console.log err
+                        done()
             else
                 done()
     else 

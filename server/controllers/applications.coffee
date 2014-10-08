@@ -1,15 +1,15 @@
 controller = require ('../lib/controller')
 
 ###
-    Install application. 
+    Install application.
         * Check if application is declared in body.start
         * if application is already installed, just start it
 ###
-module.exports.install = (req, res, next) =>
+module.exports.install = (req, res, next) ->
     if not req.body.start?
         res.send 400, error: "Manifest should be declared in body.start"
     manifest = req.body.start
-    controller.install manifest, (err, result) =>
+    controller.install manifest, (err, result) ->
         if err?
             res.send 400, error:err
         else
@@ -25,7 +25,7 @@ module.exports.start = (req, res, next) ->
     if not req.body.start?
         res.send 400, error: "Manifest should be declared in body.start"
     manifest = req.body.start
-    controller.start manifest, (err, result) =>
+    controller.start manifest, (err, result) ->
         if err
             res.send 400, error:err
         else
@@ -38,7 +38,7 @@ module.exports.start = (req, res, next) ->
 ###
 module.exports.stop = (req, res, next) ->
     name = req.params.name
-    controller.stop name, (err, result) =>
+    controller.stop name, (err, result) ->
         if err?
             res.send 400, error: err.toString()
         else
@@ -51,7 +51,7 @@ module.exports.stop = (req, res, next) ->
 ###
 module.exports.uninstall = (req, res, next) ->
     name = req.params.name
-    controller.uninstall name, (err, result) =>
+    controller.uninstall name, (err, result) ->
         if err
             res.send 400, error:err.toString()
         else
@@ -64,7 +64,7 @@ module.exports.uninstall = (req, res, next) ->
 ###
 module.exports.update = (req, res, next) ->
     name = req.params.name
-    controller.update name, (err, result) =>
+    controller.update name, (err, result) ->
         if err
             res.send 400, error:err.toString()
         else
@@ -74,7 +74,7 @@ module.exports.update = (req, res, next) ->
     Return a list with all applications
 ###
 module.exports.all = (req, res, next) ->
-    controller.all (err, result) =>
+    controller.all (err, result) ->
         if err
             res.send 400, error:err
         else
@@ -84,7 +84,7 @@ module.exports.all = (req, res, next) ->
     Return a list with all started applications
 ###
 module.exports.running = (req, res, next) ->
-    controller.running (err, result) =>
+    controller.running (err, result) ->
         if err
             res.send 400, error:err
         else

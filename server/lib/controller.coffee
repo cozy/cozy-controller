@@ -56,6 +56,7 @@ stopApps = (apps, callback) ->
             console.log("#{app}:stop application")
             stopApps apps, callback
     else
+        drones = []
         callback()
 
 ###
@@ -67,14 +68,15 @@ stopApps = (apps, callback) ->
 stopApp = (name, callback) =>
     monitor = running[name].monitor
     onStop = () =>
+        console.log "on stop"
         # Avoid double callback
         monitor.removeListener 'error', onErr
         monitor.removeListener 'exit', onStop
         monitor.removeListener 'stop', onStop
-        delete running[name]
         callback null, name
     onErr = (err) =>
         # Avoid double callback
+        console.log err
         monitor.removeListener 'stop', onStop
         monitor.removeListener 'exit', onStop
         callback err, name
@@ -83,11 +85,13 @@ stopApp = (name, callback) =>
     monitor.once 'exit', onStop
     monitor.once 'error', onErr
     try 
+        delete running[name]
+        #callback null, name
         monitor.stop()
         # Wait event exit to callback
     catch err
         console.log err
-        callback err, name
+        #callback err, name
         onErr err
 
 ###
@@ -296,14 +300,14 @@ module.exports.removeDrones = (callback) ->
 module.exports.all = (callback) ->
     callback null, drones
 
+
 ###
     Return all started applications
 ###
 module.exports.running = (callback) ->
-    apps = []
-    for app in drones
-        if running[app.name]?
-            apps[app.name] = app
+    apps = {}
+    for key in Object.keys(running)
+        apps[key] = drones[key]
     callback null, apps
 
 

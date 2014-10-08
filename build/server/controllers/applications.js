@@ -5,35 +5,33 @@ controller = require('../lib/controller');
 
 
 /*
-    Install application. 
+    Install application.
         * Check if application is declared in body.start
         * if application is already installed, just start it
  */
 
-module.exports.install = (function(_this) {
-  return function(req, res, next) {
-    var manifest;
-    if (req.body.start == null) {
-      res.send(400, {
-        error: "Manifest should be declared in body.start"
+module.exports.install = function(req, res, next) {
+  var manifest;
+  if (req.body.start == null) {
+    res.send(400, {
+      error: "Manifest should be declared in body.start"
+    });
+  }
+  manifest = req.body.start;
+  return controller.install(manifest, function(err, result) {
+    if (err != null) {
+      return res.send(400, {
+        error: err
+      });
+    } else {
+      return res.send(200, {
+        "drone": {
+          "port": result.port
+        }
       });
     }
-    manifest = req.body.start;
-    return controller.install(manifest, function(err, result) {
-      if (err != null) {
-        return res.send(400, {
-          error: err
-        });
-      } else {
-        return res.send(200, {
-          "drone": {
-            "port": result.port
-          }
-        });
-      }
-    });
-  };
-})(this);
+  });
+};
 
 
 /*
@@ -51,21 +49,19 @@ module.exports.start = function(req, res, next) {
     });
   }
   manifest = req.body.start;
-  return controller.start(manifest, (function(_this) {
-    return function(err, result) {
-      if (err) {
-        return res.send(400, {
-          error: err
-        });
-      } else {
-        return res.send(200, {
-          "drone": {
-            "port": result.port
-          }
-        });
-      }
-    };
-  })(this));
+  return controller.start(manifest, function(err, result) {
+    if (err) {
+      return res.send(400, {
+        error: err
+      });
+    } else {
+      return res.send(200, {
+        "drone": {
+          "port": result.port
+        }
+      });
+    }
+  });
 };
 
 
@@ -78,19 +74,17 @@ module.exports.start = function(req, res, next) {
 module.exports.stop = function(req, res, next) {
   var name;
   name = req.params.name;
-  return controller.stop(name, (function(_this) {
-    return function(err, result) {
-      if (err != null) {
-        return res.send(400, {
-          error: err.toString()
-        });
-      } else {
-        return res.send(200, {
-          app: result
-        });
-      }
-    };
-  })(this));
+  return controller.stop(name, function(err, result) {
+    if (err != null) {
+      return res.send(400, {
+        error: err.toString()
+      });
+    } else {
+      return res.send(200, {
+        app: result
+      });
+    }
+  });
 };
 
 
@@ -103,19 +97,17 @@ module.exports.stop = function(req, res, next) {
 module.exports.uninstall = function(req, res, next) {
   var name;
   name = req.params.name;
-  return controller.uninstall(name, (function(_this) {
-    return function(err, result) {
-      if (err) {
-        return res.send(400, {
-          error: err.toString()
-        });
-      } else {
-        return res.send(200, {
-          app: result
-        });
-      }
-    };
-  })(this));
+  return controller.uninstall(name, function(err, result) {
+    if (err) {
+      return res.send(400, {
+        error: err.toString()
+      });
+    } else {
+      return res.send(200, {
+        app: result
+      });
+    }
+  });
 };
 
 
@@ -128,19 +120,17 @@ module.exports.uninstall = function(req, res, next) {
 module.exports.update = function(req, res, next) {
   var name;
   name = req.params.name;
-  return controller.update(name, (function(_this) {
-    return function(err, result) {
-      if (err) {
-        return res.send(400, {
-          error: err.toString()
-        });
-      } else {
-        return res.send(200, {
-          app: result
-        });
-      }
-    };
-  })(this));
+  return controller.update(name, function(err, result) {
+    if (err) {
+      return res.send(400, {
+        error: err.toString()
+      });
+    } else {
+      return res.send(200, {
+        app: result
+      });
+    }
+  });
 };
 
 
@@ -149,19 +139,17 @@ module.exports.update = function(req, res, next) {
  */
 
 module.exports.all = function(req, res, next) {
-  return controller.all((function(_this) {
-    return function(err, result) {
-      if (err) {
-        return res.send(400, {
-          error: err
-        });
-      } else {
-        return res.send(200, {
-          app: result
-        });
-      }
-    };
-  })(this));
+  return controller.all(function(err, result) {
+    if (err) {
+      return res.send(400, {
+        error: err
+      });
+    } else {
+      return res.send(200, {
+        app: result
+      });
+    }
+  });
 };
 
 
@@ -170,17 +158,15 @@ module.exports.all = function(req, res, next) {
  */
 
 module.exports.running = function(req, res, next) {
-  return controller.running((function(_this) {
-    return function(err, result) {
-      if (err) {
-        return res.send(400, {
-          error: err
-        });
-      } else {
-        return res.send(200, {
-          app: result
-        });
-      }
-    };
-  })(this));
+  return controller.running(function(err, result) {
+    if (err) {
+      return res.send(400, {
+        error: err
+      });
+    } else {
+      return res.send(200, {
+        app: result
+      });
+    }
+  });
 };

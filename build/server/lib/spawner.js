@@ -40,6 +40,9 @@ module.exports.start = function(app, callback) {
     HOME: app.userDir,
     NODE_ENV: process.env.NODE_ENV
   };
+  if (process.env.DB_NAME != null) {
+    env.DB_NAME = process.env.DB_NAME;
+  }
   if ((_ref1 = config("env")) != null ? _ref1[app.name] : void 0) {
     environment = config("env")[app.name];
     _ref2 = Object.keys(environment);

@@ -63,7 +63,7 @@ module.exports =
             applications.running
         ]
         
-    # Old routes 
+    # Old routes
     'drones/running': get: [
             token.check
             applications.running

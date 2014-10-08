@@ -5,24 +5,28 @@ Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 client = ""
 dsPort = ""
-server = ""
 
 
 describe "App Stopped", ->
-    server = {}
 
-    before helpers.cleanApp 
-    before (done) =>
-        @timeout 100000
-        helpers.startApp (appli) =>
-            server = appli
-            client = helpers.getClient()
-            done()
+
 
     describe "Application should stopped if server has stopped", ->
         port = 0
 
         describe "Install data-system", =>
+        
+            before helpers.cleanApp 
+            before (done) ->
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+            after (done) ->
+                @timeout 20000
+                helpers.stopApp () ->
+                    done()
 
             it "When I install data-system", (done) ->
                 @timeout 500000
@@ -50,19 +54,9 @@ describe "App Stopped", ->
 
         describe "Stop server", =>
 
-            it "When I stop server", (done) ->
-                @timeout 10000
-                #console.log server
-                helpers.stopApp server, () =>
-                    client.get 'drones', (err, res) =>
-                        console.log err
-                        console.log res
-                        done()
-
-            it "And data-system is stopped", (done)->
+            it "Then data-system is stopped", (done)->
                 @timeout 30000
                 setTimeout () =>
-                    console.log port
                     clientDS = new Client "http://localhost:#{port}"
                     clientDS.get '/', (err, res) ->
                         should.not.exist res

@@ -1,19 +1,21 @@
 helpers = require "./helpers"
-client = helpers.getClient('http://localhost:8888')
 should = require('chai').Should()
 server = ""
+client = ""
 
 describe "Token", ->
 
 
-    before (done) =>
+    before (done) ->
         @timeout 100000
         helpers.startApp (appli) =>
             server = appli
+            port = appli.server._connectionKey.slice(-4)
+            client = helpers.getClient "http://localhost:#{port}"
             done()
-    after (done) =>
+    after (done) ->
         @timeout 10000
-        helpers.stopApp server, done
+        helpers.stopApp done
 
     describe "Request without token", ->
 

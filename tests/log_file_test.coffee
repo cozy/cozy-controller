@@ -8,15 +8,14 @@ client = ""
 describe "Log File", ->
 
     before helpers.cleanApp 
-    before (done) =>
-        @timeout 100000
-        helpers.startApp (appli) =>
-            server = appli
+    before (done) ->
+        @timeout 10000
+        helpers.startApp () =>
             client = helpers.getClient()
             done()
-    after (done) =>
-        @timeout 20000
-        helpers.stopApp server, done
+    after (done) ->
+        @timeout 10000
+        helpers.stopApp done
 
     describe "Log file creation", ->
 

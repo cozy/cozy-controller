@@ -1,20 +1,19 @@
 helpers = require "./helpers"
 client = ""
 should = require('chai').Should()
-server = ""
 
 describe "Git", ->
 
     before helpers.cleanApp 
-    before (done) =>
-        @timeout 100000
-        helpers.startApp (appli) =>
-            server = appli
+    before (done) ->
+        @timeout 10000
+        helpers.startApp () =>
             client = helpers.getClient()
             done()
-    after (done) =>
+            
+    after (done) ->
         @timeout 10000
-        helpers.stopApp server, done
+        helpers.stopApp done
 
     describe "Try to install an application with a bad git repository", ->
 

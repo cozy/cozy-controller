@@ -69,6 +69,7 @@ stopApps = function(apps, callback) {
       return stopApps(apps, callback);
     });
   } else {
+    drones = [];
     return callback();
   }
 };
@@ -86,13 +87,14 @@ stopApp = (function(_this) {
     var err, monitor, onErr, onStop;
     monitor = running[name].monitor;
     onStop = function() {
+      console.log("on stop");
       monitor.removeListener('error', onErr);
       monitor.removeListener('exit', onStop);
       monitor.removeListener('stop', onStop);
-      delete running[name];
       return callback(null, name);
     };
     onErr = function(err) {
+      console.log(err);
       monitor.removeListener('stop', onStop);
       monitor.removeListener('exit', onStop);
       return callback(err, name);
@@ -101,11 +103,11 @@ stopApp = (function(_this) {
     monitor.once('exit', onStop);
     monitor.once('error', onErr);
     try {
+      delete running[name];
       return monitor.stop();
     } catch (_error) {
       err = _error;
       console.log(err);
-      callback(err, name);
       return onErr(err);
     }
   };
@@ -388,13 +390,12 @@ module.exports.all = function(callback) {
  */
 
 module.exports.running = function(callback) {
-  var app, apps, _i, _len;
-  apps = [];
-  for (_i = 0, _len = drones.length; _i < _len; _i++) {
-    app = drones[_i];
-    if (running[app.name] != null) {
-      apps[app.name] = app;
-    }
+  var apps, key, _i, _len, _ref;
+  apps = {};
+  _ref = Object.keys(running);
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    key = _ref[_i];
+    apps[key] = drones[key];
   }
   return callback(null, apps);
 };
