@@ -77,7 +77,7 @@ module.exports.init = (function(_this) {
         conf = {
           npm_registry: data.npm_registry || false,
           npm_strict_ssl: data.npm_strict_ssl || false,
-          dir_log: '/var/log/cozy',
+          dir_log: '/usr/local/var/log/cozy',
           dir_source: '/usr/local/cozy/apps',
           file_token: '/etc/cozy/stack.token'
         };

@@ -81,7 +81,7 @@ initFiles = (callback) ->
         if err?
             callback err
         else
-            mkdirp '/var/log/cozy', (err) ->
+            mkdirp config('dir_log'), (err) ->
                 if process.env.NODE_ENV is "production" or
                         process.env.NODE_ENV is "test"
                     initTokenFile callback

@@ -59,7 +59,7 @@ module.exports.init = (callback) =>
             conf =
                 npm_registry :   data.npm_registry or false
                 npm_strict_ssl : data.npm_strict_ssl or false
-                dir_log :        '/var/log/cozy'
+                dir_log :        '/usr/local/var/log/cozy'
                 dir_source :     '/usr/local/cozy/apps'
                 file_token :     '/etc/cozy/stack.token'
             conf.file_stack = conf.dir_source + '/stack.json'

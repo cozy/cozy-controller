@@ -127,7 +127,7 @@ initFiles = function(callback) {
     if (err != null) {
       return callback(err);
     } else {
-      return mkdirp('/var/log/cozy', function(err) {
+      return mkdirp(config('dir_log'), function(err) {
         if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
           return initTokenFile(callback);
         } else {

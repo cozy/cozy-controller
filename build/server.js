@@ -29,7 +29,9 @@ application = module.exports = function(callback) {
         if (err != null) {
           console.log("Error during configuration initialization : ");
           console.log(err);
-          callback(err);
+          if (callback != null) {
+            callback(err);
+          }
         }
         return autostart.start(function(err) {
           if (err == null) {
@@ -43,7 +45,10 @@ application = module.exports = function(callback) {
                   };
                 })(this));
               });
-              return callback(app, server);
+              console.log(callback);
+              if (callback != null) {
+                return callback(app, server);
+              }
             });
           } else {
             console.log("Error during autostart : ");
@@ -57,7 +62,8 @@ application = module.exports = function(callback) {
     })(this));
     process.on('uncaughtException', function(err) {
       console.log("WARNING : ");
-      return console.log(err);
+      console.log(err);
+      return console.log(err.stack);
     });
     process.on('exit', function(code) {
       console.log("Process exit with code " + code);
