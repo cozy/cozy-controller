@@ -32,7 +32,6 @@ application = module.exports = (callback) ->
                             console.log "Server close with code #{code}"
                             controller.stopAll () =>
                                 console.log "All application are stopped"
-                        console.log callback
                         callback app, server if callback?
                 else
                     console.log "Error during autostart : "

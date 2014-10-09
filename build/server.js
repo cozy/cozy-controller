@@ -45,7 +45,6 @@ application = module.exports = function(callback) {
                   };
                 })(this));
               });
-              console.log(callback);
               if (callback != null) {
                 return callback(app, server);
               }

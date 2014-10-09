@@ -1,7 +1,6 @@
 helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
-server = ""
 client = ""
 
 

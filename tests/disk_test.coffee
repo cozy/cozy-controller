@@ -6,7 +6,7 @@ should = require('chai').Should()
 describe "Disk info", ->
     server = ""
     client = ""
-    before helpers.cleanApp 
+    before helpers.cleanApp
 
     before (done) ->
         @timeout 100000

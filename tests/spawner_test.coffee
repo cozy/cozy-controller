@@ -5,7 +5,6 @@ Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 client = ""
 dsPort = ""
-server = ""
 
 
 describe "Spawner", ->
