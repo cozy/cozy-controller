@@ -55,7 +55,6 @@ module.exports.start = (app, callback) ->
         cwd:       app.dir
         logFile:   app.logFile
         outFile:   app.logFile
-        errFile:   app.errFile
         #hideEnv:   env
         env:       env
         killTree:  true
@@ -72,15 +71,6 @@ module.exports.start = (app, callback) ->
         fs.rename app.logFile, app.backup
     # Create logFile
     fs.openSync app.logFile, 'w'
-
-    if fs.existsSync(app.errFile)
-        # If errFile exists, create a backup
-        app.errBackup = app.errFile + "-backup"
-        if fs.existsSync(app.errBackup)
-            fs.unlink app.errBackup
-        fs.rename app.errFile, app.errBackup
-    # Create errFile
-    fs.openSync app.errFile, 'w'
 
     # Initialize forever options
     foreverOptions.options = [

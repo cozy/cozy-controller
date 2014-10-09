@@ -67,7 +67,6 @@ module.exports.start = function(app, callback) {
     cwd: app.dir,
     logFile: app.logFile,
     outFile: app.logFile,
-    errFile: app.errFile,
     env: env,
     killTree: true,
     killTTL: 0,
@@ -81,14 +80,6 @@ module.exports.start = function(app, callback) {
     fs.rename(app.logFile, app.backup);
   }
   fs.openSync(app.logFile, 'w');
-  if (fs.existsSync(app.errFile)) {
-    app.errBackup = app.errFile + "-backup";
-    if (fs.existsSync(app.errBackup)) {
-      fs.unlink(app.errBackup);
-    }
-    fs.rename(app.errFile, app.errBackup);
-  }
-  fs.openSync(app.errFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
   return fs.readFile("" + app.dir + "/package.json", 'utf8', function(err, data) {
     var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, server, start, timeout, _ref5;
