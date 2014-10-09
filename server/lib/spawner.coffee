@@ -55,6 +55,7 @@ module.exports.start = (app, callback) ->
         cwd:       app.dir
         logFile:   app.logFile
         outFile:   app.logFile
+        errFile:   app.logFile
         #hideEnv:   env
         env:       env
         killTree:  true
