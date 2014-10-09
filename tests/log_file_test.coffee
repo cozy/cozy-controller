@@ -37,11 +37,11 @@ describe "Log File", ->
         it "Then statusCode should be 200", ->
             @res.statusCode.should.equal 200
 
-        it "And file log has been created (/var/log/cozy/data-system.log)", ->
-            fs.existsSync('/var/log/cozy/data-system.log').should.be.ok
+        it "And file log has been created (/usr/local/var/log/cozy/data-system.log)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
 
-        it "And file log has been created (/var/log/cozy/data-system.err)", ->
-            fs.existsSync('/var/log/cozy/data-system.err').should.be.ok
+        it "And file log has been created (/usr/local/var/log/cozy/data-system.err)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.err').should.be.ok
 
     describe "Backup log file ", ->
 
@@ -62,11 +62,11 @@ describe "Log File", ->
         it "Then statusCode should be 200", ->
             @res.statusCode.should.equal 200
 
-        it "And file log has been created (/var/log/cozy/data-system.log-backup)", ->
-            fs.existsSync('/var/log/cozy/data-system.log-backup').should.be.ok
+        it "And file log has been created (/usr/local/var/log/cozy/data-system.log-backup)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.ok
 
-        it "And file log has been created (/var/log/cozy/data-system.err-backup)", ->
-            fs.existsSync('/var/log/cozy/data-system.err-backup').should.be.ok
+        it "And file log has been created (/usr/local/var/log/cozy/data-system.err-backup)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.err-backup').should.be.ok
 
     describe "Remove log file ", ->
 
@@ -86,14 +86,14 @@ describe "Log File", ->
         it "Then statusCode should be 200", ->
             @res.statusCode.should.equal 200
 
-        it "And file log has been removed (/var/log/cozy/data-system.log)", ->
-            fs.existsSync('/var/log/cozy/data-system.log').should.be.not.ok
+        it "And file log has been removed (/usr/local/var/log/cozy/data-system.log)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.not.ok
 
-        it "And file log has been removed (/var/log/cozy/data-system.err)", ->
-            fs.existsSync('/var/log/cozy/data-system.err').should.be.not.ok
+        it "And file log has been removed (/usr/local/var/log/cozy/data-system.err)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.err').should.be.not.ok
 
-        it "And file log has been removed (/var/log/cozy/data-system.log-backup)", ->
-            fs.existsSync('/var/log/cozy/data-system.log-backup').should.be.not.ok
+        it "And file log has been removed (/usr/local/var/log/cozy/data-system.log-backup)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.not.ok
 
-        it "And file log has been removed (/var/log/cozy/data-system.err-backup)", ->
-            fs.existsSync('/var/log/cozy/data-system.err-backup').should.be.not.ok
+        it "And file log has been removed (/usr/local/var/log/cozy/data-system.err-backup)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system.err-backup').should.be.not.ok
