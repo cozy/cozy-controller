@@ -28,6 +28,8 @@ describe "Environment variable", ->
                         "COZY": "true"
                     "global":
                         "GLOBAL": "testGlobal"
+                npm_registry: false
+                npm_strict_ssl: false
             fs.writeFileSync '/etc/cozy/controller.json', JSON.stringify(config)
             conf.init () =>
                 done()
@@ -47,6 +49,13 @@ describe "Environment variable", ->
             should.exist conf.get('env')['data-system']
             should.exist conf.get('env')['data-system'].TEST
             conf.get('env')["data-system"].TEST.should.equal "test"
+
+            should.exist conf.get('npm_registry')
+            conf.get('npm_registry').should.equal false
+            # TODOS : test if npm use correct options.
+
+            should.exist conf.get('npm_strict_ssl')
+            conf.get('npm_strict_ssl').should.equal false
 
     describe "Environment transmission", ->
 
