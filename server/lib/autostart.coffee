@@ -89,9 +89,9 @@ start = (apps, clientDS, callback) ->
 checkStart = (port, callback) ->
     client = new Client "http://localhost:#{port}"
     client.get "", (err, res) ->
-        if res? and res.statusCode in [200, 403, 500]
-            if res.statusCode is 500
-                console.log "Warning : receives error 500"
+        if res?
+            if res.statusCode not in  [200, 401, 402, 302]
+                console.log "Warning : receives error #{res.statusCode}"
             callback()
         else
             checkStart port, callback
