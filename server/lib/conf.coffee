@@ -49,7 +49,7 @@ module.exports.init = (callback) ->
                 oldConf.dir_log = data.old.dir_log
             else
                 oldConf.dir_log = false
-            if data.old?.dir_source? and 
+            if data.old?.dir_source? and
                     data.old.dir_source isnt conf.dir_source
                 oldConf.dir_source = data.old.dir_source
             else

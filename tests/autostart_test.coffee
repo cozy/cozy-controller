@@ -13,7 +13,7 @@ describe "Autostart", ->
     describe "Controller installation", ->
         server = ""
         client = ""
-        before helpers.cleanApp 
+        before helpers.cleanApp
 
         before (done) ->
             @timeout 100000
@@ -30,7 +30,7 @@ describe "Autostart", ->
 
             it "When I install data-system", (done) ->
                 @timeout 500000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
@@ -56,7 +56,7 @@ describe "Autostart", ->
 
             it "When I install home", (done) ->
                 @timeout 500000
-                app = 
+                app =
                     name: "home"
                     repository:
                         url: "https://github.com/cozy/cozy-home.git"
@@ -82,7 +82,7 @@ describe "Autostart", ->
 
             it "When I install proxy", (done) ->
                 @timeout 500000
-                app = 
+                app =
                     name: "proxy"
                     repository:
                         url: "https://github.com/cozy/cozy-proxy.git"
@@ -109,7 +109,7 @@ describe "Autostart", ->
                 console.log "http://localhost:#{homePort}"
                 @timeout 500000
                 homeClient = new Client "http://localhost:#{homePort}"
-                app = 
+                app =
                     name: "todos"
                     repository:
                         url: "https://github.com/cozy/cozy-todos.git"
@@ -131,10 +131,10 @@ describe "Autostart", ->
                     res.statusCode.should.equal 200
                     done()###
 
-describe "Restart controller", ->   
+describe "Restart controller", ->
         server = ""
         client = ""
-        
+
         before (done) ->
             @timeout 100000
             helpers.startApp () =>

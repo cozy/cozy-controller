@@ -11,7 +11,7 @@ module.exports.install = (req, res, next) ->
     manifest = req.body.start
     controller.install manifest, (err, result) ->
         if err?
-            res.send 400, error:err
+            res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
 
@@ -27,7 +27,7 @@ module.exports.start = (req, res, next) ->
     manifest = req.body.start
     controller.start manifest, (err, result) ->
         if err
-            res.send 400, error:err
+            res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
 

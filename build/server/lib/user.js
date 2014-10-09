@@ -11,35 +11,31 @@ path = require('path');
         Use script adduser.sh
  */
 
-module.exports.create = (function(_this) {
-  return function(app, callback) {
-    var appdir, child, env, user;
-    env = {};
-    user = env.USER = app.user;
-    appdir = env.HOME = app.userDir;
-    child = spawn('bash', [path.join(__dirname, '..', 'lib', 'adduser.sh')], {
-      env: env
-    });
-    child.stderr.on('data', function(data) {
-      return console.log(data.toString());
-    });
-    return child.on('exit', function(code) {
-      if (code === 0) {
-        return callback();
-      } else {
-        return callback(new Error('Unable to create user'));
-      }
-    });
-  };
-})(this);
+module.exports.create = function(app, callback) {
+  var appdir, child, env, user;
+  env = {};
+  user = env.USER = app.user;
+  appdir = env.HOME = app.userDir;
+  child = spawn('bash', [path.join(__dirname, '..', 'lib', 'adduser.sh')], {
+    env: env
+  });
+  child.stderr.on('data', function(data) {
+    return console.log(data.toString());
+  });
+  return child.on('exit', function(code) {
+    if (code === 0) {
+      return callback();
+    } else {
+      return callback(new Error('Unable to create user'));
+    }
+  });
+};
 
 
 /*
     Remove appplication user
  */
 
-module.exports.remove = (function(_this) {
-  return function(app, callback) {
-    return callback();
-  };
-})(this);
+module.exports.remove = function(app, callback) {
+  return callback();
+};

@@ -9,180 +9,166 @@ spawn = require('child_process').spawn;
 
 pathRoot = "/usr/local/cozy/apps/";
 
-checkOldSource = (function(_this) {
-  return function(name) {
-    return (fs.existsSync(path.join(pathRoot, name, name))) && (!fs.existsSync(path.join(pathRoot, name, name, "server.coffee"))) && (name !== "stack.json");
-  };
-})(this);
+checkOldSource = function(name) {
+  return (fs.existsSync(path.join(pathRoot, name, name))) && (!fs.existsSync(path.join(pathRoot, name, name, "server.coffee"))) && (name !== "stack.json");
+};
 
-getRepo = (function(_this) {
-  return function(name) {
-    var rep, reps, _i, _len;
-    reps = fs.readdirSync(path.join(pathRoot, name, name));
-    for (_i = 0, _len = reps.length; _i < _len; _i++) {
-      rep = reps[_i];
-      if (rep.indexOf('.') === -1) {
-        return rep;
-      }
+getRepo = function(name) {
+  var rep, reps, _i, _len;
+  reps = fs.readdirSync(path.join(pathRoot, name, name));
+  for (_i = 0, _len = reps.length; _i < _len; _i++) {
+    rep = reps[_i];
+    if (rep.indexOf('.') === -1) {
+      return rep;
     }
-  };
-})(this);
+  }
+};
 
 move = function(source, dest, callback) {
   var child;
   child = spawn('sudo', ["mv", source, dest]);
   child.stderr.setEncoding('utf8');
-  child.stderr.on('data', (function(_this) {
-    return function(msg) {
-      return console.log(msg);
-    };
-  })(this));
-  return child.on('close', (function(_this) {
-    return function(code) {
-      if (code !== 0) {
-        console.log("Cannot move old source");
-        return callback("" + name + " : Cannot move old source");
-      } else {
-        return callback();
-      }
-    };
-  })(this));
+  child.stderr.on('data', function(msg) {
+    return console.log(msg);
+  });
+  return child.on('close', function(code) {
+    if (code !== 0) {
+      console.log("Cannot move old source");
+      return callback("" + name + " : Cannot move old source");
+    } else {
+      return callback();
+    }
+  });
 };
 
 rm = function(dir, callback) {
   var child;
   child = spawn('sudo', ["rm", "-rf", dir]);
   child.stderr.setEncoding('utf8');
-  child.stderr.on('data', (function(_this) {
-    return function(msg) {
-      return console.log(msg);
-    };
-  })(this));
-  return child.on('close', (function(_this) {
-    return function(code) {
-      if (code !== 0) {
-        console.log("Cannot move old source");
-        return callback("" + name + " : Cannot remove old source");
-      } else {
-        console.log("" + dir + " : Moved");
-        return callback();
-      }
-    };
-  })(this));
+  child.stderr.on('data', function(msg) {
+    return console.log(msg);
+  });
+  return child.on('close', function(code) {
+    if (code !== 0) {
+      console.log("Cannot move old source");
+      return callback("" + name + " : Cannot remove old source");
+    } else {
+      console.log("" + dir + " : Moved");
+      return callback();
+    }
+  });
 };
 
-updateSourceDir = (function(_this) {
-  return function(apps, callback) {
-    var dest, name, repo, source;
-    if (apps.length > 0) {
-      name = apps.pop();
-      if (checkOldSource(name)) {
-        repo = getRepo(name);
-        if (repo === name) {
-          source = path.join(pathRoot, name, repo);
-          return move(source, path.join(pathRoot, name, "cozy-" + repo), function(err) {
-            var dest;
-            console.log(err);
-            if (err != null) {
-              return callback(err);
-            } else {
-              dest = path.join(pathRoot, name, repo);
-              source = path.join(pathRoot, name, "cozy-" + name, repo);
-              return move(source, dest, function(err) {
-                console.log(err);
-                if (err != null) {
-                  return callback(err);
-                } else {
-                  return rm("/usr/local/cozy/apps/" + name + "/cozy-" + name, function(err) {
-                    console.log(err);
-                    if (err != null) {
-                      return callback(err);
-                    } else {
-                      return updateSourceDir(apps, callback);
-                    }
-                  });
-                }
-              });
-            }
-          });
-        } else {
-          dest = path.join(pathRoot, name, repo);
-          source = path.join(pathRoot, name, name, repo);
-          return move(source, dest, function(err) {
-            if (err != null) {
-              return callback(err);
-            } else {
-              return rm(path.join(pathRoot, name, name), function(err) {
-                if (err != null) {
-                  return callback(err);
-                } else {
-                  return updateSourceDir(apps, callback);
-                }
-              });
-            }
-          });
-        }
-      } else {
-        console.log("" + name + " : Already moved");
-        return updateSourceDir(apps, callback);
-      }
-    } else {
-      return callback();
-    }
-  };
-})(this);
-
-createStackFile = (function(_this) {
-  return function(callback) {
-    var autostartPath, stackFile;
-    autostartPath = "/usr/local/cozy/autostart";
-    if (fs.existsSync(autostartPath)) {
-      stackFile = "/usr/local/cozy/apps/stack.json";
-      return fs.open(stackFile, 'w', function(err) {
-        var file, files, stack, _i, _len;
-        files = fs.readdirSync('/usr/local/cozy/autostart/');
-        stack = {};
-        for (_i = 0, _len = files.length; _i < _len; _i++) {
-          file = files[_i];
-          if (file.indexOf('home') !== -1) {
-            stack.home = JSON.parse(fs.readFileSync(path.join(autostartPath, file), 'utf8'));
-          } else if (file.indexOf('proxy') !== -1) {
-            stack.proxy = JSON.parse(fs.readFileSync(path.join(autostartPath, file), 'utf8'));
-          } else if (file.indexOf('data-system') !== -1) {
-            stack['data-system'] = JSON.parse(fs.readFileSync(path.join(autostartPath, file), 'utf8'));
-          }
-        }
-        return fs.writeFile(stackFile, JSON.stringify(stack), callback);
-      });
-    } else {
-      return callback();
-    }
-  };
-})(this);
-
-module.exports.apply = (function(_this) {
-  return function(callback) {
-    var dirs;
-    console.log("APPLY patch ...");
-    if (fs.existsSync('/etc/cozy/controller.token')) {
-      fs.unlinkSync('/etc/cozy/controller.token');
-    }
-    dirs = fs.readdirSync('/usr/local/cozy/apps');
-    console.log("Move old source directory ...");
-    return updateSourceDir(dirs, function(err) {
-      if (err != null) {
-        console.log(err);
-        return callback(err);
-      } else {
-        console.log("Create Stack File ...");
-        return createStackFile(function(err) {
+updateSourceDir = function(apps, callback) {
+  var dest, name, repo, source;
+  if (apps.length > 0) {
+    name = apps.pop();
+    if (checkOldSource(name)) {
+      repo = getRepo(name);
+      if (repo === name) {
+        source = path.join(pathRoot, name, repo);
+        return move(source, path.join(pathRoot, name, "cozy-" + repo), function(err) {
+          var dest;
+          console.log(err);
           if (err != null) {
             return callback(err);
           } else {
-            return fs.open('/etc/cozy/.patch', 'w', callback);
+            dest = path.join(pathRoot, name, repo);
+            source = path.join(pathRoot, name, "cozy-" + name, repo);
+            return move(source, dest, function(err) {
+              path = "/usr/local/cozy/apps/" + name + "/cozy-" + name;
+              if (err != null) {
+                console.log(err);
+                return callback(err);
+              } else {
+                return rm(path, function(err) {
+                  console.log(err);
+                  if (err != null) {
+                    return callback(err);
+                  } else {
+                    return updateSourceDir(apps, callback);
+                  }
+                });
+              }
+            });
+          }
+        });
+      } else {
+        dest = path.join(pathRoot, name, repo);
+        source = path.join(pathRoot, name, name, repo);
+        return move(source, dest, function(err) {
+          if (err != null) {
+            return callback(err);
+          } else {
+            return rm(path.join(pathRoot, name, name), function(err) {
+              if (err != null) {
+                return callback(err);
+              } else {
+                return updateSourceDir(apps, callback);
+              }
+            });
           }
         });
       }
+    } else {
+      console.log("" + name + " : Already moved");
+      return updateSourceDir(apps, callback);
+    }
+  } else {
+    return callback();
+  }
+};
+
+createStackFile = function(callback) {
+  var autostartPath, stackFile;
+  autostartPath = "/usr/local/cozy/autostart";
+  if (fs.existsSync(autostartPath)) {
+    stackFile = "/usr/local/cozy/apps/stack.json";
+    return fs.open(stackFile, 'w', function(err) {
+      var file, files, manifestDataSystem, manifestHome, manifestProxy, stack, _i, _len;
+      files = fs.readdirSync('/usr/local/cozy/autostart/');
+      stack = {};
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        if (file.indexOf('home') !== -1) {
+          manifestHome = fs.readFileSync(path.join(autostartPath, file), 'utf8');
+          stack.home = JSON.parse(manifestHome);
+        } else if (file.indexOf('proxy') !== -1) {
+          manifestProxy = fs.readFileSync(path.join(autostartPath, file), 'utf8');
+          stack.proxy = JSON.parse(manifestProxy);
+        } else if (file.indexOf('data-system') !== -1) {
+          manifestDataSystem = fs.readFileSync(path.join(autostartPath, file), 'utf8');
+          stack['data-system'] = JSON.parse(manifestDataSystem);
+        }
+      }
+      return fs.writeFile(stackFile, JSON.stringify(stack), callback);
     });
-  };
-})(this);
+  } else {
+    return callback();
+  }
+};
+
+module.exports.apply = function(callback) {
+  var dirs;
+  console.log("APPLY patch ...");
+  if (fs.existsSync('/etc/cozy/controller.token')) {
+    fs.unlinkSync('/etc/cozy/controller.token');
+  }
+  dirs = fs.readdirSync('/usr/local/cozy/apps');
+  console.log("Move old source directory ...");
+  return updateSourceDir(dirs, function(err) {
+    if (err != null) {
+      console.log(err);
+      return callback(err);
+    } else {
+      console.log("Create Stack File ...");
+      return createStackFile(function(err) {
+        if (err != null) {
+          return callback(err);
+        } else {
+          return fs.open('/etc/cozy/.patch', 'w', callback);
+        }
+      });
+    }
+  });
+};

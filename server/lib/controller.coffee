@@ -53,7 +53,7 @@ stopApps = (apps, callback) ->
     if apps.length > 0
         app = apps.pop()
         stopApp app, ->
-            console.logn"#{app}:stop application"
+            console.log "#{app}:stop application"
             stopApps apps, callback
     else
         drones = []
@@ -67,7 +67,7 @@ stopApps = (apps, callback) ->
 ###
 stopApp = (name, callback) ->
     monitor = running[name].monitor
-    onStop = () ->
+    onStop = ->
         console.log "on stop"
         # Avoid double callback
         monitor.removeListener 'error', onErr

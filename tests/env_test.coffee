@@ -7,7 +7,7 @@ conf = require('../server/lib/conf')
 
 describe "Environment variable", ->
 
-    before helpers.cleanApp 
+    before helpers.cleanApp
     before (done) ->
         @timeout 100000
         helpers.startApp () =>
@@ -20,11 +20,11 @@ describe "Environment variable", ->
     describe "Initialization", ->
 
         it "When I initialize configuration", (done) ->
-            config = 
+            config =
                 env:
-                    "data-system": 
+                    "data-system":
                         "COZY": "true"
-                    "home": 
+                    "home":
                         "COZY": "true"
                     "global":
                         "TEST1": "firstTest"
@@ -55,7 +55,7 @@ describe "Environment variable", ->
 
         it "When I install data-system", (done) ->
             @timeout 500000
-            app = 
+            app =
                 name: "data-system"
                 repository:
                     url: "https://github.com/cozy/cozy-data-system.git"

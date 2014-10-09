@@ -20,7 +20,7 @@ module.exports.start = (app, callback) ->
         pwd = app.password
 
     # Transmit application's name and token to drone
-    env = 
+    env =
         NAME: app.name
         TOKEN: pwd
         USER: app.user
@@ -47,15 +47,15 @@ module.exports.start = (app, callback) ->
             env[key] = environment[key]
 
     # Initialize forever options
-    foreverOptions = 
+    foreverOptions =
         fork:      true
         silent:    true
         max:       5
         stdio:     [ 'ipc', 'pipe', 'pipe' ]
         cwd:       app.dir
-        logFile:   app.logFile  
-        outFile:   app.logFile 
-        errFile:   app.errFile  
+        logFile:   app.logFile
+        outFile:   app.logFile
+        errFile:   app.errFile
         #hideEnv:   env
         env:       env
         killTree:  true
@@ -92,33 +92,37 @@ module.exports.start = (app, callback) ->
         app.user]
 
         #foreverOptions.command = 'coffee'
-    fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) =>
+    fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
         data = JSON.parse(data)
+        server = app.server
         if data.scripts?.start?
             start = data.scripts.start.split(' ')
             app.startScript = path.join(app.dir, start[1])
 
             # Check if server is in coffeescript
             if start[0] is "coffee"
-                foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee'])
-        if not start? and (app.server.slice(app.server.lastIndexOf("."),app.server.length) is ".coffee")
-            foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee'])
+                foreverOptions.options =
+                    foreverOptions.options.concat(['--plugin', 'coffee'])
+        if not start? and
+                server.slice(server.lastIndexOf("."),server.length) is ".coffee"
+            foreverOptions.options =
+                foreverOptions.options.concat(['--plugin', 'coffee'])
 
 
         # Check if startScript exists
-        fs.stat app.startScript, (err, stats) =>
+        fs.stat app.startScript, (err, stats) ->
             if err?
-                err = new Error "package.json error: can\'t find starting script: #{app.startScript}"
                 callback err
         # Initialize process
-        foreverOptions.options.push(app.startScript);
-        carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
+        foreverOptions.options.push app.startScript
+        carapaceBin = path.join(require.resolve('cozy-controller-carapace'), \
+            '..', '..', 'bin', 'carapace')
         process = new forever.Monitor(carapaceBin, foreverOptions)
         responded = false
 
         ## Manage events of process
 
-        onExit = () =>
+        onExit = ->
             # Remove listeners to related events.
             process.removeListener 'error', onError
             clearTimeout timeout
@@ -126,9 +130,9 @@ module.exports.start = (app, callback) ->
             if callback then callback new Error "#{app.name} CANT START"
             else
                 console.log "#{app.name} HAS FAILLED TOO MUCH"
-                setTimeout (=> process.exit 1), 1
+                setTimeout (-> process.exit 1), 1
 
-        onError = (err) =>
+        onError = (err) ->
             if not responded
                 err = err.toString()
                 responded = true
@@ -138,7 +142,7 @@ module.exports.start = (app, callback) ->
                 clearTimeout timeout
                 #console.log err
 
-        onStart = (monitor, data) =>
+        onStart = (monitor, data) ->
             result =
                 monitor: process
                 process: monitor.child
@@ -146,10 +150,10 @@ module.exports.start = (app, callback) ->
                 pid: monitor.childData.pid
                 pkg: app
 
-        onRestart = () ->
+        onRestart = ->
             console.log "#{app.name}:restart"
 
-        onTimeout = () =>
+        onTimeout = ->
             process.removeListener 'exit', onExit
             process.stop()
             controller.removeRunningApp(app.name)
@@ -158,7 +162,7 @@ module.exports.start = (app, callback) ->
             console.log 'callback timeout'
             callback err
 
-        onPort = (info) =>   
+        onPort = (info) ->
             if not responded and info?.event is 'port'
                 responded = true
                 result.port = info.data.port

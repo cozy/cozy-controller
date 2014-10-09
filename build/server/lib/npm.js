@@ -9,65 +9,57 @@ config = require('./conf').get;
 
 
 /*
-  Install dependencies 
+  Install dependencies
       * Use strict-ssl or specific npm_registry in function of configuration
       * Npm install
       * Remove npm cache
  */
 
-module.exports.install = (function(_this) {
-  return function(target, callback) {
-    var args, child, options, stderr;
-    args = ['npm', '--unsafe-perm', 'true', '--cache', path.join(target.dir, '..', '.npm'), '--userconfig', path.join(target.dir, '..', '.userconfig'), '--globalconfig', path.join(target.dir, '..', '.globalconfig'), '--production'];
-    if (config('npm_registry')) {
-      args.push('--registry');
-      args.push(config('npm_registry'));
+module.exports.install = function(target, callback) {
+  var args, child, options, stderr;
+  args = ['npm', '--unsafe-perm', 'true', '--cache', path.join(target.dir, '..', '.npm'), '--userconfig', path.join(target.dir, '..', '.userconfig'), '--globalconfig', path.join(target.dir, '..', '.globalconfig'), '--production'];
+  if (config('npm_registry')) {
+    args.push('--registry');
+    args.push(config('npm_registry'));
+  }
+  if (config('npm_strict_ssl')) {
+    args.push('--strict-ssl');
+    args.push(config('npm_strict_ssl'));
+  }
+  args.push('install');
+  options = {
+    cwd: target.dir
+  };
+  child = spawn('sudo', args, options);
+  setTimeout(child.kill.bind(child, 'SIGKILL'), 5 * 60 * 1000);
+  stderr = '';
+  child.stderr.on('data', function(data) {
+    return stderr += data;
+  });
+  return child.on('close', function(code) {
+    var err;
+    if (code !== 0) {
+      console.log("npm:install:err: NPM Install failed : " + stderr);
+      err = new Error('NPM Install failed');
+      callback(err);
+    } else {
+      console.log('npm:install:success');
     }
-    if (config('npm_strict_ssl')) {
-      args.push('--strict-ssl');
-      args.push(config('npm_strict_ssl'));
-    }
-    args.push('install');
+    args = ['npm', '--cache', path.join(target.dir, '..', '.npm'), 'cache', 'clean', '-u', target.user];
     options = {
       cwd: target.dir
     };
     child = spawn('sudo', args, options);
-    setTimeout(child.kill.bind(child, 'SIGKILL'), 5 * 60 * 1000);
     stderr = '';
     child.stderr.on('data', function(data) {
       return stderr += data;
     });
     return child.on('close', function(code) {
-      var err;
       if (code !== 0) {
-        console.log("npm:install:err: NPM Install failed : " + stderr);
-        err = new Error('NPM Install failed');
-        err.code = code;
-        err.result = stderr;
-        err.blame = {
-          type: 'user',
-          message: 'NPM failed to install dependencies'
-        };
-        callback(err);
-      } else {
-        console.log('npm:install:success');
+        console.log('npm:clean_cache:failure');
+        console.log(stderr);
       }
-      args = ['npm', '--cache', path.join(target.dir, '..', '.npm'), 'cache', 'clean', '-u', target.user];
-      options = {
-        cwd: target.dir
-      };
-      child = spawn('sudo', args, options);
-      stderr = '';
-      child.stderr.on('data', function(data) {
-        return stderr += data;
-      });
-      return child.on('close', function(code) {
-        if (code !== 0) {
-          console.log('npm:clean_cache:failure');
-          console.log(stderr);
-        }
-        return callback();
-      });
+      return callback();
     });
-  };
-})(this);
+  });
+};

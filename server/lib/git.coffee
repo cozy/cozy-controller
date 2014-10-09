@@ -11,14 +11,11 @@ request = require 'request'
         * Change branch if necessary
         * Init submodule
 ###
-module.exports.init = (app, callback) =>
+module.exports.init = (app, callback) ->
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
     if not match
         # Url isn't a github url
-        err = new Error('Invalid git url: ' + app.repository.url)
-        err.blame = 
-            type: 'user'   
-            message: 'Repository configuration present but provides invalid Git URL'
+        err = 'Invalid git url: ' + app.repository.url
         exec "rm -rf #{app.dir}", (error, res) ->
             callback err
 
@@ -27,16 +24,13 @@ module.exports.init = (app, callback) =>
         if res.statusCode isnt 200
             # Repo doesn't exist in github
             err = new Error('Invalid git url: ' + url)
-            err.blame = 
-                type: 'user'   
-                message: 'Repository configuration present but provides invalid Git URL'
             exec "rm -rf #{app.appDir}", {}, (error, res) ->
                 callback err
         else
-
+            url = app.repository.url
             # Setup the git commands to be executed
             commands = [
-                'cd ' + app.appDir + ' && git clone --depth 1 ' + app.repository.url,
+                'cd ' + app.appDir + ' && git clone --depth 1 ' + url,
                 'cd ' + app.dir
             ]
 
@@ -45,13 +39,14 @@ module.exports.init = (app, callback) =>
 
             commands[1] += ' && git submodule update --init --recursive'
 
-            executeUntilEmpty = () =>
+            executeUntilEmpty = ->
                 command = commands.shift()
-                # Remark: Using 'exec' here because chaining 'spawn' is not effective here
+                # Remark: Using 'exec' here because chaining 'spawn' is not
+                # effective here
                 config =
-                    env: 
+                    env:
                         "USER": app.user
-                clone = exec command, config, (err, stdout, stderr) =>
+                clone = exec command, config, (err, stdout, stderr) ->
                     if err?
                         callback err, false
                     else if commands.length > 0
@@ -67,13 +62,10 @@ module.exports.init = (app, callback) =>
         * Pull changes
         * Update submodule
 ###
-module.exports.update = (app, callback) =>  
+module.exports.update = (app, callback) ->
     match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
     if not match
-        err = new Error('Invalid git url: ' + app.repository.url)
-        err.blame = 
-          type: 'user'
-          message: 'Repository configuration present but provides invalid Git URL'
+        err = 'Invalid git url: ' + app.repository.url
         callback err
 
     # Setup the git commands to be executed
@@ -92,14 +84,15 @@ module.exports.update = (app, callback) =>
 
     commands[1] += ' && git submodule update --recursive'
 
-    executeUntilEmpty = () =>
+    executeUntilEmpty = ->
         command = commands.shift()
 
         config =
-            env: 
+            env:
                 "USER": app.user
-        # Remark: Using 'exec' here because chaining 'spawn' is not effective her
-        exec command, config, (err, stdout, stderr) =>
+        # Remark: Using 'exec' here because chaining 'spawn'
+        # is not effective her
+        exec command, config, (err, stdout, stderr) ->
             if err?
                 callback err, false
             else if commands.length > 0

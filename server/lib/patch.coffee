@@ -5,13 +5,13 @@ spawn = require('child_process').spawn
 pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
-checkOldSource = (name) =>
-    return (fs.existsSync path.join(pathRoot, name, name)) and 
+checkOldSource = (name) ->
+    return (fs.existsSync path.join(pathRoot, name, name)) and
         (not fs.existsSync path.join(pathRoot, name, name, "server.coffee")) and
         (name isnt "stack.json")
 
-# Return source repository of application <name> 
-getRepo = (name) =>
+# Return source repository of application <name>
+getRepo = (name) ->
     reps = fs.readdirSync path.join(pathRoot, name, name)
     for rep in reps
         if rep.indexOf('.') is -1
@@ -21,22 +21,22 @@ getRepo = (name) =>
 move = (source, dest, callback) ->
     child = spawn 'sudo', ["mv", source, dest]
     child.stderr.setEncoding('utf8')
-    child.stderr.on 'data', (msg) =>
+    child.stderr.on 'data', (msg) ->
         console.log msg
-    child.on 'close', (code) =>
+    child.on 'close', (code) ->
         if code isnt 0
             console.log("Cannot move old source")
             callback "#{name} : Cannot move old source"
-        else   
+        else
             callback()
 
 # Remove directory <dir>
 rm = (dir, callback) ->
     child = spawn 'sudo', ["rm", "-rf", dir]
     child.stderr.setEncoding('utf8')
-    child.stderr.on 'data', (msg) =>
+    child.stderr.on 'data', (msg) ->
         console.log msg
-    child.on 'close', (code) =>
+    child.on 'close', (code) ->
         if code isnt 0
             console.log("Cannot move old source")
             callback "#{name} : Cannot remove old source"
@@ -47,7 +47,7 @@ rm = (dir, callback) ->
 # Move old source path to new source path
 # Old path : /usr/local/cozy/apps/<name>/<name>/<repo>
 # New path : /usr/local/cozy/apps/<name>/<repo>
-updateSourceDir = (apps, callback) =>
+updateSourceDir = (apps, callback) ->
     if apps.length > 0
         name = apps.pop()
         if checkOldSource(name)
@@ -55,19 +55,20 @@ updateSourceDir = (apps, callback) =>
             # Move old source
             if repo is name
                 source = path.join(pathRoot, name, repo)
-                move source, path.join(pathRoot, name, "cozy-#{repo}"), (err) =>
+                move source, path.join(pathRoot, name, "cozy-#{repo}"), (err) ->
                     console.log err
                     if err?
                         callback(err)
                     else
                         dest = path.join(pathRoot, name, repo)
                         source = path.join(pathRoot, name, "cozy-#{name}", repo)
-                        move source, dest, (err) =>
-                            console.log err
+                        move source, dest, (err) ->
+                            path = "/usr/local/cozy/apps/#{name}/cozy-#{name}"
                             if err?
+                                console.log err
                                 callback err
                             else
-                                rm "/usr/local/cozy/apps/#{name}/cozy-#{name}", (err) =>
+                                rm path, (err) ->
                                     console.log err
                                     if err?
                                         callback err
@@ -78,12 +79,12 @@ updateSourceDir = (apps, callback) =>
             else
                 dest = path.join(pathRoot, name, repo)
                 source = path.join(pathRoot, name, name, repo)
-                move source, dest, (err) =>
+                move source, dest, (err) ->
                     if err?
                         callback err
-                    else   
+                    else
                         # Remove old directory
-                        rm path.join(pathRoot, name, name), (err) =>
+                        rm path.join(pathRoot, name, name), (err) ->
                             if err?
                                 callback err
                             else
@@ -95,40 +96,46 @@ updateSourceDir = (apps, callback) =>
         callback()
 
 # Create stack.json with file stored in autostart of old controller
-createStackFile = (callback) =>
+createStackFile = (callback) ->
     autostartPath = "/usr/local/cozy/autostart"
     if fs.existsSync autostartPath
         stackFile = "/usr/local/cozy/apps/stack.json"
-        fs.open stackFile,'w', (err) =>
+        fs.open stackFile,'w', (err) ->
             files = fs.readdirSync '/usr/local/cozy/autostart/'
             stack = {}
             for file in files
                 if file.indexOf('home') isnt -1
-                    stack.home = JSON.parse(fs.readFileSync path.join(autostartPath, file), 'utf8')
+                    manifestHome =
+                        fs.readFileSync path.join(autostartPath, file), 'utf8'
+                    stack.home = JSON.parse manifestHome
                 else if file.indexOf('proxy') isnt -1
-                    stack.proxy = JSON.parse(fs.readFileSync path.join(autostartPath, file), 'utf8')
+                    manifestProxy =
+                        fs.readFileSync path.join(autostartPath, file), 'utf8'
+                    stack.proxy = JSON.parse manifestProxy
                 else if file.indexOf('data-system') isnt -1
-                    stack['data-system'] = JSON.parse(fs.readFileSync path.join(autostartPath, file), 'utf8')
+                    manifestDataSystem =
+                        fs.readFileSync path.join(autostartPath, file), 'utf8'
+                    stack['data-system'] = JSON.parse manifestDataSystem
             fs.writeFile stackFile, JSON.stringify(stack), callback
     else
         callback()
 
 
 #update Files -> usefull for patch
-module.exports.apply = (callback) =>
+module.exports.apply = (callback) ->
     console.log "APPLY patch ..."
     # Update source path
     if fs.existsSync '/etc/cozy/controller.token'
         fs.unlinkSync '/etc/cozy/controller.token'
-    dirs = fs.readdirSync('/usr/local/cozy/apps')
+    dirs = fs.readdirSync '/usr/local/cozy/apps'
     console.log "Move old source directory ..."
-    updateSourceDir dirs, (err) =>
+    updateSourceDir dirs, (err) ->
         if err?
             console.log err
             callback err
         else
             console.log "Create Stack File ..."
-            createStackFile (err) =>
+            createStackFile (err) ->
                 if err?
                     callback err
                 else

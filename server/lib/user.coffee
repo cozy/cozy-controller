@@ -5,15 +5,16 @@ path = require 'path'
     Create user cozy-<app>
         Use script adduser.sh
 ###
-module.exports.create = (app, callback) =>    # 
+module.exports.create = (app, callback) ->
     env = {}
     user = env.USER = app.user
     appdir = env.HOME = app.userDir
-    child = spawn('bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], env: env)    
+    child = spawn 'bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], \
+        env: env
 
-    child.stderr.on 'data', (data) =>
+    child.stderr.on 'data', (data) ->
         console.log data.toString()
-    child.on 'exit', (code) =>
+    child.on 'exit', (code) ->
         if code is 0
             callback()
         else
@@ -22,6 +23,6 @@ module.exports.create = (app, callback) =>    #
 ###
     Remove appplication user
 ###
-module.exports.remove = (app, callback) =>    # 
+module.exports.remove = (app, callback) ->
     ## TODOS
     callback()

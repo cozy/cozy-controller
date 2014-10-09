@@ -34,26 +34,24 @@ stackApps = ['home', 'data-system', 'proxy'];
         * add application in drones and running
  */
 
-startApp = (function(_this) {
-  return function(app, callback) {
-    if (running[app.name] != null) {
-      return callback('Application already exists');
-    } else {
-      return spawner.start(app, function(err, result) {
-        if (err != null) {
-          return callback(err);
-        } else if (result == null) {
-          err = new Error('Unknown error from Spawner.');
-          return callback(err);
-        } else {
-          drones[app.name] = result.pkg;
-          running[app.name] = result;
-          return callback(null, result);
-        }
-      });
-    }
-  };
-})(this);
+startApp = function(app, callback) {
+  if (running[app.name] != null) {
+    return callback('Application already exists');
+  } else {
+    return spawner.start(app, function(err, result) {
+      if (err != null) {
+        return callback(err);
+      } else if (result == null) {
+        err = new Error('Unknown error from Spawner.');
+        return callback(err);
+      } else {
+        drones[app.name] = result.pkg;
+        running[app.name] = result;
+        return callback(null, result);
+      }
+    });
+  }
+};
 
 
 /*
@@ -82,36 +80,34 @@ stopApps = function(apps, callback) {
         * Delete application in running
  */
 
-stopApp = (function(_this) {
-  return function(name, callback) {
-    var err, monitor, onErr, onStop;
-    monitor = running[name].monitor;
-    onStop = function() {
-      console.log("on stop");
-      monitor.removeListener('error', onErr);
-      monitor.removeListener('exit', onStop);
-      monitor.removeListener('stop', onStop);
-      return callback(null, name);
-    };
-    onErr = function(err) {
-      console.log(err);
-      monitor.removeListener('stop', onStop);
-      monitor.removeListener('exit', onStop);
-      return callback(err, name);
-    };
-    monitor.once('stop', onStop);
-    monitor.once('exit', onStop);
-    monitor.once('error', onErr);
-    try {
-      delete running[name];
-      return monitor.stop();
-    } catch (_error) {
-      err = _error;
-      console.log(err);
-      return onErr(err);
-    }
+stopApp = function(name, callback) {
+  var err, monitor, onErr, onStop;
+  monitor = running[name].monitor;
+  onStop = function() {
+    console.log("on stop");
+    monitor.removeListener('error', onErr);
+    monitor.removeListener('exit', onStop);
+    monitor.removeListener('stop', onStop);
+    return callback(null, name);
   };
-})(this);
+  onErr = function(err) {
+    console.log(err);
+    monitor.removeListener('stop', onStop);
+    monitor.removeListener('exit', onStop);
+    return callback(err, name);
+  };
+  monitor.once('stop', onStop);
+  monitor.once('exit', onStop);
+  monitor.once('error', onErr);
+  try {
+    delete running[name];
+    return monitor.stop();
+  } catch (_error) {
+    err = _error;
+    console.log(err);
+    return onErr(err);
+  }
+};
 
 
 /*
@@ -125,21 +121,19 @@ updateApp = function(name, callback) {
   var app;
   app = drones[name];
   console.log("" + name + ":update application");
-  return type[app.repository.type].update(app, (function(_this) {
-    return function(err) {
-      if (err != null) {
-        return callback(err);
-      } else {
-        return installDependencies(app, 2, function(err) {
-          if (err != null) {
-            return callback(err);
-          } else {
-            return callback(null, app);
-          }
-        });
-      }
-    };
-  })(this));
+  return type[app.repository.type].update(app, function(err) {
+    if (err != null) {
+      return callback(err);
+    } else {
+      return installDependencies(app, 2, function(err) {
+        if (err != null) {
+          return callback(err);
+        } else {
+          return callback(null, app);
+        }
+      });
+    }
+  });
 };
 
 
@@ -149,21 +143,19 @@ updateApp = function(name, callback) {
         * If installation return an error, try again (if <test> isnt 0)
  */
 
-installDependencies = (function(_this) {
-  return function(app, test, callback) {
-    test = test - 1;
-    return npm.install(app, function(err) {
-      if ((err != null) && test === 0) {
-        return callback(err);
-      } else if (err != null) {
-        console.log('TRY AGAIN ...');
-        return installDependencies(app, test, callback);
-      } else {
-        return callback();
-      }
-    });
-  };
-})(this);
+installDependencies = function(app, test, callback) {
+  test = test - 1;
+  return npm.install(app, function(err) {
+    if ((err != null) && test === 0) {
+      return callback(err);
+    } else if (err != null) {
+      console.log('TRY AGAIN ...');
+      return installDependencies(app, test, callback);
+    } else {
+      return callback();
+    }
+  });
+};
 
 
 /*
@@ -171,11 +163,9 @@ installDependencies = (function(_this) {
         Userfull if application exit with timeout
  */
 
-module.exports.removeRunningApp = (function(_this) {
-  return function(name) {
-    return delete running[name];
-  };
-})(this);
+module.exports.removeRunningApp = function(name) {
+  return delete running[name];
+};
 
 
 /*
@@ -189,48 +179,46 @@ module.exports.removeRunningApp = (function(_this) {
         * Start process
  */
 
-module.exports.install = (function(_this) {
-  return function(manifest, callback) {
-    var app;
-    app = new App(manifest);
-    app = app.app;
-    if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
-      console.log("" + app.name + ":already installed");
-      console.log("" + app.name + ":start application");
-      return startApp(app, callback);
-    } else {
-      drones[app.name] = app;
-      return user.create(app, function() {
-        console.log("" + app.name + ":create directory");
-        return repo.create(app, function(err) {
+module.exports.install = function(manifest, callback) {
+  var app;
+  app = new App(manifest);
+  app = app.app;
+  if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
+    console.log("" + app.name + ":already installed");
+    console.log("" + app.name + ":start application");
+    return startApp(app, callback);
+  } else {
+    drones[app.name] = app;
+    return user.create(app, function() {
+      console.log("" + app.name + ":create directory");
+      return repo.create(app, function(err) {
+        if (err != null) {
+          callback(err);
+        }
+        console.log("" + app.name + ":git clone");
+        return type[app.repository.type].init(app, function(err) {
           if (err != null) {
-            callback(err);
-          }
-          console.log("" + app.name + ":git clone");
-          return type[app.repository.type].init(app, function(err) {
-            if (err != null) {
-              return callback(err);
-            } else {
-              console.log("" + app.name + ":npm install");
-              return installDependencies(app, 2, function(err) {
-                var _ref;
-                if (err != null) {
-                  return callback(err);
-                } else {
-                  console.log("" + app.name + ":start application");
-                  if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
-                    stack.addApp(app, callback);
-                  }
-                  return startApp(app, callback);
+            return callback(err);
+          } else {
+            console.log("" + app.name + ":npm install");
+            return installDependencies(app, 2, function(err) {
+              var _ref;
+              if (err != null) {
+                return callback(err);
+              } else {
+                console.log("" + app.name + ":start application");
+                if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
+                  stack.addApp(app, callback);
                 }
-              });
-            }
-          });
+                return startApp(app, callback);
+              }
+            });
+          }
         });
       });
-    }
-  };
-})(this);
+    });
+  }
+};
 
 
 /*
@@ -244,15 +232,13 @@ module.exports.start = function(manifest, callback) {
   app = new App(manifest);
   app = app.app;
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
-    return startApp(app, (function(_this) {
-      return function(err, result) {
-        if (err != null) {
-          return callback(err);
-        } else {
-          return callback(null, result);
-        }
-      };
-    })(this));
+    return startApp(app, function(err, result) {
+      if (err != null) {
+        return callback(err);
+      } else {
+        return callback(null, result);
+      }
+    });
   } else {
     err = new Error('Cannot start an application not installed');
     return callback(err);
@@ -311,18 +297,16 @@ module.exports.uninstall = function(name, callback) {
       });
     }
     app = drones[name];
-    return repo["delete"](app, (function(_this) {
-      return function(err) {
-        console.log("" + name + ":delete directory");
-        if (drones[name] != null) {
-          delete drones[name];
-        }
-        if (err) {
-          callback(err);
-        }
-        return callback(null, name);
-      };
-    })(this));
+    return repo["delete"](app, function(err) {
+      console.log("" + name + ":delete directory");
+      if (drones[name] != null) {
+        delete drones[name];
+      }
+      if (err) {
+        callback(err);
+      }
+      return callback(null, name);
+    });
   } else {
     err = new Error('Cannot uninstall an application not installed');
     return callback(err);
@@ -343,22 +327,20 @@ module.exports.update = function(name, callback) {
   if (drones[name] != null) {
     if (running[name] != null) {
       console.log("" + name + ":stop application");
-      return stopApp(name, (function(_this) {
-        return function(err) {
-          return updateApp(name, function(err) {
-            var app;
-            if (err != null) {
-              return callback(err);
-            } else {
-              app = drones[name];
-              return startApp(app, function(err, result) {
-                console.log("" + name + ":start application");
-                return callback(err, result);
-              });
-            }
-          });
-        };
-      })(this));
+      return stopApp(name, function(err) {
+        return updateApp(name, function(err) {
+          var app;
+          if (err != null) {
+            return callback(err);
+          } else {
+            app = drones[name];
+            return startApp(app, function(err, result) {
+              console.log("" + name + ":start application");
+              return callback(err, result);
+            });
+          }
+        });
+      });
     } else {
       return updateApp(name, callback);
     }

@@ -90,91 +90,89 @@ module.exports.start = function(app, callback) {
   }
   fs.openSync(app.errFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
-  return fs.readFile("" + app.dir + "/package.json", 'utf8', (function(_this) {
-    return function(err, data) {
-      var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, start, timeout, _ref5;
-      data = JSON.parse(data);
-      if (((_ref5 = data.scripts) != null ? _ref5.start : void 0) != null) {
-        start = data.scripts.start.split(' ');
-        app.startScript = path.join(app.dir, start[1]);
-        if (start[0] === "coffee") {
-          foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
-        }
-      }
-      if ((start == null) && (app.server.slice(app.server.lastIndexOf("."), app.server.length) === ".coffee")) {
+  return fs.readFile("" + app.dir + "/package.json", 'utf8', function(err, data) {
+    var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, server, start, timeout, _ref5;
+    data = JSON.parse(data);
+    server = app.server;
+    if (((_ref5 = data.scripts) != null ? _ref5.start : void 0) != null) {
+      start = data.scripts.start.split(' ');
+      app.startScript = path.join(app.dir, start[1]);
+      if (start[0] === "coffee") {
         foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
       }
-      fs.stat(app.startScript, function(err, stats) {
-        if (err != null) {
-          err = new Error("package.json error: can\'t find starting script: " + app.startScript);
-          return callback(err);
-        }
-      });
-      foreverOptions.options.push(app.startScript);
-      carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
-      process = new forever.Monitor(carapaceBin, foreverOptions);
-      responded = false;
-      onExit = function() {
-        process.removeListener('error', onError);
-        clearTimeout(timeout);
-        console.log('callback on Exit');
-        if (callback) {
-          return callback(new Error("" + app.name + " CANT START"));
-        } else {
-          console.log("" + app.name + " HAS FAILLED TOO MUCH");
-          return setTimeout((function() {
-            return process.exit(1);
-          }), 1);
-        }
-      };
-      onError = function(err) {
-        if (!responded) {
-          err = err.toString();
-          responded = true;
-          callback(err);
-          process.removeListener('exit', onExit);
-          process.removeListener('message', onPort);
-          return clearTimeout(timeout);
-        }
-      };
-      onStart = function(monitor, data) {
-        return result = {
-          monitor: process,
-          process: monitor.child,
-          data: data,
-          pid: monitor.childData.pid,
-          pkg: app
-        };
-      };
-      onRestart = function() {
-        return console.log("" + app.name + ":restart");
-      };
-      onTimeout = function() {
-        process.removeListener('exit', onExit);
-        process.stop();
-        controller.removeRunningApp(app.name);
-        err = new Error('Error spawning drone');
-        console.log('callback timeout');
+    }
+    if ((start == null) && server.slice(server.lastIndexOf("."), server.length) === ".coffee") {
+      foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
+    }
+    fs.stat(app.startScript, function(err, stats) {
+      if (err != null) {
         return callback(err);
-      };
-      onPort = function(info) {
-        if (!responded && (info != null ? info.event : void 0) === 'port') {
-          responded = true;
-          result.port = info.data.port;
-          callback(null, result);
-          process.removeListener('exit', onExit);
-          process.removeListener('error', onError);
-          process.removeListener('message', onPort);
-          return clearTimeout(timeout);
-        }
-      };
-      process.start();
-      timeout = setTimeout(onTimeout, 8000000);
-      process.once('exit', onExit);
-      process.once('error', onError);
-      process.once('start', onStart);
-      process.on('restart', onRestart);
-      return process.on('message', onPort);
+      }
+    });
+    foreverOptions.options.push(app.startScript);
+    carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
+    process = new forever.Monitor(carapaceBin, foreverOptions);
+    responded = false;
+    onExit = function() {
+      process.removeListener('error', onError);
+      clearTimeout(timeout);
+      console.log('callback on Exit');
+      if (callback) {
+        return callback(new Error("" + app.name + " CANT START"));
+      } else {
+        console.log("" + app.name + " HAS FAILLED TOO MUCH");
+        return setTimeout((function() {
+          return process.exit(1);
+        }), 1);
+      }
     };
-  })(this));
+    onError = function(err) {
+      if (!responded) {
+        err = err.toString();
+        responded = true;
+        callback(err);
+        process.removeListener('exit', onExit);
+        process.removeListener('message', onPort);
+        return clearTimeout(timeout);
+      }
+    };
+    onStart = function(monitor, data) {
+      return result = {
+        monitor: process,
+        process: monitor.child,
+        data: data,
+        pid: monitor.childData.pid,
+        pkg: app
+      };
+    };
+    onRestart = function() {
+      return console.log("" + app.name + ":restart");
+    };
+    onTimeout = function() {
+      process.removeListener('exit', onExit);
+      process.stop();
+      controller.removeRunningApp(app.name);
+      err = new Error('Error spawning drone');
+      console.log('callback timeout');
+      return callback(err);
+    };
+    onPort = function(info) {
+      if (!responded && (info != null ? info.event : void 0) === 'port') {
+        responded = true;
+        result.port = info.data.port;
+        callback(null, result);
+        process.removeListener('exit', onExit);
+        process.removeListener('error', onError);
+        process.removeListener('message', onPort);
+        return clearTimeout(timeout);
+      }
+    };
+    process.start();
+    timeout = setTimeout(onTimeout, 8000000);
+    process.once('exit', onExit);
+    process.once('error', onError);
+    process.once('start', onStart);
+    process.on('restart', onRestart);
+    return process.on('message', onPort);
+  });
 };

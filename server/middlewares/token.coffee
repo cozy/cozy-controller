@@ -3,7 +3,7 @@ token = ""
 ###
     Initalise token in RAM
 ###
-module.exports.init = (current_token) =>
+module.exports.init = (current_token) ->
     token = current_token
 
 ###
@@ -12,7 +12,7 @@ module.exports.init = (current_token) =>
         * return 403 as error code if token is bad
         * Continue if token is correct
 ###
-module.exports.check = (req, res, next) =>
+module.exports.check = (req, res, next) ->
     if process.env.NODE_ENV is "production" or process.env.NODE_ENV is "test"
         auth = req.headers['x-auth-token']
         if auth isnt "undefined" and auth?
@@ -26,8 +26,8 @@ module.exports.check = (req, res, next) =>
         next()
 
 ###
-    Return token 
+    Return token
         Usefull in spawner to transmit token to stack application
 ###
-module.exports.get = () =>
+module.exports.get = ->
     return token

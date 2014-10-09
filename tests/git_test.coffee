@@ -29,14 +29,13 @@ describe "Git", ->
             client.post 'apps/data-systel/install', "start": app, (err, res, body) =>
                 @res = res
                 @body = body
+                @err
                 done()
 
         it "Then statusCode should be 400", ->
             @res.statusCode.should.equal 400
 
 
-        it "Then body.error.message should be 'Repository configuration present but provides invalid Git URL'", ->
+        it "Then body.error should be 'Error: Invalid git url: https://github.com/cozy/cozy-data-systel.git'", ->
             should.exist @body.error
-            should.exist @body.error.blame
-            should.exist @body.error.blame.message
-            @body.error.blame.message.should.equal 'Repository configuration present but provides invalid Git URL'
+            @body.error.should.equal 'Error: Invalid git url: https://github.com/cozy/cozy-data-systel.git'

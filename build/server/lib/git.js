@@ -18,63 +18,52 @@ request = require('request');
         * Init submodule
  */
 
-module.exports.init = (function(_this) {
-  return function(app, callback) {
-    var err, match, url;
-    match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
-    if (!match) {
-      err = new Error('Invalid git url: ' + app.repository.url);
-      err.blame = {
-        type: 'user',
-        message: 'Repository configuration present but provides invalid Git URL'
-      };
-      exec("rm -rf " + app.dir, function(error, res) {
+module.exports.init = function(app, callback) {
+  var err, match, url;
+  match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
+  if (!match) {
+    err = 'Invalid git url: ' + app.repository.url;
+    exec("rm -rf " + app.dir, function(error, res) {
+      return callback(err);
+    });
+  }
+  url = app.repository.url;
+  return request.get(url.substr(0, url.length - 4), function(err, res, body) {
+    var commands, executeUntilEmpty;
+    if (res.statusCode !== 200) {
+      err = new Error('Invalid git url: ' + url);
+      return exec("rm -rf " + app.appDir, {}, function(error, res) {
         return callback(err);
       });
-    }
-    url = app.repository.url;
-    return request.get(url.substr(0, url.length - 4), function(err, res, body) {
-      var commands, executeUntilEmpty;
-      if (res.statusCode !== 200) {
-        err = new Error('Invalid git url: ' + url);
-        err.blame = {
-          type: 'user',
-          message: 'Repository configuration present but provides invalid Git URL'
-        };
-        return exec("rm -rf " + app.appDir, {}, function(error, res) {
-          return callback(err);
-        });
-      } else {
-        commands = ['cd ' + app.appDir + ' && git clone --depth 1 ' + app.repository.url, 'cd ' + app.dir];
-        if (app.repository.branch != null) {
-          commands[1] += ' && git checkout ' + app.repository.branch;
-        }
-        commands[1] += ' && git submodule update --init --recursive';
-        executeUntilEmpty = (function(_this) {
-          return function() {
-            var clone, command, config;
-            command = commands.shift();
-            config = {
-              env: {
-                "USER": app.user
-              }
-            };
-            return clone = exec(command, config, function(err, stdout, stderr) {
-              if (err != null) {
-                return callback(err, false);
-              } else if (commands.length > 0) {
-                return executeUntilEmpty();
-              } else if (commands.length === 0) {
-                return callback();
-              }
-            });
-          };
-        })(this);
-        return executeUntilEmpty();
+    } else {
+      url = app.repository.url;
+      commands = ['cd ' + app.appDir + ' && git clone --depth 1 ' + url, 'cd ' + app.dir];
+      if (app.repository.branch != null) {
+        commands[1] += ' && git checkout ' + app.repository.branch;
       }
-    });
-  };
-})(this);
+      commands[1] += ' && git submodule update --init --recursive';
+      executeUntilEmpty = function() {
+        var clone, command, config;
+        command = commands.shift();
+        config = {
+          env: {
+            "USER": app.user
+          }
+        };
+        return clone = exec(command, config, function(err, stdout, stderr) {
+          if (err != null) {
+            return callback(err, false);
+          } else if (commands.length > 0) {
+            return executeUntilEmpty();
+          } else if (commands.length === 0) {
+            return callback();
+          }
+        });
+      };
+      return executeUntilEmpty();
+    }
+  });
+};
 
 
 /*
@@ -85,42 +74,36 @@ module.exports.init = (function(_this) {
         * Update submodule
  */
 
-module.exports.update = (function(_this) {
-  return function(app, callback) {
-    var commands, err, executeUntilEmpty, match;
-    match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
-    if (!match) {
-      err = new Error('Invalid git url: ' + app.repository.url);
-      err.blame = {
-        type: 'user',
-        message: 'Repository configuration present but provides invalid Git URL'
-      };
-      callback(err);
-    }
-    if (app.repository.branch != null) {
-      commands = ['cd ' + app.dir + ' && git reset --hard ', 'cd ' + app.dir + ' && git pull origin ' + app.repository.branch, 'cd ' + app.dir];
-    } else {
-      commands = ['cd ' + app.dir + ' && git reset --hard ', 'cd ' + app.dir + ' && git pull', 'cd ' + app.dir];
-    }
-    commands[1] += ' && git submodule update --recursive';
-    executeUntilEmpty = function() {
-      var command, config;
-      command = commands.shift();
-      config = {
-        env: {
-          "USER": app.user
-        }
-      };
-      return exec(command, config, function(err, stdout, stderr) {
-        if (err != null) {
-          return callback(err, false);
-        } else if (commands.length > 0) {
-          return executeUntilEmpty();
-        } else if (commands.length === 0) {
-          return callback();
-        }
-      });
+module.exports.update = function(app, callback) {
+  var commands, err, executeUntilEmpty, match;
+  match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
+  if (!match) {
+    err = 'Invalid git url: ' + app.repository.url;
+    callback(err);
+  }
+  if (app.repository.branch != null) {
+    commands = ['cd ' + app.dir + ' && git reset --hard ', 'cd ' + app.dir + ' && git pull origin ' + app.repository.branch, 'cd ' + app.dir];
+  } else {
+    commands = ['cd ' + app.dir + ' && git reset --hard ', 'cd ' + app.dir + ' && git pull', 'cd ' + app.dir];
+  }
+  commands[1] += ' && git submodule update --recursive';
+  executeUntilEmpty = function() {
+    var command, config;
+    command = commands.shift();
+    config = {
+      env: {
+        "USER": app.user
+      }
     };
-    return executeUntilEmpty();
+    return exec(command, config, function(err, stdout, stderr) {
+      if (err != null) {
+        return callback(err, false);
+      } else if (commands.length > 0) {
+        return executeUntilEmpty();
+      } else if (commands.length === 0) {
+        return callback();
+      }
+    });
   };
-})(this);
+  return executeUntilEmpty();
+};

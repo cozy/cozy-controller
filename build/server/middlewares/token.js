@@ -8,11 +8,9 @@ token = "";
     Initalise token in RAM
  */
 
-module.exports.init = (function(_this) {
-  return function(current_token) {
-    return token = current_token;
-  };
-})(this);
+module.exports.init = function(current_token) {
+  return token = current_token;
+};
 
 
 /*
@@ -22,34 +20,30 @@ module.exports.init = (function(_this) {
         * Continue if token is correct
  */
 
-module.exports.check = (function(_this) {
-  return function(req, res, next) {
-    var auth;
-    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
-      auth = req.headers['x-auth-token'];
-      if (auth !== "undefined" && (auth != null)) {
-        if (auth !== token) {
-          return res.send(401, "Token is not correct");
-        } else {
-          return next();
-        }
+module.exports.check = function(req, res, next) {
+  var auth;
+  if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
+    auth = req.headers['x-auth-token'];
+    if (auth !== "undefined" && (auth != null)) {
+      if (auth !== token) {
+        return res.send(401, "Token is not correct");
       } else {
-        return res.send(401, "Application is not authenticated");
+        return next();
       }
     } else {
-      return next();
+      return res.send(401, "Application is not authenticated");
     }
-  };
-})(this);
+  } else {
+    return next();
+  }
+};
 
 
 /*
-    Return token 
+    Return token
         Usefull in spawner to transmit token to stack application
  */
 
-module.exports.get = (function(_this) {
-  return function() {
-    return token;
-  };
-})(this);
+module.exports.get = function() {
+  return token;
+};

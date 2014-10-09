@@ -10,7 +10,7 @@ server = ""
 
 describe "Spawner", ->
 
-    before helpers.cleanApp 
+    before helpers.cleanApp
     before (done) ->
         @timeout 100000
         helpers.startApp () =>
@@ -27,7 +27,7 @@ describe "Spawner", ->
         describe "Installation with bad argument", ->
 
             it "When I try to install application", (done) ->
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
@@ -51,7 +51,7 @@ describe "Spawner", ->
 
             it "When I install data-system", (done) ->
                 @timeout 500000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
@@ -96,7 +96,7 @@ describe "Spawner", ->
 
             it "When I try to stop application", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-systel"
                 client.post 'apps/data-systel/stop', app, (err, res, body) =>
                     @res = res
@@ -114,7 +114,7 @@ describe "Spawner", ->
 
             it "When I stop data-system", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-system"
                 client.post 'apps/data-system/stop', "stop":app, (err, res, body) =>
                     @res = res
@@ -136,7 +136,7 @@ describe "Spawner", ->
 
             it "When I restart data-system", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
@@ -159,7 +159,7 @@ describe "Spawner", ->
 
             it "When I restart data-system", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
@@ -187,7 +187,7 @@ describe "Spawner", ->
 
             it "When I restart data-system", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-systel.git"
@@ -247,7 +247,7 @@ describe "Spawner", ->
 
             it "When I try to uninstall application", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
                         type: "git"
@@ -270,7 +270,7 @@ describe "Spawner", ->
 
             it "When I uninstall data-system", (done) ->
                 @timeout 100000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"

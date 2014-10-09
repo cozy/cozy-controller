@@ -104,7 +104,7 @@ helpers.cleanApp = (done) ->
                         done()
             else
                 done()
-    else 
+    else
         done()
 
 
@@ -138,7 +138,7 @@ helpers.Subscriber = class Subscriber
         @callback()
         @callback = ->
     haveBeenCalled: (channel, msg) =>
-        @calls.some (call) -> 
+        @calls.some (call) ->
             call.channel is channel and call.msg is msg
 
 module.exports = helpers

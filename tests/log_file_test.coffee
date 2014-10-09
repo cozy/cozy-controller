@@ -7,7 +7,7 @@ client = ""
 
 describe "Log File", ->
 
-    before helpers.cleanApp 
+    before helpers.cleanApp
     before (done) ->
         @timeout 10000
         helpers.startApp () =>
@@ -21,7 +21,7 @@ describe "Log File", ->
 
         it "When I install data-system", (done) ->
             @timeout 500000
-            app = 
+            app =
                 name: "data-system"
                 repository:
                     url: "https://github.com/cozy/cozy-data-system.git"
@@ -47,7 +47,7 @@ describe "Log File", ->
 
         it "When I restart data-system", (done) ->
             @timeout 100000
-            app = 
+            app =
                 name: "data-system"
                 repository:
                     url: "https://github.com/cozy/cozy-data-system.git"
@@ -72,7 +72,7 @@ describe "Log File", ->
 
         it "When I uninstall data-system", (done) ->
             @timeout 100000
-            app = 
+            app =
                 name: "data-system"
                 repository:
                     url: "https://github.com/cozy/cozy-data-system.git"

@@ -21,7 +21,7 @@ module.exports.install = function(req, res, next) {
   return controller.install(manifest, function(err, result) {
     if (err != null) {
       return res.send(400, {
-        error: err
+        error: err.toString()
       });
     } else {
       return res.send(200, {
@@ -52,7 +52,7 @@ module.exports.start = function(req, res, next) {
   return controller.start(manifest, function(err, result) {
     if (err) {
       return res.send(400, {
-        error: err
+        error: err.toString()
       });
     } else {
       return res.send(200, {
