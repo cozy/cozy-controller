@@ -77,17 +77,13 @@ module.exports["delete"] = function(app, callback) {
       return callback(new Error('Unable to remove directory'));
     } else {
       return fs.unlink(app.logFile, function(err) {
-        return fs.unlink(app.errFile, function(err) {
-          if (fs.existsSync(app.backup)) {
-            return fs.unlink(app.backup, function(err) {
-              return fs.unlink(app.errBackup, function(err) {
-                return callback();
-              });
-            });
-          } else {
+        if (fs.existsSync(app.backup)) {
+          return fs.unlink(app.backup, function(err) {
             return callback();
-          }
-        });
+          });
+        } else {
+          return callback();
+        }
       });
     }
   });

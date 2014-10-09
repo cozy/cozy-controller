@@ -6,9 +6,9 @@ client = ""
 
 describe "Log File", ->
 
-    before helpers.cleanApp
     before (done) ->
         @timeout 10000
+        helpers.cleanApp () =>
         helpers.startApp () =>
             client = helpers.getClient()
             done()
@@ -39,9 +39,6 @@ describe "Log File", ->
         it "And file log has been created (/usr/local/var/log/cozy/data-system.log)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
 
-        it "And file log has been created (/usr/local/var/log/cozy/data-system.err)", ->
-            fs.existsSync('/usr/local/var/log/cozy/data-system.err').should.be.ok
-
     describe "Backup log file ", ->
 
         it "When I restart data-system", (done) ->
@@ -64,9 +61,6 @@ describe "Log File", ->
         it "And file log has been created (/usr/local/var/log/cozy/data-system.log-backup)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.ok
 
-        it "And file log has been created (/usr/local/var/log/cozy/data-system.err-backup)", ->
-            fs.existsSync('/usr/local/var/log/cozy/data-system.err-backup').should.be.ok
-
     describe "Remove log file ", ->
 
         it "When I uninstall data-system", (done) ->
@@ -88,11 +82,5 @@ describe "Log File", ->
         it "And file log has been removed (/usr/local/var/log/cozy/data-system.log)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.not.ok
 
-        it "And file log has been removed (/usr/local/var/log/cozy/data-system.err)", ->
-            fs.existsSync('/usr/local/var/log/cozy/data-system.err').should.be.not.ok
-
         it "And file log has been removed (/usr/local/var/log/cozy/data-system.log-backup)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.not.ok
-
-        it "And file log has been removed (/usr/local/var/log/cozy/data-system.err-backup)", ->
-            fs.existsSync('/usr/local/var/log/cozy/data-system.err-backup').should.be.not.ok

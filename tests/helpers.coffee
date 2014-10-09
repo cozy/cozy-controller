@@ -50,7 +50,6 @@ initializeApplication = (callback) =>
     src = path.join(path.dirname(fs.realpathSync(__filename)), '..', 'lib')
     require(path.join(src, "#{helpers.prefix}server"))(callback)
 
-
 helpers.startApp = (callback) ->
     initializeApplication (app, server) =>
         @app = app
@@ -90,8 +89,6 @@ helpers.cleanApp = (done) ->
         fs.unlinkSync '/usr/local/cozy/apps/stack.json'
     if fs.existsSync '/usr/local/cozy/stack.json'
         fs.unlinkSync '/usr/local/cozy/stack.json'
-    #if fs.existsSync '/var/log/cozy/data-system.log'
-    #    fs.unlinkSync '/var/log/cozy/data-system.log'
     if fs.existsSync '/usr/local/cozy/apps/data-system'
         exec 'rm -rf /usr/local/cozy/apps/data-system', (err,out) ->
             console.log err

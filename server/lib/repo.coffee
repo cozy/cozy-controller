@@ -27,7 +27,7 @@ module.exports.create = (app, callback) ->
                                 if mkAppErr?
                                     callback mkAppErr, false
                     callback null, true
-                    
+
             if userErr?
                 fs.mkdir app.userDir, "0755", (mkUserErr) ->
                     changeOwner app.userDir, (err) ->
@@ -52,10 +52,8 @@ module.exports.delete = (app, callback) ->
             callback new Error('Unable to remove directory')
         else
             fs.unlink app.logFile, (err) ->
-                fs.unlink app.errFile, (err) ->
-                    if fs.existsSync app.backup
-                        fs.unlink app.backup, (err) ->
-                            fs.unlink app.errBackup, (err) ->
-                                callback()
-                    else
+                if fs.existsSync app.backup
+                    fs.unlink app.backup, (err) ->
                         callback()
+                else
+                    callback()
