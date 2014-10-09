@@ -67,6 +67,7 @@ module.exports.start = function(app, callback) {
     cwd: app.dir,
     logFile: app.logFile,
     outFile: app.logFile,
+    errFile: app.logFile,
     env: env,
     killTree: true,
     killTTL: 0,

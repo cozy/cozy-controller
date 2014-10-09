@@ -120,9 +120,9 @@ checkStart = function(port, callback) {
   client = new Client("http://localhost:" + port);
   return client.get("", function(err, res) {
     var _ref;
-    if ((res != null) && ((_ref = res.statusCode) === 200 || _ref === 403 || _ref === 500)) {
-      if (res.statusCode === 500) {
-        console.log("Warning : receives error 500");
+    if (res != null) {
+      if ((_ref = res.statusCode) !== 200 && _ref !== 401 && _ref !== 402 && _ref !== 302) {
+        console.log("Warning : receives error " + res.statusCode);
       }
       return callback();
     } else {

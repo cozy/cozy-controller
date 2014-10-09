@@ -23,22 +23,19 @@ describe "Environment variable", ->
             config =
                 env:
                     "data-system":
-                        "COZY": "true"
+                        "TEST": "test"
                     "home":
                         "COZY": "true"
                     "global":
-                        "TEST1": "firstTest"
-                        "TEST2": "secondTest"
+                        "GLOBAL": "testGlobal"
             fs.writeFileSync '/etc/cozy/controller.json', JSON.stringify(config)
             conf.init () =>
                 done()
 
         it "Then I recover configuration", ->
             should.exist conf.get('env').global
-            should.exist conf.get('env').global.TEST1
-            conf.get('env').global.TEST1.should.equal "firstTest"
-            should.exist conf.get('env').global.TEST2
-            conf.get('env').global.TEST2.should.equal "secondTest"
+            should.exist conf.get('env').global.GLOBAL
+            conf.get('env').global.GLOBAL.should.equal "testGlobal"
 
             should.exist conf.get('env').home
             should.exist conf.get('env').home.COZY
@@ -48,26 +45,26 @@ describe "Environment variable", ->
             conf.get('env').proxy.should.equal false
 
             should.exist conf.get('env')['data-system']
-            should.exist conf.get('env')['data-system'].COZY
-            conf.get('env')["data-system"].COZY.should.equal "true"
+            should.exist conf.get('env')['data-system'].TEST
+            conf.get('env')["data-system"].TEST.should.equal "test"
 
     describe "Environment transmission", ->
 
-        it "When I install data-system", (done) ->
+        it "When I install applicatino test", (done) ->
             @timeout 500000
             app =
                 name: "data-system"
                 repository:
-                    url: "https://github.com/cozy/cozy-data-system.git"
+                    url: "https://github.com/poupotte/test-controller.git"
                     type: "git"
                 scripts:
                     start: "server.coffee"
             client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                 @res = res
-                @port = body.drone.port
-                dsPort = @port
                 done()
 
-        it "Then data-system should have environment variables", ->
-            #console.log forever.list()
-            console.log "TODOS !!! "
+        it "Then application test should have environment variables", ->
+            data = require '/usr/local/cozy/apps/data-system/test-env.json'
+            data.name.should.equal 'data-system'
+            data.global.should.equal 'testGlobal'
+            data.test.should.equal 'test'

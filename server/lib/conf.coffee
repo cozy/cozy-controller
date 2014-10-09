@@ -24,7 +24,7 @@ readFile = (callback) ->
             callback null, data
     else
         callback null, {}
-    
+
 ###
     Initialize configuration
         * Use configuration store in configuration file or default configuration
