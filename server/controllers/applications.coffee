@@ -68,7 +68,7 @@ module.exports.update = (req, res, next) ->
         if err
             res.send 400, error:err.toString()
         else
-            res.send 200, app: result
+            res.send 200, {"drone": {"port": result.port}}
 
 ###
     Return a list with all applications

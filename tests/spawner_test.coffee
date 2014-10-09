@@ -181,6 +181,66 @@ describe "Spawner", ->
                     res.statusCode.should.equal 200
                     done()
 
+    describe "Update application", ->
+
+        describe "Update application with not installed", ->
+
+            it "When I restart data-system", (done) ->
+                @timeout 100000
+                app = 
+                    name: "data-system"
+                    repository:
+                        url: "https://github.com/cozy/cozy-data-systel.git"
+                        type: "git"
+                    scripts:
+                        start: "server.coffee"
+                client.post 'apps/data-systel/update', app, (err, res, body) =>
+                    @res = res
+                    @body = body
+                    done()
+
+            it "Then statusCode should be 400", ->
+                @res.statusCode.should.equal 400
+
+            it "Then body.error should be 'Error: Application is not installed'", ->
+                should.exist @body.error
+                @body.error.should.equal 'Error: Application is not installed'
+
+        describe "Update data-system", ->
+
+            it "When I update data-system", (done) ->
+                @timeout 100000
+                client.post 'apps/data-system/update', {}, (err, res, body) =>
+                    @res = res
+                    done()
+
+            it "Then statusCode should be 200", ->
+                @res.statusCode.should.equal 200
+
+            it "And data-system is started", (done) ->
+                console.log dsPort
+                clientDS = new Client "http://localhost:#{dsPort}"
+                clientDS.get '/', (err, res) ->
+                    res.statusCode.should.equal 200
+                    done()
+
+    describe "Recover all application", ->
+
+        it "When I send request to recover all applications", (done) ->
+            client.get 'drones/running', (err, res, body) =>
+                @res = res
+                @body = body
+                done()
+
+        it "Then statusCode should be 200", ->
+            @res.statusCode.should.equal 200
+
+        it "And data-system is in list", ->
+            console.log @body
+            should.exist @body.app
+            should.exist @body.app['data-system']
+
+
     describe "Uninstall application", ->
 
         describe "Unisntall application not installed", ->
@@ -201,7 +261,7 @@ describe "Spawner", ->
             it "Then statusCode should be 400", ->
                 @res.statusCode.should.equal 400
 
-            it "Then body.error should be 'Error: Cannot uninstall an application not installed'", ->
+            it "And body.error should be 'Error: Cannot uninstall an application not installed'", ->
                 should.exist @body.error
                 @body.error.should.equal 'Error: Cannot uninstall an application not installed'
 

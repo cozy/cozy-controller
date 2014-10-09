@@ -127,7 +127,9 @@ module.exports.update = function(req, res, next) {
       });
     } else {
       return res.send(200, {
-        app: result
+        "drone": {
+          "port": result.port
+        }
       });
     }
   });

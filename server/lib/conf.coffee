@@ -10,7 +10,7 @@ patch = "0"
         * Use default configuration if file doesn't exist
         * Return error if configuration file is not a correct json
 ###
-readFile = (callback) =>
+readFile = (callback) ->
     if fs.existsSync '/etc/cozy/controller.json'
         try
             data = require '/etc/cozy/controller.json'
@@ -29,11 +29,12 @@ readFile = (callback) =>
     Initialize configuration
         * Use configuration store in configuration file or default configuration
         * conf : Current configuration
-        * oldConf : Old configuration, usefull to move source code between different configurations for example
+        * oldConf : Old configuration, usefull to move source code between
+            different configurations for example
         * patch : usefull between old and new controller
 ###
-module.exports.init = (callback) =>
-    readFile (err, data) =>
+module.exports.init = (callback) ->
+    readFile (err, data) ->
         if err?
             callback err
         else
@@ -45,16 +46,18 @@ module.exports.init = (callback) =>
                 file_token :        data.file_token or '/etc/cozy/stack.token'
             conf.file_stack = conf.dir_source + '/stack.json'
             if data.old?.dir_log? and data.old.dir_log isnt conf.dir_log
-                oldConf.dir_log = data.old.dir_log 
-            else 
+                oldConf.dir_log = data.old.dir_log
+            else
                 oldConf.dir_log = false
-            if data.old?.dir_source? and data.old.dir_source isnt conf.dir_source
-                oldConf.dir_source = data.old.dir_source 
-            else 
+            if data.old?.dir_source? and 
+                    data.old.dir_source isnt conf.dir_source
+                oldConf.dir_source = data.old.dir_source
+            else
                 oldConf.dir_source = false
-            if data.old?.file_stack? and data.old.file_stack isnt conf.file_stack
-                oldConf.file_stack = data.old.file_stack 
-            else 
+            if data.old?.file_stack? and
+                    data.old.file_stack isnt conf.file_stack
+                oldConf.file_stack = data.old.file_stack
+            else
                 oldConf.file_stack = false###
             conf =
                 npm_registry :   data.npm_registry or false
@@ -74,13 +77,13 @@ module.exports.init = (callback) =>
 ###
     Return configuration for <arg>
 ###
-module.exports.get = (arg) =>
+module.exports.get = (arg) ->
     return conf[arg]
 
 ###
     Return old configuration for <arg>
 ###
-module.exports.getOld = (arg) =>
+module.exports.getOld = (arg) ->
     return oldConf[arg]
 
 ###
@@ -88,14 +91,16 @@ module.exports.getOld = (arg) =>
         * Rewrite file configuration without old configuration
         * Usefull after changes (move code soource for example)
 ###
-module.exports.backupConfig= () => 
+module.exports.backupConfig = ->
     displayConf =
         npm_registry : conf.npm_registry
         npm_strict_ssl : conf.npm_strict_ssl
         dir_log : conf.dir_log
         dir_source : conf.dir_source
         env : conf.env
-    fs.writeFile "/etc/cozy/controller.json", JSON.stringify(displayConf), (err) =>
+    path = "/etc/cozy/controller.json"
+    fs.writeFile path, JSON.stringify(displayConf), (err) ->
         console.log err  if err?
-        fs.writeFile "/etc/cozy/.controller-backup.json", JSON.stringify(displayConf), (err) =>
+        path = "/etc/cozy/.controller-backup.json"
+        fs.writeFile path, JSON.stringify(displayConf), (err) ->
             console.log err  if err?

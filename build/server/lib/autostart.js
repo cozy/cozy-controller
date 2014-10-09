@@ -84,11 +84,9 @@ start = function(apps, clientDS, callback) {
           console.log("" + app.name + ": error");
           console.log(err);
           errors[app.name] = new Error("Application doesn't started");
-          return controller.addDrone(app, (function(_this) {
-            return function() {
-              return start(apps, clientDS, callback);
-            };
-          })(this));
+          return controller.addDrone(app, function() {
+            return start(apps, clientDS, callback);
+          });
         } else {
           appli = appli.value;
           appli.port = result.port;
@@ -100,11 +98,9 @@ start = function(apps, clientDS, callback) {
       });
     } else {
       app = new App(app);
-      return controller.addDrone(app.app, (function(_this) {
-        return function() {
-          return start(apps, clientDS, callback);
-        };
-      })(this));
+      return controller.addDrone(app.app, function() {
+        return start(apps, clientDS, callback);
+      });
     }
   } else {
     return callback();

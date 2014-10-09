@@ -63,7 +63,7 @@ start = (apps, clientDS, callback) ->
                     console.log err
                     errors[app.name] = new Error "Application doesn't started"
                     # Add application if drones list
-                    controller.addDrone app, =>
+                    controller.addDrone app, ->
                         start apps, clientDS, callback
                 else
                     # Update port in database
@@ -75,7 +75,7 @@ start = (apps, clientDS, callback) ->
         else
             # Add application if drones list
             app = new App(app)
-            controller.addDrone app.app, =>
+            controller.addDrone app.app, ->
                 start apps, clientDS, callback
     else
         callback()
@@ -174,7 +174,7 @@ module.exports.start = (callback) ->
                             clientDS = new Client "http://localhost:#{port}"
                             clientDS.setBasicAuth 'home', permission.get()
                             path = '/request/application/all/'
-                            clientDS.post path, {}, (err, res, body) ->                                
+                            clientDS.post path, {}, (err, res, body) ->
                                 if res.statusCode is 404
                                     callback()
                                 else

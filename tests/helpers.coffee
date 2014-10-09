@@ -48,7 +48,7 @@ helpers.getClient = (url = null) ->
 
 initializeApplication = (callback) =>
     src = path.join(path.dirname(fs.realpathSync(__filename)), '..', 'lib')
-    require(path.join(src, '../build/server'))(callback)
+    require(path.join(src, "#{helpers.prefix}server"))(callback)
 
 
 helpers.startApp = (callback) ->
