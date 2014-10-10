@@ -8,15 +8,12 @@ dsPort = ""
 
 
 describe "App Stopped", ->
-
-
-
     describe "Application should stopped if server has stopped", ->
         port = 0
 
         describe "Install data-system", =>
-        
-            before helpers.cleanApp 
+
+            before helpers.cleanApp
             before (done) ->
                 @timeout 100000
                 helpers.startApp () =>
@@ -30,7 +27,7 @@ describe "App Stopped", ->
 
             it "When I install data-system", (done) ->
                 @timeout 500000
-                app = 
+                app =
                     name: "data-system"
                     repository:
                         url: "https://github.com/cozy/cozy-data-system.git"
