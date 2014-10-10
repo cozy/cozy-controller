@@ -131,7 +131,7 @@ describe "Autostart", ->
                     res.statusCode.should.equal 200
                     done()###
 
-describe "Restart controller", ->
+    describe "Restart controller", ->
         server = ""
         client = ""
 
@@ -151,4 +151,26 @@ describe "Restart controller", ->
                 should.exist body.app['data-system']
                 should.exist body.app.proxy
                 should.exist body.app.home
+                done()
+
+
+    describe "Restart controller without couchDB server", ->
+        server = ""
+        client = ""
+
+        before (done) ->
+            @timeout 100000
+            helpers.stopCouchDB () =>
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+        after (done) ->
+            helpers.startCouchDB () =>
+                done()
+
+        it "Then controller server doesn't start", (done) ->
+            @timeout 10000
+            client.get 'drones/running', (err, res, body) =>
+                should.not.exist res
                 done()

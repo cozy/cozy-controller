@@ -64,6 +64,17 @@ helpers.stopApp = (done) ->
             , 6000
     , 250
 
+helpers.stopCouchDB = (done) ->
+    exec 'service couchdb stop', (err) ->
+        console.log err if err?
+        done()
+
+helpers.startCouchDB = (done) ->
+    exec 'service couchdb start', (err) ->
+        console.log err if err?
+        done()
+
+
 helpers.clearDB = (db) -> (done) ->
     logger.info "Clearing DB..."
     db.destroy (err) ->
