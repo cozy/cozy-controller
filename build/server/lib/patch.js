@@ -76,12 +76,13 @@ updateSourceDir = function(apps, callback) {
             dest = path.join(pathRoot, name, repo);
             source = path.join(pathRoot, name, "cozy-" + name, repo);
             return move(source, dest, function(err) {
-              path = "/usr/local/cozy/apps/" + name + "/cozy-" + name;
+              var appPath;
+              appPath = "/usr/local/cozy/apps/" + name + "/cozy-" + name;
               if (err != null) {
                 console.log(err);
                 return callback(err);
               } else {
-                return rm(path, function(err) {
+                return rm(appPath, function(err) {
                   console.log(err);
                   if (err != null) {
                     return callback(err);

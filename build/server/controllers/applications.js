@@ -76,6 +76,7 @@ module.exports.stop = function(req, res, next) {
   name = req.params.name;
   return controller.stop(name, function(err, result) {
     if (err != null) {
+      console.log(err.toString());
       return res.send(400, {
         error: err.toString()
       });

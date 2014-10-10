@@ -63,12 +63,12 @@ updateSourceDir = (apps, callback) ->
                         dest = path.join(pathRoot, name, repo)
                         source = path.join(pathRoot, name, "cozy-#{name}", repo)
                         move source, dest, (err) ->
-                            path = "/usr/local/cozy/apps/#{name}/cozy-#{name}"
+                            appPath = "/usr/local/cozy/apps/#{name}/cozy-#{name}"
                             if err?
                                 console.log err
                                 callback err
                             else
-                                rm path, (err) ->
+                                rm appPath, (err) ->
                                     console.log err
                                     if err?
                                         callback err

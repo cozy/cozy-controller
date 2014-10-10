@@ -4,6 +4,7 @@ npm = require './npm'
 repo = require './repo'
 user = require './user'
 stack = require './stack'
+config = require('./conf').get
 type = []
 type['git'] = require './git'
 App = require('./app').App
@@ -196,6 +197,7 @@ module.exports.start = (manifest, callback) ->
     app = new App manifest
     app = app.app
     if drones[app.name]? or fs.existsSync(app.dir)
+        drones[app.name] = app
         startApp app, (err, result) ->
             if err?
                 callback err
@@ -253,11 +255,28 @@ module.exports.uninstall = (name, callback) ->
             # Remove drone in RAM
             if drones[name]?
                 delete drones[name]
-            callback err if err
-            callback null, name
+            if err?
+                callback err
+            else
+                callback null, name
     else
-        err = new Error 'Cannot uninstall an application not installed'
-        callback err
+        userDir = path.join(config('dir_source'), name)
+        if fs.existsSync userDir
+            app =
+                name: name
+                userDir: userDir
+            repo.delete app, (err) ->
+                console.log "#{name}:delete directory"
+                # Remove drone in RAM
+                if drones[name]?
+                    delete drones[name]
+                if err?
+                    callback err
+                else
+                    callback null, name
+        else
+            err = new Error 'Cannot uninstall an application not installed'
+            callback err
 
 ###
     Update an application <name>

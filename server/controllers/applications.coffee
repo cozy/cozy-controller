@@ -40,6 +40,7 @@ module.exports.stop = (req, res, next) ->
     name = req.params.name
     controller.stop name, (err, result) ->
         if err?
+            console.log err.toString()
             res.send 400, error: err.toString()
         else
             res.send 200, app: result
