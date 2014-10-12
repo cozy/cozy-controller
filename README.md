@@ -22,7 +22,7 @@ Run following command to see all available actions:
 
 You can contribute to the Cozy Controller in many ways:
 
-* Pick up an [issue](https://github.com/mycozycloud/cozy-controller-new/issues?state=open) and solve it.
+* Pick up an [issue](https://github.com/cozy/cozy-controller/issues?state=open) and solve it.
 * Add support for Python applications.
 * Add support for serverless applications.
 
@@ -46,7 +46,7 @@ hardware where no one profiles you.
 You can reach the Cozy Community by:
 
 * Chatting with us on IRC #cozycloud on irc.freenode.net
-* Posting on our [Forum](https://groups.google.com/forum/?fromgroups#!forum/cozy-cloud)
-* Posting issues on the [Github repos](https://github.com/mycozycloud/)
+* Posting on our [Forum](https://forum.cozy.io)
+* Posting issues on the [Github repos](https://github.com/cozy/)
 * Mentioning us on [Twitter](http://twitter.com/mycozycloud)
 
