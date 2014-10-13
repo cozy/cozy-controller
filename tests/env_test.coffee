@@ -32,7 +32,6 @@ describe "Environment variable", ->
                 npm_strict_ssl: false
             fs.writeFileSync '/etc/cozy/controller.json', JSON.stringify(config)
             conf.init () =>
-                console.log conf.get('env')
                 done()
 
         it "Then I recover configuration", ->
