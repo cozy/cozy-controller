@@ -57,8 +57,10 @@ start = (apps, clientDS, callback) ->
         if app.state is "installed"
             # Start application
             console.log("#{app.name}: starting ...")
+            cb = 0
             controller.start app, (err, result) ->
-                if err?
+                cb = cb + 1
+                if err? and cb is 1
                     console.log("#{app.name}: error")
                     console.log err
                     errors[app.name] = new Error "Application doesn't started"

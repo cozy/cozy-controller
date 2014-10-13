@@ -10,7 +10,7 @@ autostart = require('./server/lib/autostart');
 controller = require('./server/lib/controller');
 
 application = module.exports = function(callback) {
-  var err, options;
+  var displayError, err, exitProcess, options;
   if ((process.env.USER != null) && process.env.USER !== 'root') {
     err = "Are you sure, you are root ?";
     console.log(err);
@@ -37,10 +37,12 @@ application = module.exports = function(callback) {
           if (err == null) {
             console.log("### START SERVER ###");
             return americano.start(options, function(app, server) {
-              server.on('close', function(code) {
+              server.once('close', function(code) {
                 console.log("Server close with code " + code);
                 return controller.stopAll((function(_this) {
                   return function() {
+                    process.removeListener('uncaughtException', displayError);
+                    process.removeListener('exit', exitProcess);
                     return console.log("All application are stopped");
                   };
                 })(this));
@@ -59,27 +61,22 @@ application = module.exports = function(callback) {
         });
       };
     })(this));
-    process.on('uncaughtException', function(err) {
+    displayError = function(err) {
       console.log("WARNING : ");
       console.log(err);
       return console.log(err.stack);
-    });
-    process.on('exit', function(code) {
+    };
+    exitProcess = function(code) {
       console.log("Process exit with code " + code);
       return controller.stopAll((function(_this) {
         return function() {
+          process.removeListener('uncaughtException', displayError);
           return process.exit(code);
         };
       })(this));
-    });
-    return process.on('SIGTERM', function() {
-      console.log("Process is stopped");
-      return controller.stopAll((function(_this) {
-        return function() {
-          return process.exit(code);
-        };
-      })(this));
-    });
+    };
+    process.on('uncaughtException', displayError);
+    return process.once('exit', exitProcess);
   }
 };
 

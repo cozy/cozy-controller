@@ -10,16 +10,7 @@ config = require('./conf').get
 ###
 module.exports.install = (target, callback) ->
     args = [
-      'npm',
-      # package.json scripts freak out from node-pack in some versions,
-      # sudo -u + this are workaround
-      '--unsafe-perm', 'true',
-      # only use cache for app
-      '--cache', path.join(target.dir,'..','.npm'),
-      # use blank or non-existent user config
-      '--userconfig', path.join(target.dir,'..','.userconfig'),
-      # use non-existant user config
-      '--globalconfig', path.join(target.dir,'..','.globalconfig'),
+      'npm'
       '--production'
     ]
     if config 'npm_registry'
@@ -29,6 +20,8 @@ module.exports.install = (target, callback) ->
         args.push '--strict-ssl'
         args.push config('npm_strict_ssl')
     args.push 'install'
+    args.push '--user'
+    args.push target.user
     options =
         cwd: target.dir
     child = spawn 'sudo', args, options
@@ -48,29 +41,4 @@ module.exports.install = (target, callback) ->
             callback err
         else
             console.log 'npm:install:success'
-
-        # Remove npm cache
-        args = [
-            'npm',
-            # only use cache for app
-            '--cache', path.join(target.dir,'..','.npm'),
-            'cache', 'clean',
-            '-u',
-            target.user
-        ]
-        options =
-            cwd: target.dir
-        child = spawn 'sudo', args, options
-
-        #child.stdout.on 'data', (data) =>
-
-        stderr = ''
-        child.stderr.on 'data', (data) ->
-            stderr += data
-
-        child.on 'close', (code) ->
-            if code isnt 0
-                console.log 'npm:clean_cache:failure'
-                console.log stderr
-
             callback()

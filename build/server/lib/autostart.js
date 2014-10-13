@@ -73,14 +73,16 @@ errors = {};
  */
 
 start = function(apps, clientDS, callback) {
-  var app, appli;
+  var app, appli, cb;
   if ((apps != null) && apps.length > 0) {
     appli = apps.pop();
     app = getManifest(appli.value);
     if (app.state === "installed") {
       console.log("" + app.name + ": starting ...");
+      cb = 0;
       return controller.start(app, function(err, result) {
-        if (err != null) {
+        cb = cb + 1;
+        if ((err != null) && cb === 1) {
           console.log("" + app.name + ": error");
           console.log(err);
           errors[app.name] = new Error("Application doesn't started");

@@ -8,6 +8,7 @@ config = require('./conf').get
 type = []
 type['git'] = require './git'
 App = require('./app').App
+path = require 'path'
 
 
 ########################### Global variables ###################################

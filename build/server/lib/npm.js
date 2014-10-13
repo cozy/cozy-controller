@@ -17,7 +17,7 @@ config = require('./conf').get;
 
 module.exports.install = function(target, callback) {
   var args, child, options, stderr;
-  args = ['npm', '--unsafe-perm', 'true', '--cache', path.join(target.dir, '..', '.npm'), '--userconfig', path.join(target.dir, '..', '.userconfig'), '--globalconfig', path.join(target.dir, '..', '.globalconfig'), '--production'];
+  args = ['npm', '--production'];
   if (config('npm_registry')) {
     args.push('--registry');
     args.push(config('npm_registry'));
@@ -27,6 +27,8 @@ module.exports.install = function(target, callback) {
     args.push(config('npm_strict_ssl'));
   }
   args.push('install');
+  args.push('--user');
+  args.push(target.user);
   options = {
     cwd: target.dir
   };
@@ -41,25 +43,10 @@ module.exports.install = function(target, callback) {
     if (code !== 0) {
       console.log("npm:install:err: NPM Install failed : " + stderr);
       err = new Error('NPM Install failed');
-      callback(err);
+      return callback(err);
     } else {
       console.log('npm:install:success');
-    }
-    args = ['npm', '--cache', path.join(target.dir, '..', '.npm'), 'cache', 'clean', '-u', target.user];
-    options = {
-      cwd: target.dir
-    };
-    child = spawn('sudo', args, options);
-    stderr = '';
-    child.stderr.on('data', function(data) {
-      return stderr += data;
-    });
-    return child.on('close', function(code) {
-      if (code !== 0) {
-        console.log('npm:clean_cache:failure');
-        console.log(stderr);
-      }
       return callback();
-    });
+    }
   });
 };

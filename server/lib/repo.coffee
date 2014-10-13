@@ -51,9 +51,10 @@ module.exports.delete = (app, callback) ->
         if code isnt 0
             callback new Error('Unable to remove directory')
         else
-            fs.unlink app.logFile, (err) ->
-                if fs.existsSync app.backup
-                    fs.unlink app.backup, (err) ->
+            if fs.existsSync app.logFile
+                fs.unlink app.logFile, (err) ->
+                    if fs.existsSync app.backup
+                        fs.unlink app.backup, (err) ->
+                            callback()
+                    else
                         callback()
-                else
-                    callback()

@@ -53,6 +53,7 @@ module.exports.stop = (req, res, next) ->
 module.exports.uninstall = (req, res, next) ->
     name = req.params.name
     controller.uninstall name, (err, result) ->
+        console.log err
         if err
             res.send 400, error:err.toString()
         else

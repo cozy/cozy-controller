@@ -63,8 +63,7 @@ module.exports.init = (app, callback) ->
 
                     config =
                         cwd: app.appDir
-                        env: "USER": app.user
-
+                        user: app.user
                     executeUntilEmpty commands, config, callback
 
 ###

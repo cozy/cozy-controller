@@ -28,9 +28,11 @@ application = module.exports = (callback) ->
                     console.log "### START SERVER ###"
                     americano.start options, (app, server) =>
 
-                        server.on 'close', (code) ->
+                        server.once 'close', (code) ->
                             console.log "Server close with code #{code}"
                             controller.stopAll () =>
+                                process.removeListener 'uncaughtException', displayError
+                                process.removeListener 'exit', exitProcess
                                 console.log "All application are stopped"
                         callback app, server if callback?
                 else
@@ -38,20 +40,19 @@ application = module.exports = (callback) ->
                     console.log err
                     callback(err) if callback?
 
-        process.on 'uncaughtException', (err) ->
+        displayError = (err) ->
             console.log "WARNING : "
             console.log err
             console.log err.stack
 
-        process.on 'exit', (code) ->
+        exitProcess = (code) ->
             console.log "Process exit with code #{code}"
             controller.stopAll ()=>
+                process.removeListener 'uncaughtException', displayError
                 process.exit(code)
 
-        process.on 'SIGTERM', () ->
-            console.log "Process is stopped"
-            controller.stopAll ()=>
-                process.exit(code)
+        process.on 'uncaughtException', displayError
+        process.once 'exit', exitProcess
 
 if not module.parent
     application()

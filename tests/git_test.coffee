@@ -4,13 +4,13 @@ should = require('chai').Should()
 
 describe "Git", ->
 
-    before helpers.cleanApp 
+    before helpers.cleanApp
     before (done) ->
         @timeout 10000
         helpers.startApp () =>
             client = helpers.getClient()
             done()
-            
+
     after (done) ->
         @timeout 10000
         helpers.stopApp done
@@ -19,7 +19,7 @@ describe "Git", ->
 
         it "When I try to install an application with a bad git repository", (done) ->
             @timeout 20000
-            app = 
+            app =
                 name: "data-system"
                 repository:
                     url: "https://github.com/cozy/cozy-data-systel.git"
@@ -36,6 +36,6 @@ describe "Git", ->
             @res.statusCode.should.equal 400
 
 
-        it "Then body.error should be 'Error: Invalid git url: https://github.com/cozy/cozy-data-systel.git'", ->
+        it "Then body.error should be 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'", ->
             should.exist @body.error
-            @body.error.should.equal 'Error: Invalid git url: https://github.com/cozy/cozy-data-systel.git'
+            @body.error.should.equal 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'
