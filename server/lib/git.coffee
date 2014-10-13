@@ -1,102 +1,92 @@
 path = require 'path'
-exec = require('child_process').exec
 request = require 'request'
+compareVersions = require 'mozilla-version-comparator'
+exec = require('child_process').exec
+executeUntilEmpty = require '../helpers/executeUntilEmpty'
+
+###
+    Clean up current modification if the Git URL is wrong
+###
+onWrongGitUrl = (app, done) ->
+    err = new Error "Invalid Git url: #{app.repository.url}"
+    exec "rm -rf #{app.appDir}", {}, -> done err
 
 ###
     Initialize repository of <app>
-        * Check if git url exist
-            * url isn't a github url
+        * Check if git URL exist
+            * URL isn't a Git URL
             * repo doesn't exist in github
         * Clone repo (with one depth)
         * Change branch if necessary
         * Init submodule
 ###
 module.exports.init = (app, callback) ->
-    match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
-    if not match
-        # Url isn't a github url
-        err = 'Invalid git url: ' + app.repository.url
-        exec "rm -rf #{app.dir}", (error, res) ->
-            callback err
-
     url = app.repository.url
-    request.get url.substr(0, (url.length-4)), (err, res, body) ->
-        if res.statusCode isnt 200
-            # Repo doesn't exist in github
-            err = new Error('Invalid git url: ' + url)
-            exec "rm -rf #{app.appDir}", {}, (error, res) ->
-                callback err
-        else
-            url = app.repository.url
-            # Setup the git commands to be executed
-            commands = [
-                'cd ' + app.appDir + ' && git clone --depth 1 ' + url,
-                'cd ' + app.dir
-            ]
 
-            if app.repository.branch?
-                commands[1] += ' && git checkout ' + app.repository.branch
+    # Detects if a string is a valid Git URL
+    match = url.match /\/([\w\-_\.]+)\.git$/
+    unless match
+        # URL isn't a Git url, removes the app's directory
+        onWrongGitUrl app, callback
+    else
+        exec 'git --version', (err, stdout, stderr) ->
+            gitVersion = stdout.match /git version ([\d\.]+)/
 
-            commands[1] += ' && git submodule update --init --recursive'
+            # URL without .git
+            repoUrl = url.substr 0, (url.length-4)
+            request.get repoUrl, (err, res, body) ->
 
-            executeUntilEmpty = ->
-                command = commands.shift()
-                # Remark: Using 'exec' here because chaining 'spawn' is not
-                # effective here
-                config =
-                    env:
-                        "USER": app.user
-                clone = exec command, config, (err, stdout, stderr) ->
-                    if err?
-                        callback err, false
-                    else if commands.length > 0
-                        executeUntilEmpty()
-                    else if commands.length is 0
-                        callback()
-            executeUntilEmpty()
+                if res?.statusCode isnt 200
+                    # Repo doesn't exist on remote, removes the app's directory
+                    onWrongGitUrl app, callback
+                else
+                    # Setup the Git commands to be executed
+                    commands = []
+
+                    # Default Git branch is "master"
+                    branch = app.repository.branch or "master"
+
+                    # 1.7.10 is the version where --single-branch became
+                    # available.
+                    if not gitVersion? or \
+                       compareVersions("1.7.10", gitVersion[0]) is -1
+                        commands.push "git clone #{url} && " + \
+                                      "cd #{app.dir} && " + \
+                                      "git checkout #{branch} && " + \
+                                      "git submodule update --init --recursive"
+                    else
+                        commands.push "git clone #{url} --depth 1 " + \
+                                      "--branch #{branch} " + \
+                                      "--single-branch && " + \
+                                      "cd #{app.dir} && " + \
+                                      "git submodule update --init --recursive"
+
+                    config =
+                        cwd: app.appDir
+                        env: "USER": app.user
+
+                    executeUntilEmpty commands, config, callback
 
 ###
     Update repository of <app>
-        * Check if git url exist
-            * url isn't a github url
+        * Reset current changes (due to chmod)
         * Pull changes
         * Update submodule
 ###
 module.exports.update = (app, callback) ->
-    match = app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
-    if not match
-        err = 'Invalid git url: ' + app.repository.url
-        callback err
+
+    # Default branch is master
+    branch = app.repository.branch or "master"
 
     # Setup the git commands to be executed
-    if app.repository.branch?
-        commands = [
-            'cd ' + app.dir + ' && git reset --hard ',
-            'cd ' + app.dir + ' && git pull origin ' + app.repository.branch,
-            'cd ' + app.dir
-        ]
-    else
-        commands = [
-            'cd ' + app.dir + ' && git reset --hard ',
-            'cd ' + app.dir + ' && git pull',
-            'cd ' + app.dir
-        ]
+    commands = [
+        "git reset --hard "
+        "git pull origin #{branch}"
+        "git submodule update --recursive"
+    ]
 
-    commands[1] += ' && git submodule update --recursive'
+    config =
+        cwd: app.dir # runs all the command in the app's directory
+        env: "USER": app.user
 
-    executeUntilEmpty = ->
-        command = commands.shift()
-
-        config =
-            env:
-                "USER": app.user
-        # Remark: Using 'exec' here because chaining 'spawn'
-        # is not effective her
-        exec command, config, (err, stdout, stderr) ->
-            if err?
-                callback err, false
-            else if commands.length > 0
-                executeUntilEmpty()
-            else if commands.length is 0
-                callback()
-    executeUntilEmpty()
+    executeUntilEmpty commands, config, callback
