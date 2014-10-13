@@ -71,13 +71,11 @@ module.exports.create = function(app, callback) {
 
 module.exports["delete"] = function(app, callback) {
   var child;
-  console.log(app.userDir);
-  child = spawn('rm', ['-rf', app.userDir]);
+  child = spawn('rm', ['-rf', app.dir]);
   return child.on('exit', function(code) {
     if (code !== 0) {
       return callback(new Error('Unable to remove directory'));
     } else {
-      console.log(app.logFile);
       if (fs.existsSync(app.logFile)) {
         return fs.unlink(app.logFile, function(err) {
           if (fs.existsSync(app.backup)) {

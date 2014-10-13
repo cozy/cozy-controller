@@ -5,10 +5,10 @@ spawn = require('child_process').spawn
 pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
-checkOldSource = (name) ->
-    return (fs.existsSync path.join(pathRoot, name, name)) and
-        (not fs.existsSync path.join(pathRoot, name, name, "server.coffee")) and
-        (name isnt "stack.json")
+checkNewSource = (name) ->
+    return (fs.existsSync path.join(pathRoot, name)) and
+        (not fs.existsSync path.join(pathRoot, name, "package.json")) and
+        (name is "stack.json")
 
 # Return source repository of application <name>
 getRepo = (name) ->
@@ -50,45 +50,23 @@ rm = (dir, callback) ->
 updateSourceDir = (apps, callback) ->
     if apps.length > 0
         name = apps.pop()
-        if checkOldSource(name)
+        unless checkNewSource(name)
             repo = getRepo(name)
             # Move old source
-            if repo is name
-                source = path.join(pathRoot, name, repo)
-                move source, path.join(pathRoot, name, "cozy-#{repo}"), (err) ->
-                    console.log err
-                    if err?
-                        callback(err)
-                    else
-                        dest = path.join(pathRoot, name, repo)
-                        source = path.join(pathRoot, name, "cozy-#{name}", repo)
-                        move source, dest, (err) ->
-                            appPath = "/usr/local/cozy/apps/#{name}/cozy-#{name}"
-                            if err?
-                                console.log err
-                                callback err
-                            else
-                                rm appPath, (err) ->
-                                    console.log err
-                                    if err?
-                                        callback err
-                                    else
-                                        updateSourceDir apps, callback
-
-
-            else
-                dest = path.join(pathRoot, name, repo)
-                source = path.join(pathRoot, name, name, repo)
-                move source, dest, (err) ->
-                    if err?
-                        callback err
-                    else
-                        # Remove old directory
-                        rm path.join(pathRoot, name, name), (err) ->
-                            if err?
-                                callback err
-                            else
-                                updateSourceDir apps, callback
+            move path.join(pathRoot, name), path.join(pathRoot, "tmp-#{name}"), (err) =>
+                if err?
+                    callback(err)
+                else
+                    move path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), (err) =>
+                        if err
+                            callback err
+                        else
+                            appPath = "/usr/local/cozy/apps/tmp-#{name}"
+                            rm appPath, (err) ->
+                                if err?
+                                    callback err
+                                else
+                                    updateSourceDir apps, callback
         else
             console.log "#{name} : Already moved"
             updateSourceDir apps, callback

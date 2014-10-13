@@ -78,10 +78,9 @@ describe "Spawner", ->
             it "And file log has been created (/usr/local/var/log/cozy/data-system.log)", ->
                 fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
 
-            it "And data-system source should be imported (in /usr/local/cozy/apps/data-system/cozy-data-system", ->
+            it "And data-system source should be imported (in /usr/local/cozy/apps/data-system", ->
                 fs.existsSync("#{config('dir_source')}/data-system").should.be.ok
-                fs.existsSync("#{config('dir_source')}/data-system/cozy-data-system").should.be.ok
-                fs.existsSync("#{config('dir_source')}/data-system/cozy-data-system/package.json").should.be.ok
+                fs.existsSync("#{config('dir_source')}/data-system/package.json").should.be.ok
 
             it "And data-system is started", (done) ->
                 clientDS = new Client "http://localhost:#{@port}/"

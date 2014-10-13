@@ -46,7 +46,7 @@ module.exports.create = (app, callback) ->
         * Remove log files
 ###
 module.exports.delete = (app, callback) ->
-    child = spawn 'rm', ['-rf', app.userDir]
+    child = spawn 'rm', ['-rf', app.dir]
     child.on 'exit', (code) ->
         if code isnt 0
             callback new Error('Unable to remove directory')

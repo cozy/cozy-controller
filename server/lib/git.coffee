@@ -3,6 +3,7 @@ request = require 'request'
 compareVersions = require 'mozilla-version-comparator'
 exec = require('child_process').exec
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
+conf = require('./conf').get
 
 ###
     Clean up current modification if the Git URL is wrong
@@ -50,7 +51,7 @@ module.exports.init = (app, callback) ->
                     # available.
                     if not gitVersion? or \
                        compareVersions("1.7.10", gitVersion[0]) is -1
-                        commands.push "git clone #{url} && " + \
+                        commands.push "git clone #{url} #{app.name} && " + \
                                       "cd #{app.dir} && " + \
                                       "git checkout #{branch} && " + \
                                       "git submodule update --init --recursive"
@@ -62,7 +63,7 @@ module.exports.init = (app, callback) ->
                                       "git submodule update --init --recursive"
 
                     config =
-                        cwd: app.appDir
+                        cwd: conf('dir_source')
                         user: app.user
                     executeUntilEmpty commands, config, callback
 

@@ -23,13 +23,14 @@ initDir = (callback) ->
     newDir = config('dir_source')
     oldDir = oldConfig('dir_source')
     mkdirp newDir, (err) ->
-        if err?
-            callback err
-        else
-            if oldDir
-                fs.renameSync path.join(oldDir, "stack.json"),
-                    path.join(newDir, "stack.json")
-            callback()
+        fs.chmod newDir, '0777', (err) ->
+            if err?
+                callback err
+            else
+                if oldDir
+                    fs.renameSync path.join(oldDir, "stack.json"),
+                        path.join(newDir, "stack.json")
+                callback()
 
 ###
     Initialize source code directory and stack.json file

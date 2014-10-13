@@ -16,15 +16,12 @@ exports.App = (function() {
     this.app = app;
     homeDir = config('dir_source');
     logDir = config('dir_log');
-    this.app.userDir = path.join(homeDir, this.app.name);
-    this.app.appDir = this.app.userDir;
+    this.app.dir = path.join(homeDir, this.app.name);
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
-    this.app.dir = path.join(this.app.userDir, match[1]);
     this.app.server = this.app.scripts.start;
     this.app.startScript = path.join(this.app.dir, this.app.server);
     this.app.logFile = path.join(logDir, "/" + app.name + ".log");
-    this.app.errFile = path.join(logDir, "/" + app.name + ".err");
   }
 
   return App;

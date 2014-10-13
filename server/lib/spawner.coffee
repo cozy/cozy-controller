@@ -26,7 +26,7 @@ module.exports.start = (app, callback) ->
         USER: app.user
         USERNAME: app.user
         SUDO_USER: app.user
-        HOME: app.userDir
+        HOME: app.dir
         NODE_ENV: process.env.NODE_ENV
 
     if process.env.DB_NAME?

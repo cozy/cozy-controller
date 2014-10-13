@@ -43,14 +43,16 @@ initDir = function(callback) {
   newDir = config('dir_source');
   oldDir = oldConfig('dir_source');
   return mkdirp(newDir, function(err) {
-    if (err != null) {
-      return callback(err);
-    } else {
-      if (oldDir) {
-        fs.renameSync(path.join(oldDir, "stack.json"), path.join(newDir, "stack.json"));
+    return fs.chmod(newDir, '0777', function(err) {
+      if (err != null) {
+        return callback(err);
+      } else {
+        if (oldDir) {
+          fs.renameSync(path.join(oldDir, "stack.json"), path.join(newDir, "stack.json"));
+        }
+        return callback();
       }
-      return callback();
-    }
+    });
   });
 };
 

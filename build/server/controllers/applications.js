@@ -99,7 +99,6 @@ module.exports.uninstall = function(req, res, next) {
   var name;
   name = req.params.name;
   return controller.uninstall(name, function(err, result) {
-    console.log(err);
     if (err) {
       return res.send(400, {
         error: err.toString()
