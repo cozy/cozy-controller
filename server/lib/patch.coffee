@@ -1,14 +1,13 @@
 path = require "path"
 fs = require 'fs'
 spawn = require('child_process').spawn
+exec = require('child_process').exec
 
 pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
 checkNewSource = (name) ->
-    return (fs.existsSync path.join(pathRoot, name)) and
-        (not fs.existsSync path.join(pathRoot, name, "package.json")) and
-        (name is "stack.json")
+    return (name is "stack.json") or fs.existsSync path.join(pathRoot, name, "package.json")
 
 # Return source repository of application <name>
 getRepo = (name) ->
@@ -98,6 +97,27 @@ createStackFile = (callback) ->
     else
         callback()
 
+removeOldDir = (callback) ->
+    if fs.existsSync '/etc/cozy/tokens'
+        fs.rmdirSync '/etc/cozy/tokens'
+    if fs.existsSync '/etc/cozy/controller.token'
+        fs.unlinkSync '/etc/cozy/controller.token'
+    if fs.existsSync '/usr/local/cozy/config'
+        fs.rmdirSync '/usr/local/cozy/config'
+    if fs.existsSync '/usr/local/cozy/packages'
+        fs.rmdirSync '/usr/local/cozy/packages'
+    if fs.existsSync '/usr/local/cozy/tmp'
+        fs.rmdirSync '/usr/local/cozy/tmp'
+    if fs.existsSync '/etc/cozy/pids'
+        exec 'rm /etc/cozy/pids/*', (err) ->
+            if not err?
+                fs.rmdirSync '/etc/cozy/pids'
+            if fs.existsSync '/usr/local/cozy/autostart'
+                exec 'rm /usr/local/cozy/autostart/*', (err) ->
+                    if not err?
+                        fs.rmdirSync '/usr/local/cozy/autostart'
+                    callback(err)
+
 
 #update Files -> usefull for patch
 module.exports.apply = (callback) ->
@@ -117,4 +137,9 @@ module.exports.apply = (callback) ->
                 if err?
                     callback err
                 else
-                    fs.open '/etc/cozy/.patch', 'w', callback
+                    console.log "Remove old directory ..."
+                    removeOldDir (err) ->
+                        if err?
+                            callback err
+                        else
+                            fs.open '/etc/cozy/.patch', 'w', callback
