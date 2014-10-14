@@ -54,6 +54,6 @@
     "cozy-controller": "./bin/cozy-controller"
   },
   "scripts": {
-    "test": "sudo cake tests"
+    "test": "cake tests"
   }
 }
