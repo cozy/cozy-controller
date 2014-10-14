@@ -24,6 +24,9 @@ application = module.exports = function(callback) {
       host: process.env.HOST || "127.0.0.1",
       root: __dirname
     };
+    if (process.env.NODE_ENV == null) {
+      process.env.NODE_ENV = "development";
+    }
     init.init((function(_this) {
       return function(err) {
         if (err != null) {

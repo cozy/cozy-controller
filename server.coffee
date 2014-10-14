@@ -17,12 +17,13 @@ application = module.exports = (callback) ->
             port: process.env.PORT or 9002
             host: process.env.HOST or "127.0.0.1"
             root: __dirname
+        unless process.env.NODE_ENV?
+            process.env.NODE_ENV = "development"
         init.init (err) =>
             if err?
                 console.log "Error during configuration initialization : "
                 console.log err
                 callback err if callback?
-
             autostart.start (err) =>
                 if not err?
                     console.log "### START SERVER ###"
