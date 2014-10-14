@@ -6,6 +6,8 @@ env:
     global:
         - NODE_ENV=test
         - TEST_ENV=travis
+services:
+    - couchdb
 
 before_install:
     # make sudoer use same PATH than default user (includes npm & node)

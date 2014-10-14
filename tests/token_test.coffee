@@ -9,7 +9,6 @@ describe "Token", ->
     before (done) ->
         @timeout 100000
         helpers.startApp (appli) =>
-            server = appli
             port = appli.server._connectionKey.slice(-4)
             client = helpers.getClient "http://localhost:#{port}"
             done()
