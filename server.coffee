@@ -34,6 +34,7 @@ application = module.exports = (callback) ->
                             controller.stopAll () =>
                                 process.removeListener 'uncaughtException', displayError
                                 process.removeListener 'exit', exitProcess
+                                process.removeListener 'SIGTERM', stopProcess
                                 console.log "All application are stopped"
                         callback app, server if callback?
                 else
@@ -50,10 +51,17 @@ application = module.exports = (callback) ->
             console.log "Process exit with code #{code}"
             controller.stopAll ()=>
                 process.removeListener 'uncaughtException', displayError
+                process.removeListener 'SIGTERM', stopProcess
                 process.exit(code)
+
+        stopProcess = () ->
+            console.log "Process is stopped"
+            controller.stopAll ()=>
+            process.exit(code)
 
         process.on 'uncaughtException', displayError
         process.once 'exit', exitProcess
+        process.once 'SIGTERM', stopProcess
 
 if not module.parent
     application()

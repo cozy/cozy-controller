@@ -10,7 +10,7 @@ autostart = require('./server/lib/autostart');
 controller = require('./server/lib/controller');
 
 application = module.exports = function(callback) {
-  var displayError, err, exitProcess, options;
+  var displayError, err, exitProcess, options, stopProcess;
   if ((process.env.USER != null) && process.env.USER !== 'root') {
     err = "Are you sure, you are root ?";
     console.log(err);
@@ -46,6 +46,7 @@ application = module.exports = function(callback) {
                   return function() {
                     process.removeListener('uncaughtException', displayError);
                     process.removeListener('exit', exitProcess);
+                    process.removeListener('SIGTERM', stopProcess);
                     return console.log("All application are stopped");
                   };
                 })(this));
@@ -74,12 +75,21 @@ application = module.exports = function(callback) {
       return controller.stopAll((function(_this) {
         return function() {
           process.removeListener('uncaughtException', displayError);
+          process.removeListener('SIGTERM', stopProcess);
           return process.exit(code);
         };
       })(this));
     };
+    stopProcess = function() {
+      console.log("Process is stopped");
+      controller.stopAll((function(_this) {
+        return function() {};
+      })(this));
+      return process.exit(code);
+    };
     process.on('uncaughtException', displayError);
-    return process.once('exit', exitProcess);
+    process.once('exit', exitProcess);
+    return process.once('SIGTERM', stopProcess);
   }
 };
 
