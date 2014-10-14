@@ -9,8 +9,6 @@ module.exports = executeUntilEmpty = function(commands, config, callback) {
   if (config.user != null) {
     command = "su " + config.user + " -c '" + command + "'";
   }
-  console.log(command);
-  console.log(config);
   return exec(command, config, function(err, stdout, stderr) {
     if (err != null) {
       return callback(err, false);

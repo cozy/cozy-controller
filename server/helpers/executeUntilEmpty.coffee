@@ -7,8 +7,6 @@ module.exports = executeUntilEmpty = (commands, config, callback) ->
     if config.user?
         command = "su #{config.user} -c '#{command}'"
     # Remark: using 'exec' here because chaining 'spawn' is not effective here
-    console.log command
-    console.log config
     exec command, config, (err, stdout, stderr) ->
         if err?
             callback err, false
