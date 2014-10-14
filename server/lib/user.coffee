@@ -1,4 +1,5 @@
 spawn = require('child_process').spawn
+config = require('./conf').get
 path = require 'path'
 
 ###
@@ -8,7 +9,7 @@ path = require 'path'
 module.exports.create = (app, callback) ->
     env = {}
     user = env.USER = app.user
-    appdir = env.HOME = app.dir
+    appdir = env.HOME = config('dir_source')
     child = spawn 'bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], \
         env: env
 
