@@ -31,8 +31,6 @@ getManifest = (app) ->
     app.repository =
         type: "git"
         url: app.git
-    app.scripts =
-        start: "server.js"
     app.name = app.name.toLowerCase()
     return app
 
@@ -63,7 +61,7 @@ start = (apps, clientDS, callback) ->
                 if err? and cb is 1
                     console.log("#{app.name}: error")
                     console.log err
-                    errors[app.name] = new Error "Application doesn't started"
+                    errors[app.name] = new Error "Application didn't started"
                     # Add application if drones list
                     controller.addDrone app, ->
                         start apps, clientDS, callback
@@ -132,12 +130,12 @@ startStack = (stackManifest, app, callback) ->
         controller.start stackManifest[app], (err, result) ->
             if err? or not result
                 console.log err
-                err = new Error "#{app} doesn't started"
+                err = new Error "#{app} didn't started"
                 callback err
             else
                 console.log("#{app}: checking ...")
                 timeout = setTimeout ->
-                    callback "[Timeout] #{app} doesn't start"
+                    callback "[Timeout] #{app} didn't start"
                 , 30000
                 checkStart result.port, ->
                     clearTimeout(timeout)

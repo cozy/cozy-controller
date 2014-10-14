@@ -51,9 +51,6 @@ getManifest = function(app) {
     type: "git",
     url: app.git
   };
-  app.scripts = {
-    start: "server.js"
-  };
   app.name = app.name.toLowerCase();
   return app;
 };
@@ -85,7 +82,7 @@ start = function(apps, clientDS, callback) {
         if ((err != null) && cb === 1) {
           console.log("" + app.name + ": error");
           console.log(err);
-          errors[app.name] = new Error("Application doesn't started");
+          errors[app.name] = new Error("Application didn't started");
           return controller.addDrone(app, function() {
             return start(apps, clientDS, callback);
           });
@@ -176,12 +173,12 @@ startStack = function(stackManifest, app, callback) {
       var timeout;
       if ((err != null) || !result) {
         console.log(err);
-        err = new Error("" + app + " doesn't started");
+        err = new Error("" + app + " didn't started");
         return callback(err);
       } else {
         console.log("" + app + ": checking ...");
         timeout = setTimeout(function() {
-          return callback("[Timeout] " + app + " doesn't start");
+          return callback("[Timeout] " + app + " didn't start");
         }, 30000);
         return checkStart(result.port, function() {
           clearTimeout(timeout);
