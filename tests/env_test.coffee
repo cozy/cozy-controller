@@ -20,6 +20,7 @@ describe "Environment variable", ->
     describe "Initialization", ->
 
         it "When I initialize configuration", (done) ->
+            @timeout 4000
             config =
                 env:
                     "data-system":
@@ -32,7 +33,9 @@ describe "Environment variable", ->
                 npm_strict_ssl: false
             fs.writeFileSync '/etc/cozy/controller.json', JSON.stringify(config)
             conf.init () =>
-                done()
+                setTimeout () ->
+                    done()
+                , 1000
 
         it "Then I recover configuration", ->
             should.exist conf.get('env').global
