@@ -36,6 +36,8 @@ describe "App Stopped", ->
                         start: "server.coffee"
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                     @res = res
+                    console.log body
+                    console.log err
                     port = body.drone.port
                     dsPort = port
                     done()
