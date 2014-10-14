@@ -43,17 +43,18 @@
     "mozilla-version-comparator": "1.0.2"
   },
   "devDependencies": {
-    "winston-loggly": "0.6.0",
-    "vows": "~0.7.0",
     "should": "3.1.2",
     "chai": "1.9.0",
-    "mocha": "1.17.1"
+    "mocha": "1.17.1",
+    "request": "2.33.0",
+    "coffee-script": "latest",
+    "coffee-coverage": "0.4.2"
   },
   "main": "./lib/haibu",
   "bin": {
     "cozy-controller": "./bin/cozy-controller"
   },
   "scripts": {
-    "test": "cake tests"
+    "test": "cake --use-js tests"
   }
 }

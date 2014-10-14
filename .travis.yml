@@ -13,4 +13,4 @@ before_install:
     - env | grep PATH
     - sudo env | grep PATH
 
-script: "TEST_ENV=travis sudo cake tests"
+script: "TEST_ENV=travis sudo npm test"
