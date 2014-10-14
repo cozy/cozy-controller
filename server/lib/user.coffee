@@ -8,7 +8,7 @@ path = require 'path'
 module.exports.create = (app, callback) ->
     env = {}
     user = env.USER = app.user
-    appdir = env.HOME = app.userDir
+    appdir = env.HOME = app.dir
     child = spawn 'bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], \
         env: env
 

@@ -193,27 +193,31 @@ module.exports.install = function(manifest, callback) {
     return startApp(app, callback);
   } else {
     drones[app.name] = app;
-    return user.create(app, function() {
-      console.log("" + app.name + ":git clone");
-      return type[app.repository.type].init(app, function(err) {
-        if (err != null) {
-          return callback(err);
-        } else {
-          console.log("" + app.name + ":npm install");
-          return installDependencies(app, 2, function(err) {
-            var _ref;
-            if (err != null) {
-              return callback(err);
-            } else {
-              console.log("" + app.name + ":start application");
-              if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
-                stack.addApp(app, callback);
+    return user.create(app, function(err) {
+      if (err != null) {
+        return callback(err);
+      } else {
+        console.log("" + app.name + ":git clone");
+        return type[app.repository.type].init(app, function(err) {
+          if (err != null) {
+            return callback(err);
+          } else {
+            console.log("" + app.name + ":npm install");
+            return installDependencies(app, 2, function(err) {
+              var _ref;
+              if (err != null) {
+                return callback(err);
+              } else {
+                console.log("" + app.name + ":start application");
+                if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
+                  stack.addApp(app, callback);
+                }
+                return startApp(app, callback);
               }
-              return startApp(app, callback);
-            }
-          });
-        }
-      });
+            });
+          }
+        });
+      }
     });
   }
 };

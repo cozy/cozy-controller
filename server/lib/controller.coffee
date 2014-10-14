@@ -164,26 +164,29 @@ module.exports.install = (manifest, callback) ->
     else
         drones[app.name] = app
         # Create user if necessary
-        user.create app, ->
-            # Git clone
-            console.log "#{app.name}:git clone"
-            type[app.repository.type].init app, (err) ->
-                if err?
-                    callback err
-                else
-                    # NPM install
-                    console.log "#{app.name}:npm install"
-                    installDependencies app, 2, (err) ->
-                        if err?
-                            callback err
-                        else
-                            console.log "#{app.name}:start application"
-                            # If app is an stack application,
-                            # we store this manifest in stack.json
-                            if app.name in stackApps
-                                stack.addApp app, callback
-                            # Start application
-                            startApp app, callback
+        user.create app, (err) ->
+            if err?
+                callback err
+            else
+                # Git clone
+                console.log "#{app.name}:git clone"
+                type[app.repository.type].init app, (err) ->
+                    if err?
+                        callback err
+                    else
+                        # NPM install
+                        console.log "#{app.name}:npm install"
+                        installDependencies app, 2, (err) ->
+                            if err?
+                                callback err
+                            else
+                                console.log "#{app.name}:start application"
+                                # If app is an stack application,
+                                # we store this manifest in stack.json
+                                if app.name in stackApps
+                                    stack.addApp app, callback
+                                # Start application
+                                startApp app, callback
 
 ###
     Start aplication defined by <manifest>
