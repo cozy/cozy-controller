@@ -184,7 +184,7 @@ module.exports.apply = function(callback) {
             if (err != null) {
               return callback(err);
             } else {
-              return fs.open('/etc/cozy/.patch', 'w', callback);
+              return callback();
             }
           });
         }

@@ -163,7 +163,7 @@ module.exports.init = function(callback) {
       }
     });
   };
-  if (!fs.existsSync('/etc/cozy/.patch')) {
+  if (fs.existsSync('/usr/local/cozy/autostart')) {
     return patch.apply(function() {
       return initialize();
     });

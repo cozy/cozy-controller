@@ -142,4 +142,4 @@ module.exports.apply = (callback) ->
                         if err?
                             callback err
                         else
-                            fs.open '/etc/cozy/.patch', 'w', callback
+                            callback()

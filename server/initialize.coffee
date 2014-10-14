@@ -105,7 +105,7 @@ module.exports.init = (callback) ->
                 initFiles (err) ->
                     conf.backupConfig()
                     callback err
-    if not fs.existsSync '/etc/cozy/.patch'
+    if fs.existsSync '/usr/local/cozy/autostart'
         patch.apply ->
             initialize()
     else
