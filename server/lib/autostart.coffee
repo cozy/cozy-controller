@@ -24,6 +24,10 @@ couchDBStarted = (test=5, callback) ->
             else
                 callback false
 
+isCorrect = (app) ->
+    return app.git? and app.name? and
+        app.state?
+
 ###
     Return manifest of <app> from database application
 ###
@@ -52,31 +56,34 @@ start = (apps, clientDS, callback) ->
     if apps? and apps.length > 0
         appli = apps.pop()
         app = getManifest(appli.value)
-        if app.state is "installed"
-            # Start application
-            console.log("#{app.name}: starting ...")
-            cb = 0
-            controller.start app, (err, result) ->
-                cb = cb + 1
-                if err? and cb is 1
-                    console.log("#{app.name}: error")
-                    console.log err
-                    errors[app.name] = new Error "Application didn't started"
-                    # Add application if drones list
-                    controller.addDrone app, ->
-                        start apps, clientDS, callback
-                else
-                    # Update port in database
-                    appli = appli.value
-                    appli.port = result.port
-                    clientDS.put '/data/', appli, (err, res, body) ->
-                        console.log("#{app.name}: started")
-                        start apps, clientDS, callback
+        if isCorrect(app)
+            if app.state is "installed"
+                # Start application
+                console.log("#{app.name}: starting ...")
+                cb = 0
+                controller.start app, (err, result) ->
+                    cb = cb + 1
+                    if err? and cb is 1
+                        console.log("#{app.name}: error")
+                        console.log err
+                        errors[app.name] = new Error "Application didn't started"
+                        # Add application if drones list
+                        controller.addDrone app, ->
+                            start apps, clientDS, callback
+                    else
+                        # Update port in database
+                        appli = appli.value
+                        appli.port = result.port
+                        clientDS.put '/data/', appli, (err, res, body) ->
+                            console.log("#{app.name}: started")
+                            start apps, clientDS, callback
+            else
+                # Add application if drones list
+                app = new App(app)
+                controller.addDrone app.app, ->
+                    start apps, clientDS, callback
         else
-            # Add application if drones list
-            app = new App(app)
-            controller.addDrone app.app, ->
-                start apps, clientDS, callback
+            start apps, clientDS, callback
     else
         callback()
 
