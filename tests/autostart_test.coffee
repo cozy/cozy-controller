@@ -33,7 +33,7 @@ describe "Autostart", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/cozy/cozy-data-system.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -59,7 +59,7 @@ describe "Autostart", ->
                 app =
                     name: "home"
                     repository:
-                        url: "https://github.com/cozy/cozy-home.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -85,7 +85,7 @@ describe "Autostart", ->
                 app =
                     name: "proxy"
                     repository:
-                        url: "https://github.com/cozy/cozy-proxy.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -100,7 +100,7 @@ describe "Autostart", ->
             it "And proxy is started", (done) ->
                 clientProxy = new Client "http://localhost:#{@port}"
                 clientProxy.get '/', (err, res) ->
-                    res.statusCode.should.equal 302
+                    res.statusCode.should.equal 200
                     done()
 
         ###describe "Install todos", ->

@@ -29,7 +29,7 @@ describe "App Stopped", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/cozy/cozy-data-system.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -55,7 +55,7 @@ describe "App Stopped", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/cozy/cozy-data-system.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
