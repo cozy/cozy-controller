@@ -106,6 +106,8 @@ module.exports.start = function(app, callback) {
     process = new forever.Monitor(carapaceBin, foreverOptions);
     responded = false;
     onExit = function() {
+      app.backup = app.logFile + "-backup";
+      fs.rename(app.logFile, app.backup);
       process.removeListener('error', onError);
       clearTimeout(timeout);
       console.log('callback on Exit');

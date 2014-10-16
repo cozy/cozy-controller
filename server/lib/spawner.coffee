@@ -62,7 +62,6 @@ module.exports.start = (app, callback) ->
         killTTL:   0
         command:   'node'
 
-
     ## Manage logFile and errFile
     if fs.existsSync(app.logFile)
         # If a logFile exists, create a backup
@@ -114,6 +113,8 @@ module.exports.start = (app, callback) ->
         ## Manage events of process
 
         onExit = ->
+            app.backup = app.logFile + "-backup"
+            fs.rename app.logFile, app.backup
             # Remove listeners to related events.
             process.removeListener 'error', onError
             clearTimeout timeout
