@@ -34,7 +34,7 @@ describe "Environment variable", ->
         it "And I started server", (done) ->
             @timeout 100000
             helpers.startApp () =>
-            client = helpers.getClient()
+                client = helpers.getClient()
                 done()
 
         it "Then I recover configuration", ->
