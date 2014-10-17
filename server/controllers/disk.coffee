@@ -26,16 +26,13 @@ module.exports.info = (req, res, next) ->
         for line in lines
             line = line.replace /[\s]+/g, ' '
             lineData = line.split(' ')
-            if lineData.length > 5
-                mountPoint = lineData[5]
-                if (dir.indexOf(mountPoint) is 0 and
-                        currentMountPoint.length < mountPoint.length and
-                        mountPoint.length <= dir.length and
-                        mountPoint[0] is '/')
-                    currentMountPoint = mountPoint
-                    data.freeDiskSpace = extractValFromDfValue lineData[3]
-                    data.usedDiskSpace = extractValFromDfValue lineData[2]
-                    data.totalDiskSpace = extractValFromDfValue lineData[1]
+            if lineData.length > 5 and lineData[5] is '/'
+                freeSpace = lineData[3].substring(0, lineData[3].length - 1)
+                totalSpace = lineData[1].substring(0, lineData[1].length - 1)
+                usedSpace = lineData[2].substring(0, lineData[2].length - 1)
+                data.totalDiskSpace = totalSpace
+                data.freeDiskSpace = freeSpace
+                data.usedDiskSpace = usedSpace
         return data
 
     getCouchStoragePlace = (callback) ->

@@ -27,7 +27,7 @@ module.exports.info = function(req, res, next) {
     return val;
   };
   extractDataFromDfResult = function(dir, resp) {
-    var currentMountPoint, data, line, lineData, lines, mountPoint, _i, _len;
+    var currentMountPoint, data, freeSpace, line, lineData, lines, totalSpace, usedSpace, _i, _len;
     data = {};
     lines = resp.split('\n');
     currentMountPoint = '';
@@ -35,14 +35,13 @@ module.exports.info = function(req, res, next) {
       line = lines[_i];
       line = line.replace(/[\s]+/g, ' ');
       lineData = line.split(' ');
-      if (lineData.length > 5) {
-        mountPoint = lineData[5];
-        if (dir.indexOf(mountPoint) === 0 && currentMountPoint.length < mountPoint.length && mountPoint.length <= dir.length && mountPoint[0] === '/') {
-          currentMountPoint = mountPoint;
-          data.freeDiskSpace = extractValFromDfValue(lineData[3]);
-          data.usedDiskSpace = extractValFromDfValue(lineData[2]);
-          data.totalDiskSpace = extractValFromDfValue(lineData[1]);
-        }
+      if (lineData.length > 5 && lineData[5] === '/') {
+        freeSpace = lineData[3].substring(0, lineData[3].length - 1);
+        totalSpace = lineData[1].substring(0, lineData[1].length - 1);
+        usedSpace = lineData[2].substring(0, lineData[2].length - 1);
+        data.totalDiskSpace = totalSpace;
+        data.freeDiskSpace = freeSpace;
+        data.usedDiskSpace = usedSpace;
       }
     }
     return data;

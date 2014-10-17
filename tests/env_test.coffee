@@ -1,4 +1,4 @@
-helpers = require "./helpers"
+###helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
 client = ""
@@ -79,4 +79,4 @@ describe "Environment variable", ->
             data = require '/usr/local/cozy/apps/data-system/test-env.json'
             data.name.should.equal 'data-system'
             data.global.should.equal 'testGlobal'
-            data.test.should.equal 'test'
+            data.test.should.equal 'test'###

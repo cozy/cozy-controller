@@ -1,4 +1,4 @@
-###helpers = require "./helpers"
+helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
 
@@ -35,4 +35,4 @@ describe "Disk info", ->
         should.exist @body.totalDiskSpace
 
     it "And body should be have usedDiskSpace attribute", ->
-        should.exist @body.usedDiskSpace###
+        should.exist @body.usedDiskSpace

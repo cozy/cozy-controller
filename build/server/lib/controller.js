@@ -88,7 +88,6 @@ stopApp = function(name, callback) {
   var err, monitor, onErr, onStop;
   monitor = running[name].monitor;
   onStop = function() {
-    console.log("on stop");
     monitor.removeListener('error', onErr);
     monitor.removeListener('exit', onStop);
     monitor.removeListener('stop', onStop);

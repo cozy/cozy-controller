@@ -70,7 +70,6 @@ stopApps = (apps, callback) ->
 stopApp = (name, callback) ->
     monitor = running[name].monitor
     onStop = ->
-        console.log "on stop"
         # Avoid double callback
         monitor.removeListener 'error', onErr
         monitor.removeListener 'exit', onStop
