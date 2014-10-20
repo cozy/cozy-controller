@@ -4,6 +4,7 @@ controller = require './controller'
 permission = require '../middlewares/token'
 App = require('./app').App
 config = require('./conf').get
+log = require('printit')()
 
 couchDBClient = new Client 'http://localhost:5984'
 
@@ -59,13 +60,13 @@ start = (apps, clientDS, callback) ->
         if isCorrect(app)
             if app.state is "installed"
                 # Start application
-                console.log("#{app.name}: starting ...")
+                log.info "#{app.name}: starting ..."
                 cb = 0
                 controller.start app, (err, result) ->
                     cb = cb + 1
                     if err? and cb is 1
-                        console.log("#{app.name}: error")
-                        console.log err
+                        log.error "#{app.name}: error"
+                        log.error err
                         errors[app.name] = new Error "Application didn't started"
                         # Add application if drones list
                         controller.addDrone app, ->
@@ -75,7 +76,7 @@ start = (apps, clientDS, callback) ->
                         appli = appli.value
                         appli.port = result.port
                         clientDS.put '/data/', appli, (err, res, body) ->
-                            console.log("#{app.name}: started")
+                            log.info "#{app.name}: started"
                             start apps, clientDS, callback
             else
                 # Add application if drones list
@@ -98,7 +99,7 @@ checkStart = (port, callback) ->
     client.get "", (err, res) ->
         if res?
             if res.statusCode not in  [200, 401, 402, 302]
-                console.log "Warning : receives error #{res.statusCode}"
+                log.warn "Warning : receives error #{res.statusCode}"
             callback()
         else
             checkStart port, callback
@@ -118,10 +119,10 @@ recoverStackApp = (callback) ->
                 data = JSON.parse(data)
                 callback null, data
             catch
-                console.log "stack isn't installed"
-                callback "stack isn't installed"
+                log.info "Stack isn't installed"
+                callback "Stack isn't installed"
         else
-            console.log "Cannot read stack file"
+            log.error "Cannot read stack file"
             callback "Cannot read stack file"
 
 ###
@@ -133,20 +134,21 @@ recoverStackApp = (callback) ->
 ###
 startStack = (stackManifest, app, callback) ->
     if stackManifest[app]?
-        console.log("#{app}: starting ...")
+        log.info "#{app}: starting ..."
         controller.start stackManifest[app], (err, result) ->
             if err? or not result
-                console.log err
+                log.error "#{app} didn't started"
+                log.error err
                 err = new Error "#{app} didn't started"
                 callback err
             else
-                console.log("#{app}: checking ...")
+                log.info "#{app}: checking ..."
                 timeout = setTimeout ->
                     callback "[Timeout] #{app} didn't start"
                 , 30000
                 checkStart result.port, ->
                     clearTimeout(timeout)
-                    console.log("#{app}: started")
+                    log.info "#{app}: started"
                     setTimeout ->
                         callback null, result.port
                     , 1000
@@ -161,16 +163,16 @@ startStack = (stackManifest, app, callback) ->
         *  Other applications are declared in couchDB
 ###
 module.exports.start = (callback) ->
-    console.log("### AUTOSTART ###")
+    log.info "### AUTOSTART ###"
     couchDBStarted 5, (started) ->
         if started
             # Start data-system
-            console.log('couchDB: started')
+            log.info 'couchDB: started'
             recoverStackApp (err, manifest) ->
                 if err?
                     callback()
                 else if not manifest['data-system']?
-                    console.log "stack isn't installed"
+                    log.info "stack isn't installed"
                     callback()
                 else
                     startStack manifest, 'data-system', (err, port) ->
@@ -186,13 +188,12 @@ module.exports.start = (callback) ->
                                     callback()
                                 else
                                     start body, clientDS, (errors) ->
-                                        console.log errors if errors isnt {}
                                         # Start home
                                         startStack manifest, 'home', (err) ->
-                                            console.log err if err?
+                                            log.error err if err?
                                         # Start proxy
                                         startStack manifest, 'proxy', (err) ->
-                                            console.log err if err?
+                                            log.error err if err?
                                             callback()
         else
             err = new Error "couchDB isn't started"

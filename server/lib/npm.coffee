@@ -1,5 +1,6 @@
 path = require 'path'
 spawn = require('child_process').spawn
+log = require('printit')()
 config = require('./conf').get
 
 ###
@@ -36,9 +37,9 @@ module.exports.install = (target, callback) ->
 
     child.on 'close', (code) ->
         if code isnt 0
-            console.log "npm:install:err: NPM Install failed : #{stderr}"
+            log.error "npm:install:err: NPM Install failed : #{stderr}"
             err = new Error('NPM Install failed')
             callback err
         else
-            console.log 'npm:install:success'
+            log.info 'npm:install:success'
             callback()

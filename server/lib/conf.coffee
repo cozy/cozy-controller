@@ -1,9 +1,11 @@
 fs = require 'fs'
+log = require('printit')()
 
 ## Global variables
 conf = {}
 oldConf = {}
 patch = "0"
+configFile = '/etc/cozy/controller.json'
 
 ###
     Read configuration file
@@ -11,9 +13,13 @@ patch = "0"
         * Return error if configuration file is not a correct json
 ###
 readFile = (callback) ->
-    if fs.existsSync '/etc/cozy/controller.json'
+    if fs.existsSync configFile
         try
-            data = require '/etc/cozy/controller.json'
+            unless process.env.NODE_ENV is 'test'
+                data = require configFile
+            else
+                data = fs.readFileSync configFile, 'utf8'
+                data = JSON.parse(data)
             data.old = {}
         catch
             callback null, {}
@@ -98,9 +104,8 @@ module.exports.backupConfig = ->
         dir_log : conf.dir_log
         dir_source : conf.dir_source
         env : conf.env
-    path = "/etc/cozy/controller.json"
-    fs.writeFile path, JSON.stringify(displayConf), (err) ->
-        console.log err  if err?
+    fs.writeFile configFile, JSON.stringify(displayConf), (err) ->
+        log.error err  if err?
         path = "/etc/cozy/.controller-backup.json"
         fs.writeFile path, JSON.stringify(displayConf), (err) ->
-            console.log err  if err?
+            log.error err  if err?

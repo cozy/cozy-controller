@@ -2,6 +2,7 @@ path = require "path"
 fs = require 'fs'
 spawn = require('child_process').spawn
 exec = require('child_process').exec
+log = require('printit')()
 
 pathRoot = "/usr/local/cozy/apps/"
 
@@ -21,10 +22,10 @@ move = (source, dest, callback) ->
     child = spawn 'sudo', ["mv", source, dest]
     child.stderr.setEncoding('utf8')
     child.stderr.on 'data', (msg) ->
-        console.log msg
+        log.info msg
     child.on 'close', (code) ->
         if code isnt 0
-            console.log("Cannot move old source")
+            log.info "Cannot move old source"
             callback "#{name} : Cannot move old source"
         else
             callback()
@@ -34,13 +35,13 @@ rm = (dir, callback) ->
     child = spawn 'sudo', ["rm", "-rf", dir]
     child.stderr.setEncoding('utf8')
     child.stderr.on 'data', (msg) ->
-        console.log msg
+        log.error msg
     child.on 'close', (code) ->
         if code isnt 0
-            console.log("Cannot move old source")
+            log.error "Cannot move old source"
             callback "#{name} : Cannot remove old source"
         else
-            console.log "#{dir} : Moved"
+            log.info "#{dir} : Moved"
             callback()
 
 # Move old source path to new source path
@@ -67,7 +68,7 @@ updateSourceDir = (apps, callback) ->
                                 else
                                     updateSourceDir apps, callback
         else
-            console.log "#{name} : Already moved"
+            log.info "#{name} : Already moved"
             updateSourceDir apps, callback
     else
         callback()
@@ -121,23 +122,23 @@ removeOldDir = (callback) ->
 
 #update Files -> usefull for patch
 module.exports.apply = (callback) ->
-    console.log "APPLY patch ..."
+    log.info "APPLY patch ..."
     # Update source path
     if fs.existsSync '/etc/cozy/controller.token'
         fs.unlinkSync '/etc/cozy/controller.token'
     dirs = fs.readdirSync '/usr/local/cozy/apps'
-    console.log "Move old source directory ..."
+    log.info "Move old source directory ..."
     updateSourceDir dirs, (err) ->
         if err?
-            console.log err
+            log.error err
             callback err
         else
-            console.log "Create Stack File ..."
+            log.info "Create Stack File ..."
             createStackFile (err) ->
                 if err?
                     callback err
                 else
-                    console.log "Remove old directory ..."
+                    log.info "Remove old directory ..."
                     removeOldDir (err) ->
                         if err?
                             callback err

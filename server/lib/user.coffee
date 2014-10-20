@@ -13,8 +13,6 @@ module.exports.create = (app, callback) ->
     child = spawn 'bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], \
         env: env
 
-    child.stderr.on 'data', (data) ->
-        console.log data.toString()
     child.on 'exit', (code) ->
         if code is 0
             callback()

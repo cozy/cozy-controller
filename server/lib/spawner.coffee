@@ -4,6 +4,7 @@ path = require 'path'
 exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
+log = require('printit')()
 config = require('../lib/conf').get
 
 ###
@@ -25,7 +26,6 @@ module.exports.start = (app, callback) ->
         TOKEN: pwd
         USER: app.user
         USERNAME: app.user
-        SUDO_USER: app.user
         HOME: app.dir
         NODE_ENV: process.env.NODE_ENV
 
@@ -118,10 +118,10 @@ module.exports.start = (app, callback) ->
             # Remove listeners to related events.
             process.removeListener 'error', onError
             clearTimeout timeout
-            console.log('callback on Exit')
+            log.error 'Callback on Exit'
             if callback then callback new Error "#{app.name} CANT START"
             else
-                console.log "#{app.name} HAS FAILLED TOO MUCH"
+                log.error "#{app.name} HAS FAILLED TOO MUCH"
                 setTimeout (-> process.exit 1), 1
 
         onError = (err) ->
@@ -132,7 +132,6 @@ module.exports.start = (app, callback) ->
                 process.removeListener 'exit', onExit
                 process.removeListener 'message', onPort
                 clearTimeout timeout
-                #console.log err
 
         onStart = (monitor, data) ->
             result =
@@ -143,15 +142,14 @@ module.exports.start = (app, callback) ->
                 pkg: app
 
         onRestart = ->
-            console.log "#{app.name}:restart"
+            log.info "#{app.name}:restart"
 
         onTimeout = ->
             process.removeListener 'exit', onExit
             process.stop()
             controller.removeRunningApp(app.name)
             err = new Error 'Error spawning drone'
-
-            console.log 'callback timeout'
+            log.error 'callback timeout'
             callback err
 
         onPort = (info) ->

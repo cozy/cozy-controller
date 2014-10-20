@@ -8,11 +8,7 @@ conf = require('../server/lib/conf')
 describe "Environment variable", ->
 
     before helpers.cleanApp
-    before (done) ->
-        @timeout 100000
-        helpers.startApp () =>
-            client = helpers.getClient()
-            done()
+
     after (done) ->
         @timeout 10000
         helpers.stopApp done
@@ -31,11 +27,15 @@ describe "Environment variable", ->
                         "GLOBAL": "testGlobal"
                 npm_registry: false
                 npm_strict_ssl: false
-            fs.writeFileSync '/etc/cozy/controller.json', JSON.stringify(config)
-            conf.init () =>
-                setTimeout () ->
+            fs.writeFile '/etc/cozy/controller.json', JSON.stringify(config), (err) ->
+                conf.init () =>
                     done()
-                , 1000
+
+        it "And I started server", (done) ->
+            @timeout 100000
+            helpers.startApp () =>
+                client = helpers.getClient()
+                done()
 
         it "Then I recover configuration", ->
             should.exist conf.get('env').global
@@ -62,7 +62,7 @@ describe "Environment variable", ->
 
     describe "Environment transmission", ->
 
-        it "When I install applicatino test", (done) ->
+        it "When I install application test", (done) ->
             @timeout 500000
             app =
                 name: "data-system"

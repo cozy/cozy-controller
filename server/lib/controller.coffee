@@ -5,6 +5,7 @@ repo = require './repo'
 user = require './user'
 stack = require './stack'
 config = require('./conf').get
+log = require('printit')()
 type = []
 type['git'] = require './git'
 App = require('./app').App
@@ -55,7 +56,7 @@ stopApps = (apps, callback) ->
     if apps.length > 0
         app = apps.pop()
         stopApp app, ->
-            console.log "#{app}:stop application"
+            log.info "#{app}:stop application"
             stopApps apps, callback
     else
         drones = []
@@ -70,7 +71,6 @@ stopApps = (apps, callback) ->
 stopApp = (name, callback) ->
     monitor = running[name].monitor
     onStop = ->
-        console.log "on stop"
         # Avoid double callback
         monitor.removeListener 'error', onErr
         monitor.removeListener 'exit', onStop
@@ -78,7 +78,7 @@ stopApp = (name, callback) ->
         callback null, name
     onErr = (err) ->
         # Avoid double callback
-        console.log err
+        log.error err
         monitor.removeListener 'stop', onStop
         monitor.removeListener 'exit', onStop
         callback err, name
@@ -92,7 +92,7 @@ stopApp = (name, callback) ->
         monitor.stop()
         # Wait event exit to callback
     catch err
-        console.log err
+        log.error err
         #callback err, name
         onErr err
 
@@ -104,7 +104,7 @@ stopApp = (name, callback) ->
 ###
 updateApp = (name, callback) ->
     app = drones[name]
-    console.log "#{name}:update application"
+    log.info "#{name}:update application"
     type[app.repository.type].update app, (err) ->
         if err?
             callback err
@@ -127,7 +127,7 @@ installDependencies = (app, test, callback) ->
         if err? and test is 0
             callback err
         else if err?
-            console.log 'TRY AGAIN ...'
+            log.info 'TRY AGAIN ...'
             installDependencies app, test, callback
         else
             callback()
@@ -157,8 +157,8 @@ module.exports.install = (manifest, callback) ->
     app = app.app
     # Check if app exists
     if drones[app.name]? or fs.existsSync(app.dir)
-        console.log "#{app.name}:already installed"
-        console.log "#{app.name}:start application"
+        log.info "#{app.name}:already installed"
+        log.info "#{app.name}:start application"
         # Start application
         startApp app, callback
     else
@@ -169,18 +169,18 @@ module.exports.install = (manifest, callback) ->
                 callback err
             else
                 # Git clone
-                console.log "#{app.name}:git clone"
+                log.info "#{app.name}:git clone"
                 type[app.repository.type].init app, (err) ->
                     if err?
                         callback err
                     else
                         # NPM install
-                        console.log "#{app.name}:npm install"
+                        log.info "#{app.name}:npm install"
                         installDependencies app, 2, (err) ->
                             if err?
                                 callback err
                             else
-                                console.log "#{app.name}:start application"
+                                log.info "#{app.name}:start application"
                                 # If app is an stack application,
                                 # we store this manifest in stack.json
                                 if app.name in stackApps
@@ -238,20 +238,20 @@ module.exports.uninstall = (name, callback) ->
     if drones[name]?
         # Stop application
         if running[name]?
-            console.log "#{name}:stop application"
+            log.info "#{name}:stop application"
             running[name].monitor.stop()
             delete running[name]
 
         # If app is an stack application, we store this manifest in stack.json
         if name in stackApps
-            console.log "#{name}:remove from stack.json"
+            log.info "#{name}:remove from stack.json"
             stack.removeApp name, (err) ->
-                console.log err
+                log.error err
         # Remove repo and log files
         app = drones[name]
         # Remove repo
         repo.delete app, (err) ->
-            console.log "#{name}:delete directory"
+            log.info "#{name}:delete directory"
             # Remove drone in RAM
             if drones[name]?
                 delete drones[name]
@@ -266,7 +266,7 @@ module.exports.uninstall = (name, callback) ->
                 name: name
                 userDir: userDir
             repo.delete app, (err) ->
-                console.log "#{name}:delete directory"
+                log.info "#{name}:delete directory"
                 # Remove drone in RAM
                 if drones[name]?
                     delete drones[name]
@@ -288,7 +288,7 @@ module.exports.uninstall = (name, callback) ->
 module.exports.update = (name, callback) ->
     if drones[name]?
         if running[name]?
-            console.log "#{name}:stop application"
+            log.info "#{name}:stop application"
             stopApp name, (err) ->
                 updateApp name, (err) ->
                     if err?
@@ -296,13 +296,13 @@ module.exports.update = (name, callback) ->
                     else
                         app = drones[name]
                         startApp app, (err, result) ->
-                            console.log "#{name}:start application"
+                            log.info "#{name}:start application"
                             callback err, result
         else
             updateApp name, callback
     else
         err = new Error 'Application is not installed'
-        console.log err
+        log.error err
         callback err
 
 ###
