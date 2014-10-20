@@ -1,10 +1,12 @@
 fs = require 'fs'
+path = require 'path'
+log = require('printit')()
+
 permission = require './middlewares/token'
 App = require('./lib/app').App
 conf = require './lib/conf'
 config = require('./lib/conf').get
 oldConfig = require('./lib/conf').getOld
-path = require 'path'
 mkdirp = require 'mkdirp'
 patch = require './lib/patch'
 
@@ -36,10 +38,10 @@ initDir = (callback) ->
     Initialize source code directory and stack.json file
 ###
 initAppsFiles = (callback) ->
-    console.log 'init: source directory'
+    log.info 'init: source directory'
     initDir (err) ->
         callback err if err?
-        console.log 'init: stack file'
+        log.info 'init: stack file'
         stackFile = config('file_stack')
         if oldConfig('file_stack')
             fs.rename oldConfig('file_stack'), stackFile, callback
@@ -53,7 +55,7 @@ initAppsFiles = (callback) ->
     Init stack token stored in '/etc/cozy/stack.token'
 ###
 initTokenFile = (callback) ->
-    console.log "init : token file"
+    log.info "init : token file"
     tokenFile = config('file_token')
     if tokenFile is '/etc/cozy/stack.token' and not fs.existsSync '/etc/cozy'
         fs.mkdirSync '/etc/cozy'
@@ -96,7 +98,7 @@ initFiles = (callback) ->
         * Rewrite file configuration
 ###
 module.exports.init = (callback) ->
-    console.log "### FILE INITIALIZATION ###"
+    log.info "### FILE INITIALIZATION ###"
     initialize = ->
         conf.init (err) ->
             if err

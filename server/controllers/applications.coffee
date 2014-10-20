@@ -1,4 +1,5 @@
 controller = require ('../lib/controller')
+log = require('printit')()
 
 ###
     Install application.
@@ -11,6 +12,7 @@ module.exports.install = (req, res, next) ->
     manifest = req.body.start
     controller.install manifest, (err, result) ->
         if err?
+            log.error err.toString()
             res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
@@ -27,6 +29,7 @@ module.exports.start = (req, res, next) ->
     manifest = req.body.start
     controller.start manifest, (err, result) ->
         if err
+            log.error err.toString()
             res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
@@ -40,7 +43,7 @@ module.exports.stop = (req, res, next) ->
     name = req.params.name
     controller.stop name, (err, result) ->
         if err?
-            console.log err.toString()
+            log.error err.toString()
             res.send 400, error: err.toString()
         else
             res.send 200, app: result
@@ -54,6 +57,7 @@ module.exports.uninstall = (req, res, next) ->
     name = req.params.name
     controller.uninstall name, (err, result) ->
         if err
+            log.error err.toString()
             res.send 400, error:err.toString()
         else
             res.send 200, app: result
@@ -67,6 +71,7 @@ module.exports.update = (req, res, next) ->
     name = req.params.name
     controller.update name, (err, result) ->
         if err
+            log.error err.toString()
             res.send 400, error:err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
@@ -77,7 +82,8 @@ module.exports.update = (req, res, next) ->
 module.exports.all = (req, res, next) ->
     controller.all (err, result) ->
         if err
-            res.send 400, error:err
+            log.error err.toString()
+            res.send 400, error:err.toString()
         else
             res.send 200, app: result
 
@@ -87,7 +93,8 @@ module.exports.all = (req, res, next) ->
 module.exports.running = (req, res, next) ->
     controller.running (err, result) ->
         if err
-            res.send 400, error:err
+            log.error err.toString()
+            res.send 400, error:err.toString()
         else
             res.send 200, app: result
 

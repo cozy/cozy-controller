@@ -1,4 +1,5 @@
 fs = require 'fs'
+log = require('printit')()
 
 ## Global variables
 conf = {}
@@ -104,7 +105,7 @@ module.exports.backupConfig = ->
         dir_source : conf.dir_source
         env : conf.env
     fs.writeFile configFile, JSON.stringify(displayConf), (err) ->
-        console.log err  if err?
+        log.error err  if err?
         path = "/etc/cozy/.controller-backup.json"
         fs.writeFile path, JSON.stringify(displayConf), (err) ->
-            console.log err  if err?
+            log.error err  if err?

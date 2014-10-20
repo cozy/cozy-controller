@@ -21,9 +21,6 @@ module.exports.create = function(app, callback) {
   child = spawn('bash', [path.join(__dirname, '..', 'lib', 'adduser.sh')], {
     env: env
   });
-  child.stderr.on('data', function(data) {
-    return console.log(data.toString());
-  });
   return child.on('exit', function(code) {
     if (code === 0) {
       return callback();
