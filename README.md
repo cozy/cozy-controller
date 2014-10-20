@@ -1,4 +1,4 @@
- [Cozy](http://cozy.io) Controller
+# [Cozy](http://cozy.io) Controller
 
 The Cozy Controller is used to fetch and manage the applications in the Cozy
 Platform.
