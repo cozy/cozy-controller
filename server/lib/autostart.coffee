@@ -2,6 +2,7 @@ fs = require 'fs'
 Client = require('request-json-light').JsonClient
 controller = require './controller'
 permission = require '../middlewares/token'
+path = require 'path'
 App = require('./app').App
 config = require('./conf').get
 log = require('printit')()
@@ -27,7 +28,9 @@ couchDBStarted = (test=5, callback) ->
 
 isCorrect = (app) ->
     return app.git? and app.name? and
-        app.state?
+        app.state? and
+        fs.existsSync(path.join(config('dir_source'), app.name)) and
+        fs.existsSync(path.join(config('dir_source'), app.name, "package.json"))
 
 ###
     Return manifest of <app> from database application
@@ -182,8 +185,8 @@ module.exports.start = (callback) ->
                             # Start others apps
                             clientDS = new Client "http://localhost:#{port}"
                             clientDS.setBasicAuth 'home', permission.get()
-                            path = '/request/application/all/'
-                            clientDS.post path, {}, (err, res, body) ->
+                            requestPath = '/request/application/all/'
+                            clientDS.post requestPath, {}, (err, res, body) ->
                                 if res.statusCode is 404
                                     callback()
                                 else
