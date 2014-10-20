@@ -137,6 +137,7 @@ startStack = (stackManifest, app, callback) ->
         log.info "#{app}: starting ..."
         controller.start stackManifest[app], (err, result) ->
             if err? or not result
+                log.error "#{app} didn't started"
                 log.error err
                 err = new Error "#{app} didn't started"
                 callback err
@@ -187,7 +188,6 @@ module.exports.start = (callback) ->
                                     callback()
                                 else
                                     start body, clientDS, (errors) ->
-                                        log.error errors if errors isnt {}
                                         # Start home
                                         startStack manifest, 'home', (err) ->
                                             log.error err if err?

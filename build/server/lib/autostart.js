@@ -182,6 +182,7 @@ startStack = function(stackManifest, app, callback) {
     return controller.start(stackManifest[app], function(err, result) {
       var timeout;
       if ((err != null) || !result) {
+        log.error("" + app + " didn't started");
         log.error(err);
         err = new Error("" + app + " didn't started");
         return callback(err);
@@ -239,9 +240,6 @@ module.exports.start = function(callback) {
                   return callback();
                 } else {
                   return start(body, clientDS, function(errors) {
-                    if (errors !== {}) {
-                      log.error(errors);
-                    }
                     startStack(manifest, 'home', function(err) {
                       if (err != null) {
                         return log.error(err);
