@@ -86,6 +86,8 @@ module.exports["delete"] = function(app, callback) {
             return callback();
           }
         });
+      } else {
+        return callback();
       }
     }
   });

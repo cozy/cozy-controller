@@ -58,3 +58,5 @@ module.exports.delete = (app, callback) ->
                             callback()
                     else
                         callback()
+            else
+                callback()

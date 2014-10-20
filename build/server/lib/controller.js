@@ -317,7 +317,9 @@ module.exports.uninstall = function(name, callback) {
     if (fs.existsSync(userDir)) {
       app = {
         name: name,
-        userDir: userDir
+        dir: userDir,
+        logFile: config('dir_log') + name + ".log",
+        backup: config('dir_log') + name + ".log-backup"
       };
       return repo["delete"](app, function(err) {
         log.info("" + name + ":delete directory");
