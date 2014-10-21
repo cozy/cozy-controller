@@ -8,7 +8,7 @@ permission = require '../middlewares/token'
 
 controllerAdded = false
 
-addInDatabase = (app) ->
+addInDatabase = (app, callback) ->
     clientDS = new Client "http://localhost:9101"
     clientDS.setBasicAuth 'home', permission.get()
     clientDS.post '/request/stackapplication/all/', {}, (err, res, body) ->
@@ -25,6 +25,7 @@ addInDatabase = (app) ->
                     log.warn err
                 else
                     controllerAdded = true
+                callback err
         else
             clientDS.post '/data/', app, (err, res, body) ->
                 if err?
@@ -32,6 +33,7 @@ addInDatabase = (app) ->
                     log.warn err
                 else
                     controllerAdded = true
+                callback err
 
 ###
     Add application <app> in stack.json
@@ -47,23 +49,24 @@ module.exports.addApp = (app, callback) ->
     app.docType = "StackApplication"
     data = require path.join(config('dir_source'), app.name, 'package.json')
     app.version = data.version
-    addInDatabase app
-    unless controllerAdded
-        data = require path.join __dirname, '..', '..', '..', 'package.json'
-        app =
-            docType: "StackApplication"
-            name:    "controller"
-            version: data.version
-        addInDatabase app
-    # Store in stack.json
-    fs.readFile config('file_stack'), 'utf8', (err, data) ->
-        try
-            data = JSON.parse data
-        catch
-            data = {}
-        data[app.name] = app
-        fs.open config('file_stack'), 'w', (err, fd) ->
-            fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
+    addInDatabase app, (err) =>
+        unless controllerAdded
+            data = require path.join __dirname, '..', '..', '..', 'package.json'
+            controller =
+                docType: "StackApplication"
+                name:    "controller"
+                version: data.version
+            addInDatabase controller, (err) ->
+                console.log err if err?
+        # Store in stack.json
+        fs.readFile config('file_stack'), 'utf8', (err, data) ->
+            try
+                data = JSON.parse data
+            catch
+                data = {}
+            data[app.name] = app
+            fs.open config('file_stack'), 'w', (err, fd) ->
+                fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
 
 ###
     Add controller in database
@@ -75,7 +78,8 @@ module.exports.addController = ->
         docType: "StackApplication"
         name:    "controller"
         version: data.version
-    addInDatabase app
+    addInDatabase app, (err) ->
+        console.log err if err?
 
 ###
     Remove application <name> from stack.json

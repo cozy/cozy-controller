@@ -15,7 +15,7 @@ permission = require('../middlewares/token');
 
 controllerAdded = false;
 
-addInDatabase = function(app) {
+addInDatabase = function(app, callback) {
   var clientDS;
   clientDS = new Client("http://localhost:9101");
   clientDS.setBasicAuth('home', permission.get());
@@ -35,19 +35,21 @@ addInDatabase = function(app) {
       return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
         if (err != null) {
           log.warn("Error in updating " + app.name + " to database");
-          return log.warn(err);
+          log.warn(err);
         } else {
-          return controllerAdded = true;
+          controllerAdded = true;
         }
+        return callback(err);
       });
     } else {
       return clientDS.post('/data/', app, function(err, res, body) {
         if (err != null) {
           log.warn("Error in adding " + app.name + " to database");
-          return log.warn(err);
+          log.warn(err);
         } else {
-          return controllerAdded = true;
+          controllerAdded = true;
         }
+        return callback(err);
       });
     }
   });
@@ -69,27 +71,35 @@ module.exports.addApp = function(app, callback) {
   app.docType = "StackApplication";
   data = require(path.join(config('dir_source'), app.name, 'package.json'));
   app.version = data.version;
-  addInDatabase(app);
-  if (!controllerAdded) {
-    data = require(path.join(__dirname, '..', '..', '..', 'package.json'));
-    app = {
-      docType: "StackApplication",
-      name: "controller",
-      version: data.version
+  return addInDatabase(app, (function(_this) {
+    return function(err) {
+      var controller;
+      if (!controllerAdded) {
+        data = require(path.join(__dirname, '..', '..', '..', 'package.json'));
+        controller = {
+          docType: "StackApplication",
+          name: "controller",
+          version: data.version
+        };
+        addInDatabase(controller, function(err) {
+          if (err != null) {
+            return console.log(err);
+          }
+        });
+      }
+      return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
+        try {
+          data = JSON.parse(data);
+        } catch (_error) {
+          data = {};
+        }
+        data[app.name] = app;
+        return fs.open(config('file_stack'), 'w', function(err, fd) {
+          return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
+        });
+      });
     };
-    addInDatabase(app);
-  }
-  return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
-    try {
-      data = JSON.parse(data);
-    } catch (_error) {
-      data = {};
-    }
-    data[app.name] = app;
-    return fs.open(config('file_stack'), 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
-    });
-  });
+  })(this));
 };
 
 
@@ -105,7 +115,11 @@ module.exports.addController = function() {
     name: "controller",
     version: data.version
   };
-  return addInDatabase(app);
+  return addInDatabase(app, function(err) {
+    if (err != null) {
+      return console.log(err);
+    }
+  });
 };
 
 
