@@ -65,27 +65,28 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var clientDS, data;
-  clientDS = new Client("http://localhost:9101");
-  clientDS.setBasicAuth('home', permission.get());
+  var data;
   app.docType = "StackApplication";
   data = require(path.join(config('dir_source'), app.name, 'package.json'));
   app.version = data.version;
   return addInDatabase(app, (function(_this) {
     return function(err) {
-      var controller;
+      var controller, controllerPath;
       if (!controllerAdded) {
-        data = require(path.join(__dirname, '..', '..', '..', 'package.json'));
-        controller = {
-          docType: "StackApplication",
-          name: "controller",
-          version: data.version
-        };
-        addInDatabase(controller, function(err) {
-          if (err != null) {
-            return console.log(err);
-          }
-        });
+        controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+        if (fs.existsSync(controllerPath)) {
+          data = require(controllerPath);
+          controller = {
+            docType: "StackApplication",
+            name: "controller",
+            version: data.version
+          };
+          addInDatabase(controller, function(err) {
+            if (err != null) {
+              return console.log(err);
+            }
+          });
+        }
       }
       return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
         try {
@@ -108,18 +109,21 @@ module.exports.addApp = function(app, callback) {
  */
 
 module.exports.addController = function() {
-  var app, data;
-  data = require(path.join(__dirname, '..', '..', '..', 'package.json'));
-  app = {
-    docType: "StackApplication",
-    name: "controller",
-    version: data.version
-  };
-  return addInDatabase(app, function(err) {
-    if (err != null) {
-      return console.log(err);
-    }
-  });
+  var app, controllerPath, data;
+  controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+  if (fs.existsSync(controllerPath)) {
+    data = require(controllerPath);
+    app = {
+      docType: "StackApplication",
+      name: "controller",
+      version: data.version
+    };
+    return addInDatabase(app, function(err) {
+      if (err != null) {
+        return console.log(err);
+      }
+    });
+  }
 };
 
 

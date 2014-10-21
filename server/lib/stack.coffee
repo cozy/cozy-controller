@@ -44,20 +44,20 @@ addInDatabase = (app, callback) ->
 ###
 module.exports.addApp = (app, callback) ->
     # Store in database
-    clientDS = new Client "http://localhost:9101"
-    clientDS.setBasicAuth 'home', permission.get()
     app.docType = "StackApplication"
     data = require path.join(config('dir_source'), app.name, 'package.json')
     app.version = data.version
     addInDatabase app, (err) =>
         unless controllerAdded
-            data = require path.join __dirname, '..', '..', '..', 'package.json'
-            controller =
-                docType: "StackApplication"
-                name:    "controller"
-                version: data.version
-            addInDatabase controller, (err) ->
-                console.log err if err?
+            controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
+            if fs.existsSync controllerPath
+                data = require controllerPath
+                controller =
+                    docType: "StackApplication"
+                    name:    "controller"
+                    version: data.version
+                addInDatabase controller, (err) ->
+                    console.log err if err?
         # Store in stack.json
         fs.readFile config('file_stack'), 'utf8', (err, data) ->
             try
@@ -73,13 +73,15 @@ module.exports.addApp = (app, callback) ->
 ###
 module.exports.addController = ->
     # Store in database
-    data = require path.join __dirname, '..', '..', '..', 'package.json'
-    app =
-        docType: "StackApplication"
-        name:    "controller"
-        version: data.version
-    addInDatabase app, (err) ->
-        console.log err if err?
+    controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
+    if fs.existsSync controllerPath
+        data = require controllerPath
+        app =
+            docType: "StackApplication"
+            name:    "controller"
+            version: data.version
+        addInDatabase app, (err) ->
+            console.log err if err?
 
 ###
     Remove application <name> from stack.json
