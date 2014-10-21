@@ -45,6 +45,7 @@ startApp = function(app, callback) {
     return callback('Application already exists');
   } else {
     return spawner.start(app, function(err, result) {
+      var _ref;
       if (err != null) {
         return callback(err);
       } else if (result == null) {
@@ -53,6 +54,10 @@ startApp = function(app, callback) {
       } else {
         drones[app.name] = result.pkg;
         running[app.name] = result;
+        console.log(app.name);
+        if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
+          stack.addApp(app, function() {});
+        }
         return callback(null, result);
       }
     });
@@ -205,14 +210,10 @@ module.exports.install = function(manifest, callback) {
           } else {
             log.info("" + app.name + ":npm install");
             return installDependencies(app, 2, function(err) {
-              var _ref;
               if (err != null) {
                 return callback(err);
               } else {
                 log.info("" + app.name + ":start application");
-                if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
-                  stack.addApp(app, callback);
-                }
                 return startApp(app, callback);
               }
             });
