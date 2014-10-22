@@ -57,6 +57,15 @@ addInDatabase = (app, callback) ->
         * write stack file with new stack applications
 ###
 module.exports.addApp = (app, callback) ->
+    # Store in stack.json
+    fs.readFile config('file_stack'), 'utf8', (err, data) ->
+        try
+            data = JSON.parse data
+        catch
+            data = {}
+        data[app.name] = app
+        fs.open config('file_stack'), 'w', (err, fd) ->
+            fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
     # Store in database
     app.docType = "StackApplication"
     data = require path.join(config('dir_source'), app.name, 'package.json')
@@ -72,15 +81,6 @@ module.exports.addApp = (app, callback) ->
                     version: data.version
                 addInDatabase controller, (err) ->
                     console.log err if err?
-        # Store in stack.json
-        fs.readFile config('file_stack'), 'utf8', (err, data) ->
-            try
-                data = JSON.parse data
-            catch
-                data = {}
-            data[app.name] = app
-            fs.open config('file_stack'), 'w', (err, fd) ->
-                fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
 
 ###
     Add controller in database

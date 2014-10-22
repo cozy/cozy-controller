@@ -85,6 +85,17 @@ addInDatabase = function(app, callback) {
 
 module.exports.addApp = function(app, callback) {
   var data;
+  fs.readFile(config('file_stack'), 'utf8', function(err, data) {
+    try {
+      data = JSON.parse(data);
+    } catch (_error) {
+      data = {};
+    }
+    data[app.name] = app;
+    return fs.open(config('file_stack'), 'w', function(err, fd) {
+      return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
+    });
+  });
   app.docType = "StackApplication";
   data = require(path.join(config('dir_source'), app.name, 'package.json'));
   app.version = data.version;
@@ -100,24 +111,13 @@ module.exports.addApp = function(app, callback) {
             name: "controller",
             version: data.version
           };
-          addInDatabase(controller, function(err) {
+          return addInDatabase(controller, function(err) {
             if (err != null) {
               return console.log(err);
             }
           });
         }
       }
-      return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
-        try {
-          data = JSON.parse(data);
-        } catch (_error) {
-          data = {};
-        }
-        data[app.name] = app;
-        return fs.open(config('file_stack'), 'w', function(err, fd) {
-          return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
-        });
-      });
     };
   })(this));
 };
