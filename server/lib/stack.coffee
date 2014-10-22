@@ -8,10 +8,10 @@ permission = require '../middlewares/token'
 
 controllerAdded = false
 
-addDatabase = (app, test, callback) ->
-    if test > 1
+addDatabase = (test, app, callback) ->
+    if test > 0
         addInDatabase app, (err) ->
-            if app.name is 'data-system'
+            if app.name is 'data-system' and err?
                 setTimeout () ->
                     addDatabase test-1, app, callback
                 , 1000

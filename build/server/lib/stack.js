@@ -15,10 +15,10 @@ permission = require('../middlewares/token');
 
 controllerAdded = false;
 
-addDatabase = function(app, test, callback) {
-  if (test > 1) {
+addDatabase = function(test, app, callback) {
+  if (test > 0) {
     return addInDatabase(app, function(err) {
-      if (app.name === 'data-system') {
+      if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
           return addDatabase(test - 1, app, callback);
         }, 1000);
