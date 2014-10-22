@@ -8,6 +8,19 @@ permission = require '../middlewares/token'
 
 controllerAdded = false
 
+addDatabase = (app, test, callback) ->
+    if test > 1
+        addInDatabase app, (err) ->
+            if app.name is 'data-system'
+                setTimeout () ->
+                    addDatabase test-1, app, callback
+                , 1000
+            else
+                callback()
+    else
+        callback()
+
+
 addInDatabase = (app, callback) ->
     clientDS = new Client "http://localhost:9101"
     clientDS.setBasicAuth 'home', permission.get()
@@ -47,7 +60,7 @@ module.exports.addApp = (app, callback) ->
     app.docType = "StackApplication"
     data = require path.join(config('dir_source'), app.name, 'package.json')
     app.version = data.version
-    addInDatabase app, (err) =>
+    addDatabase 5, app, (err) =>
         unless controllerAdded
             controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
             if fs.existsSync controllerPath
