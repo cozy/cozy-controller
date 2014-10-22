@@ -49,7 +49,6 @@ startApp = (app, callback) ->
                 running[app.name] = result
                 # If app is an stack application,
                 # we store this manifest in stack.json
-                console.log app.name
                 if app.name in stackApps
                     stack.addApp app, () ->
                 callback null, result

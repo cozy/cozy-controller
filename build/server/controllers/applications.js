@@ -144,6 +144,44 @@ module.exports.update = function(req, res, next) {
 
 
 /*
+    Update application
+        * Check if application is installed
+        * Update appplication
+ */
+
+module.exports.updateStack = function(req, res, next) {
+  return controller.update('data-system', function(err, result) {
+    if (err) {
+      log.error(err.toString());
+      return res.send(400, {
+        error: err.toString()
+      });
+    } else {
+      return controller.update('home', function(err, result) {
+        if (err) {
+          log.error(err.toString());
+          return res.send(400, {
+            error: err.toString()
+          });
+        } else {
+          return controller.update('proxy', function(err, result) {
+            if (err) {
+              log.error(err.toString());
+              return res.send(400, {
+                error: err.toString()
+              });
+            } else {
+              return res.send(200, {});
+            }
+          });
+        }
+      });
+    }
+  });
+};
+
+
+/*
     Return a list with all applications
  */
 

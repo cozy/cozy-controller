@@ -77,6 +77,29 @@ module.exports.update = (req, res, next) ->
             res.send 200, {"drone": {"port": result.port}}
 
 ###
+    Update application
+        * Check if application is installed
+        * Update appplication
+###
+module.exports.updateStack = (req, res, next) ->
+    controller.update 'data-system', (err, result) ->
+        if err
+            log.error err.toString()
+            res.send 400, error:err.toString()
+        else
+            controller.update 'home', (err, result) ->
+                if err
+                    log.error err.toString()
+                    res.send 400, error:err.toString()
+                else
+                    controller.update 'proxy', (err, result) ->
+                        if err
+                            log.error err.toString()
+                            res.send 400, error:err.toString()
+                        else
+                            res.send 200, {}
+
+###
     Return a list with all applications
 ###
 module.exports.all = (req, res, next) ->

@@ -54,7 +54,6 @@ startApp = function(app, callback) {
       } else {
         drones[app.name] = result.pkg;
         running[app.name] = result;
-        console.log(app.name);
         if (_ref = app.name, __indexOf.call(stackApps, _ref) >= 0) {
           stack.addApp(app, function() {});
         }

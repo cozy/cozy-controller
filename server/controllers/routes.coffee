@@ -36,6 +36,11 @@ module.exports =
             applications.update
         ]
 
+    'apps/update-stack': post: [
+            token.check
+            applications.updateStack
+        ]
+
     # Old route
     'drones/:name/light-update': post: [
             token.check
@@ -62,13 +67,13 @@ module.exports =
             token.check
             applications.running
         ]
-        
+
     # Old routes
     'drones/running': get: [
             token.check
             applications.running
         ]
-        
+
     'diskinfo': get: [
             token.check
             disk.info
