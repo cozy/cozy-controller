@@ -157,14 +157,14 @@ module.exports.updateStack = function(req, res, next) {
         error: err.toString()
       });
     } else {
-      return controller.update('home', function(err, result) {
+      return controller.update('proxy', function(err, result) {
         if (err) {
           log.error(err.toString());
           return res.send(400, {
             error: err.toString()
           });
         } else {
-          return controller.update('proxy', function(err, result) {
+          return controller.update('home', function(err, result) {
             if (err) {
               log.error(err.toString());
               return res.send(400, {

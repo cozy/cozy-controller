@@ -113,11 +113,11 @@ removeOldDir = (callback) ->
         exec 'rm /etc/cozy/pids/*', (err) ->
             if not err?
                 fs.rmdirSync '/etc/cozy/pids'
-            if fs.existsSync '/usr/local/cozy/autostart'
-                exec 'rm /usr/local/cozy/autostart/*', (err) ->
-                    if not err?
-                        fs.rmdirSync '/usr/local/cozy/autostart'
-                    callback(err)
+    if fs.existsSync '/usr/local/cozy/autostart'
+        exec 'rm /usr/local/cozy/autostart/*', (err) ->
+            try
+                fs.rmdirSync '/usr/local/cozy/autostart'
+            callback(err)
 
 
 #update Files -> usefull for patch

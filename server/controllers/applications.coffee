@@ -87,12 +87,12 @@ module.exports.updateStack = (req, res, next) ->
             log.error err.toString()
             res.send 400, error:err.toString()
         else
-            controller.update 'home', (err, result) ->
+            controller.update 'proxy', (err, result) ->
                 if err
                     log.error err.toString()
                     res.send 400, error:err.toString()
                 else
-                    controller.update 'proxy', (err, result) ->
+                    controller.update 'home', (err, result) ->
                         if err
                             log.error err.toString()
                             res.send 400, error:err.toString()

@@ -147,18 +147,18 @@ removeOldDir = function(callback) {
     fs.rmdirSync('/usr/local/cozy/tmp');
   }
   if (fs.existsSync('/etc/cozy/pids')) {
-    return exec('rm /etc/cozy/pids/*', function(err) {
+    exec('rm /etc/cozy/pids/*', function(err) {
       if (err == null) {
-        fs.rmdirSync('/etc/cozy/pids');
+        return fs.rmdirSync('/etc/cozy/pids');
       }
-      if (fs.existsSync('/usr/local/cozy/autostart')) {
-        return exec('rm /usr/local/cozy/autostart/*', function(err) {
-          if (err == null) {
-            fs.rmdirSync('/usr/local/cozy/autostart');
-          }
-          return callback(err);
-        });
-      }
+    });
+  }
+  if (fs.existsSync('/usr/local/cozy/autostart')) {
+    return exec('rm /usr/local/cozy/autostart/*', function(err) {
+      try {
+        fs.rmdirSync('/usr/local/cozy/autostart');
+      } catch (_error) {}
+      return callback(err);
     });
   }
 };
