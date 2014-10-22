@@ -41,6 +41,7 @@ addInDatabase = (app, callback) ->
                 callback err
         else
             clientDS.post '/data/', app, (err, res, body) ->
+                err = body.error if not err? and body?.error?
                 if err?
                     log.warn "Error in adding #{app.name} to database"
                     log.warn err

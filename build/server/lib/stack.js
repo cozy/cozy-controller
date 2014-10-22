@@ -59,6 +59,9 @@ addInDatabase = function(app, callback) {
       });
     } else {
       return clientDS.post('/data/', app, function(err, res, body) {
+        if ((err == null) && ((body != null ? body.error : void 0) != null)) {
+          err = body.error;
+        }
         if (err != null) {
           log.warn("Error in adding " + app.name + " to database");
           log.warn(err);
