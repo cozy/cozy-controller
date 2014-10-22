@@ -1,5 +1,18 @@
 controller = require ('../lib/controller')
 log = require('printit')()
+exec = require('child_process').exec
+
+updateController = (callback) ->
+    exec "npm -g update cozy-controller", (err, stdout) ->
+        if err
+            callback err
+        else
+            exec "supervisorctl restart cozy-controller", (err, stdout) ->
+                if err
+                    callback err
+                else
+                    log.info "Controller was successfully restarted."
+                    callback()
 
 ###
     Install application.
@@ -97,7 +110,12 @@ module.exports.updateStack = (req, res, next) ->
                             log.error err.toString()
                             res.send 400, error:err.toString()
                         else
-                            res.send 200, {}
+                            updateController (err) ->
+                                if err
+                                    log.error err.toString()
+                                    res.send 400, error:err.toString()
+                                else
+                                    res.send 200, {}
 
 ###
     Return a list with all applications
