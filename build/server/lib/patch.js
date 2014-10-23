@@ -153,6 +153,13 @@ removeOldDir = function(callback) {
       }
     });
   }
+  if (fs.existsSync('/usr/local/var/log/cozy')) {
+    exec('rm /usr/local/var/log/cozy/*', function(err) {
+      if (err == null) {
+        return fs.rmdirSync('/usr/local/var/log/cozy');
+      }
+    });
+  }
   if (fs.existsSync('/usr/local/cozy/autostart')) {
     return exec('rm /usr/local/cozy/autostart/*', function(err) {
       if (err == null) {
