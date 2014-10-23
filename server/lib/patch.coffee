@@ -115,7 +115,7 @@ removeOldDir = (callback) ->
                 fs.rmdirSync '/etc/cozy/pids'
     if fs.existsSync '/usr/local/cozy/autostart'
         exec 'rm /usr/local/cozy/autostart/*', (err) ->
-            try
+            if not err?
                 fs.rmdirSync '/usr/local/cozy/autostart'
             callback(err)
 

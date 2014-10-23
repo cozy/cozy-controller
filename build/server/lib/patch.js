@@ -155,9 +155,9 @@ removeOldDir = function(callback) {
   }
   if (fs.existsSync('/usr/local/cozy/autostart')) {
     return exec('rm /usr/local/cozy/autostart/*', function(err) {
-      try {
+      if (err == null) {
         fs.rmdirSync('/usr/local/cozy/autostart');
-      } catch (_error) {}
+      }
       return callback(err);
     });
   }
