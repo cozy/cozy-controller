@@ -41,6 +41,11 @@ module.exports =
             applications.updateStack
         ]
 
+    'apps/restart-controller': post: [
+            token.check
+            applications.restartController
+        ]
+
     # Old route
     'drones/:name/light-update': post: [
             token.check

@@ -7,12 +7,15 @@ updateController = (callback) ->
         if err
             callback err
         else
-            exec "supervisorctl restart cozy-controller", (err, stdout) ->
-                if err
-                    callback err
-                else
-                    log.info "Controller was successfully restarted."
-                    callback()
+            restartController callback
+
+restartController = (callback) ->
+    exec "supervisorctl restart cozy-controller", (err, stdout) ->
+        if err
+            callback err
+        else
+            log.info "Controller was successfully restarted."
+            callback()
 
 ###
     Install application.
@@ -116,6 +119,17 @@ module.exports.updateStack = (req, res, next) ->
                                     res.send 400, error:err.toString()
                                 else
                                     res.send 200, {}
+
+###
+    Reboot controller
+###
+module.exports.restartController = (req, res, next) ->
+    restartController (err) ->
+        if err
+            log.error err.toString()
+            res.send 400, error:err.toString()
+        else
+            res.send 200, {}
 
 ###
     Return a list with all applications
