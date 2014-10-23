@@ -82,10 +82,11 @@ application = module.exports = function(callback) {
     };
     stopProcess = function() {
       console.log("Process is stopped");
-      controller.stopAll((function(_this) {
-        return function() {};
+      return controller.stopAll((function(_this) {
+        return function() {
+          return process.exit(code);
+        };
       })(this));
-      return process.exit(code);
     };
     process.on('uncaughtException', displayError);
     process.once('exit', exitProcess);

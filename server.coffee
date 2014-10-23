@@ -57,7 +57,7 @@ application = module.exports = (callback) ->
         stopProcess = () ->
             console.log "Process is stopped"
             controller.stopAll ()=>
-            process.exit(code)
+                process.exit(code)
 
         process.on 'uncaughtException', displayError
         process.once 'exit', exitProcess

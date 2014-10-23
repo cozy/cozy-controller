@@ -57,10 +57,9 @@ helpers.startApp = (callback) ->
         callback app
 
 helpers.stopApp = (done) ->
-    console.log "stopApp"
     setTimeout =>
-        console.log @app.server
         @app.server.close () =>
+            console.log 'end of close'
             setTimeout =>
                 done()
             , 6000
