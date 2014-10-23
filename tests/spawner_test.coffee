@@ -216,7 +216,6 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 200
 
             it "And data-system is started", (done) ->
-                console.log dsPort
                 clientDS = new Client "http://localhost:#{dsPort}"
                 clientDS.get '/', (err, res) ->
                     res.statusCode.should.equal 200
@@ -234,7 +233,6 @@ describe "Spawner", ->
             @res.statusCode.should.equal 200
 
         it "And data-system is in list", ->
-            console.log @body
             should.exist @body.app
             should.exist @body.app['data-system']
 

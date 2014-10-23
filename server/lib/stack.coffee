@@ -33,7 +33,6 @@ addInDatabase = (app, callback) ->
                     application = appli
         if application isnt null
             app.lastVersion = application.lastVersion
-            app.needsUpdate = application.needsUpdate
             clientDS.put "/data/#{application._id}/ ", app, (err, res, body) ->
                 if err?
                     log.warn "Error in updating #{app.name} to database"

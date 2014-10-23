@@ -49,7 +49,6 @@ addInDatabase = function(app, callback) {
     }
     if (application !== null) {
       app.lastVersion = application.lastVersion;
-      app.needsUpdate = application.needsUpdate;
       return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
         if (err != null) {
           log.warn("Error in updating " + app.name + " to database");
@@ -112,7 +111,6 @@ module.exports.addApp = function(app, callback) {
   return addDatabase(5, appli, (function(_this) {
     return function(err) {
       var controller, controllerPath;
-      console.log(controllerAdded);
       if (!controllerAdded) {
         controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
         if (fs.existsSync(controllerPath)) {
