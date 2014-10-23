@@ -84,7 +84,7 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var data;
+  var appli, data;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
     try {
       data = JSON.parse(data);
@@ -96,10 +96,14 @@ module.exports.addApp = function(app, callback) {
       return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
     });
   });
-  app.docType = "StackApplication";
   data = require(path.join(config('dir_source'), app.name, 'package.json'));
-  app.version = data.version;
-  return addDatabase(5, app, (function(_this) {
+  appli = {
+    name: app.name,
+    version: data.version,
+    git: app.repository.url,
+    docType: "StackApplication"
+  };
+  return addDatabase(5, appli, (function(_this) {
     return function(err) {
       var controller, controllerPath;
       if (!controllerAdded) {
@@ -109,7 +113,8 @@ module.exports.addApp = function(app, callback) {
           controller = {
             docType: "StackApplication",
             name: "controller",
-            version: data.version
+            version: data.version,
+            git: "https://github.com/cozy/cozy-controller.git"
           };
           return addInDatabase(controller, function(err) {
             if (err != null) {

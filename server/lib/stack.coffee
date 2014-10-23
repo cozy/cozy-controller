@@ -66,11 +66,15 @@ module.exports.addApp = (app, callback) ->
         data[app.name] = app
         fs.open config('file_stack'), 'w', (err, fd) ->
             fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
+
     # Store in database
-    app.docType = "StackApplication"
     data = require path.join(config('dir_source'), app.name, 'package.json')
-    app.version = data.version
-    addDatabase 5, app, (err) =>
+    appli =
+        name: app.name
+        version: data.version
+        git: app.repository.url
+        docType: "StackApplication"
+    addDatabase 5, appli, (err) =>
         unless controllerAdded
             controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
             if fs.existsSync controllerPath
@@ -79,6 +83,7 @@ module.exports.addApp = (app, callback) ->
                     docType: "StackApplication"
                     name:    "controller"
                     version: data.version
+                    git: "https://github.com/cozy/cozy-controller.git"
                 addInDatabase controller, (err) ->
                     console.log err if err?
 
