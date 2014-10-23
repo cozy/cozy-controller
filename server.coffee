@@ -2,7 +2,6 @@ americano = require 'americano'
 init = require './server/initialize'
 autostart = require './server/lib/autostart'
 controller = require './server/lib/controller'
-stack = require './server/lib/stack'
 
 ## Changement de configuration : pas pris en compte
 
@@ -27,7 +26,6 @@ application = module.exports = (callback) ->
                 callback err if callback?
             autostart.start (err) =>
                 if not err?
-                    stack.addController()
                     console.log "### START SERVER ###"
                     americano.start options, (app, server) =>
 

@@ -39,7 +39,8 @@ addInDatabase = (app, callback) ->
                     log.warn "Error in updating #{app.name} to database"
                     log.warn err
                 else
-                    controllerAdded = true
+                    if app.name is 'controller'
+                        controllerAdded = true
                 callback err
         else
             clientDS.post '/data/', app, (err, res, body) ->
@@ -48,7 +49,8 @@ addInDatabase = (app, callback) ->
                     log.warn "Error in adding #{app.name} to database"
                     log.warn err
                 else
-                    controllerAdded = true
+                    if app.name is 'controller'
+                        controllerAdded = true
                 callback err
 
 ###
@@ -88,22 +90,6 @@ module.exports.addApp = (app, callback) ->
                     git: "https://github.com/cozy/cozy-controller.git"
                 addInDatabase controller, (err) ->
                     console.log err if err?
-
-###
-    Add controller in database
-###
-module.exports.addController = ->
-    # Store in database
-    controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
-    if fs.existsSync controllerPath
-        data = require controllerPath
-        app =
-            docType: "StackApplication"
-            name:    "controller"
-            version: data.version
-            git: "https://github.com/cozy/cozy-controller.git"
-        addInDatabase app, (err) ->
-            console.log err if err?
 
 ###
     Remove application <name> from stack.json

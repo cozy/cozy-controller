@@ -55,7 +55,9 @@ addInDatabase = function(app, callback) {
           log.warn("Error in updating " + app.name + " to database");
           log.warn(err);
         } else {
-          controllerAdded = true;
+          if (app.name === 'controller') {
+            controllerAdded = true;
+          }
         }
         return callback(err);
       });
@@ -68,7 +70,9 @@ addInDatabase = function(app, callback) {
           log.warn("Error in adding " + app.name + " to database");
           log.warn(err);
         } else {
-          controllerAdded = true;
+          if (app.name === 'controller') {
+            controllerAdded = true;
+          }
         }
         return callback(err);
       });
@@ -108,6 +112,7 @@ module.exports.addApp = function(app, callback) {
   return addDatabase(5, appli, (function(_this) {
     return function(err) {
       var controller, controllerPath;
+      console.log(controllerAdded);
       if (!controllerAdded) {
         controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
         if (fs.existsSync(controllerPath)) {
@@ -127,30 +132,6 @@ module.exports.addApp = function(app, callback) {
       }
     };
   })(this));
-};
-
-
-/*
-    Add controller in database
- */
-
-module.exports.addController = function() {
-  var app, controllerPath, data;
-  controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
-  if (fs.existsSync(controllerPath)) {
-    data = require(controllerPath);
-    app = {
-      docType: "StackApplication",
-      name: "controller",
-      version: data.version,
-      git: "https://github.com/cozy/cozy-controller.git"
-    };
-    return addInDatabase(app, function(err) {
-      if (err != null) {
-        return console.log(err);
-      }
-    });
-  }
 };
 
 
