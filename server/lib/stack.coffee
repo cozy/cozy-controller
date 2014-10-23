@@ -32,6 +32,8 @@ addInDatabase = (app, callback) ->
                 if appli.name is app.name
                     application = appli
         if application isnt null
+            app.lastVersion = application.lastVersion
+            app.needsUpdate = application.needsUpdate
             clientDS.put "/data/#{application._id}/ ", app, (err, res, body) ->
                 if err?
                     log.warn "Error in updating #{app.name} to database"
@@ -99,6 +101,7 @@ module.exports.addController = ->
             docType: "StackApplication"
             name:    "controller"
             version: data.version
+            git: "https://github.com/cozy/cozy-controller.git"
         addInDatabase app, (err) ->
             console.log err if err?
 

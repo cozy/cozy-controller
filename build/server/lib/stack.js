@@ -48,6 +48,8 @@ addInDatabase = function(app, callback) {
       }
     }
     if (application !== null) {
+      app.lastVersion = application.lastVersion;
+      app.needsUpdate = application.needsUpdate;
       return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
         if (err != null) {
           log.warn("Error in updating " + app.name + " to database");
@@ -140,7 +142,8 @@ module.exports.addController = function() {
     app = {
       docType: "StackApplication",
       name: "controller",
-      version: data.version
+      version: data.version,
+      git: "https://github.com/cozy/cozy-controller.git"
     };
     return addInDatabase(app, function(err) {
       if (err != null) {
