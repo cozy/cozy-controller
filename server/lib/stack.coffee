@@ -15,13 +15,17 @@ controllerAdded = false
     Add <app> in database. Try <test> time if app is data-system
     (data-system should be started to add it in database)
 ###
-addDatabase = (test, app) ->
+addDatabase = (test, app, callback) ->
     if test > 0
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
                 setTimeout () ->
-                    addDatabase test-1, app
+                    addDatabase test-1, app, callback
                 , 1000
+            else
+                callback err
+    else
+        callback('Cannot add application in database')
 
 ###
     addInDatase:
@@ -110,7 +114,8 @@ module.exports.addApp = (app, callback) ->
                     name:    "controller"
                     version: data.version
                     git: "https://github.com/cozy/cozy-controller.git"
-                addInDatabase controller
+                addInDatabase controller, (err) ->
+                    console.log err if err?
 
 ###
     Remove application <name> from stack.json

@@ -24,15 +24,19 @@ controllerAdded = false;
     (data-system should be started to add it in database)
  */
 
-addDatabase = function(test, app) {
+addDatabase = function(test, app, callback) {
   if (test > 0) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(test - 1, app);
+          return addDatabase(test - 1, app, callback);
         }, 1000);
+      } else {
+        return callback(err);
       }
     });
+  } else {
+    return callback('Cannot add application in database');
   }
 };
 
@@ -140,7 +144,11 @@ module.exports.addApp = function(app, callback) {
             version: data.version,
             git: "https://github.com/cozy/cozy-controller.git"
           };
-          return addInDatabase(controller);
+          return addInDatabase(controller, function(err) {
+            if (err != null) {
+              return console.log(err);
+            }
+          });
         }
       }
     };
