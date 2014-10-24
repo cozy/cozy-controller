@@ -29,14 +29,10 @@ addDatabase = function(test, app, callback) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(test - 1, app, callback);
+          return addDatabase(test - 1, app);
         }, 1000);
-      } else {
-        return callback(err);
       }
     });
-  } else {
-    return callback('Cannot add application in database');
   }
 };
 
@@ -112,7 +108,7 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var appli, data;
+  var appli, controller, controllerPath, data;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
     try {
       data = JSON.parse(data);
@@ -131,28 +127,24 @@ module.exports.addApp = function(app, callback) {
     git: app.repository.url,
     docType: "StackApplication"
   };
-  return addDatabase(5, appli, (function(_this) {
-    return function(err) {
-      var controller, controllerPath;
-      if (!controllerAdded) {
-        controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
-        if (fs.existsSync(controllerPath)) {
-          data = require(controllerPath);
-          controller = {
-            docType: "StackApplication",
-            name: "controller",
-            version: data.version,
-            git: "https://github.com/cozy/cozy-controller.git"
-          };
-          return addInDatabase(controller, function(err) {
-            if (err != null) {
-              return console.log(err);
-            }
-          });
+  addDatabase(5, appli);
+  if (!controllerAdded) {
+    controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+    if (fs.existsSync(controllerPath)) {
+      data = require(controllerPath);
+      controller = {
+        docType: "StackApplication",
+        name: "controller",
+        version: data.version,
+        git: "https://github.com/cozy/cozy-controller.git"
+      };
+      return addInDatabase(controller, function(err) {
+        if (err != null) {
+          return console.log(err);
         }
-      }
-    };
-  })(this));
+      });
+    }
+  }
 };
 
 

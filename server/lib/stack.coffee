@@ -20,12 +20,8 @@ addDatabase = (test, app, callback) ->
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
                 setTimeout () ->
-                    addDatabase test-1, app, callback
+                    addDatabase test-1, app
                 , 1000
-            else
-                callback err
-    else
-        callback('Cannot add application in database')
 
 ###
     addInDatase:
@@ -103,19 +99,19 @@ module.exports.addApp = (app, callback) ->
         git: app.repository.url
         docType: "StackApplication"
     # Add in database
-    addDatabase 5, appli, (err) =>
-        # If controller isn't already add, add it.
-        unless controllerAdded
-            controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
-            if fs.existsSync controllerPath
-                data = require controllerPath
-                controller =
-                    docType: "StackApplication"
-                    name:    "controller"
-                    version: data.version
-                    git: "https://github.com/cozy/cozy-controller.git"
-                addInDatabase controller, (err) ->
-                    console.log err if err?
+    addDatabase 5, appli
+    # If controller isn't already add, add it.
+    unless controllerAdded
+        controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
+        if fs.existsSync controllerPath
+            data = require controllerPath
+            controller =
+                docType: "StackApplication"
+                name:    "controller"
+                version: data.version
+                git: "https://github.com/cozy/cozy-controller.git"
+            addInDatabase controller, (err) ->
+                console.log err if err?
 
 ###
     Remove application <name> from stack.json
