@@ -24,12 +24,12 @@ controllerAdded = false;
     (data-system should be started to add it in database)
  */
 
-addDatabase = function(test, app, callback) {
-  if (test > 0) {
+addDatabase = function(essay, app, callback) {
+  if (essay > 0) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(test - 1, app);
+          return addDatabase(essay - 1, app);
         }, 1000);
       }
     });
@@ -140,7 +140,7 @@ module.exports.addApp = function(app, callback) {
       };
       return addInDatabase(controller, function(err) {
         if (err != null) {
-          return console.log(err);
+          return log.warn(err);
         }
       });
     }

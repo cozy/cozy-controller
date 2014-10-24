@@ -111,7 +111,7 @@ module.exports.addApp = (app, callback) ->
                 version: data.version
                 git: "https://github.com/cozy/cozy-controller.git"
             addInDatabase controller, (err) ->
-                console.log err if err?
+                log.warn err if err?
 
 ###
     Remove application <name> from stack.json
