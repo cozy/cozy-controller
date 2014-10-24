@@ -15,19 +15,15 @@ permission = require('../middlewares/token');
 
 controllerAdded = false;
 
-addDatabase = function(test, app, callback) {
+addDatabase = function(test, app) {
   if (test > 0) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(test - 1, app, callback);
+          return addDatabase(test - 1, app);
         }, 1000);
-      } else {
-        return callback();
       }
     });
-  } else {
-    return callback();
   }
 };
 
@@ -121,11 +117,7 @@ module.exports.addApp = function(app, callback) {
             version: data.version,
             git: "https://github.com/cozy/cozy-controller.git"
           };
-          return addInDatabase(controller, function(err) {
-            if (err != null) {
-              return console.log(err);
-            }
-          });
+          return addInDatabase(controller);
         }
       }
     };

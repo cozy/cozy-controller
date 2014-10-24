@@ -8,17 +8,13 @@ permission = require '../middlewares/token'
 
 controllerAdded = false
 
-addDatabase = (test, app, callback) ->
+addDatabase = (test, app) ->
     if test > 0
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
                 setTimeout () ->
-                    addDatabase test-1, app, callback
+                    addDatabase test-1, app
                 , 1000
-            else
-                callback()
-    else
-        callback()
 
 
 addInDatabase = (app, callback) ->
@@ -87,8 +83,7 @@ module.exports.addApp = (app, callback) ->
                     name:    "controller"
                     version: data.version
                     git: "https://github.com/cozy/cozy-controller.git"
-                addInDatabase controller, (err) ->
-                    console.log err if err?
+                addInDatabase controller
 
 ###
     Remove application <name> from stack.json
