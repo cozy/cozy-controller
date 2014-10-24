@@ -74,7 +74,7 @@ module.exports.uninstall = (req, res, next) ->
     controller.uninstall name, (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 
@@ -88,7 +88,7 @@ module.exports.update = (req, res, next) ->
     controller.update name, (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
 
@@ -101,22 +101,22 @@ module.exports.updateStack = (req, res, next) ->
     controller.update 'data-system', (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             controller.update 'proxy', (err, result) ->
                 if err
                     log.error err.toString()
-                    res.send 400, error:err.toString()
+                    res.send 400, error: err.toString()
                 else
                     controller.update 'home', (err, result) ->
                         if err
                             log.error err.toString()
-                            res.send 400, error:err.toString()
+                            res.send 400, error: err.toString()
                         else
                             updateController (err) ->
                                 if err
                                     log.error err.toString()
-                                    res.send 400, error:err.toString()
+                                    res.send 400, error: err.toString()
                                 else
                                     res.send 200, {}
 
@@ -127,7 +127,7 @@ module.exports.restartController = (req, res, next) ->
     restartController (err) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, {}
 
@@ -138,7 +138,7 @@ module.exports.all = (req, res, next) ->
     controller.all (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 
@@ -149,7 +149,7 @@ module.exports.running = (req, res, next) ->
     controller.running (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 
