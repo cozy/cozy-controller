@@ -15,6 +15,15 @@ permission = require('../middlewares/token');
 
 controllerAdded = false;
 
+
+/*
+    addDatabse:
+        * test: number of tests (if app is data-system)
+        * app: app to add to database
+    Add <app> in database. Try <test> time if app is data-system
+    (data-system should be started to add it in database)
+ */
+
 addDatabase = function(test, app) {
   if (test > 0) {
     return addInDatabase(app, function(err) {
@@ -26,6 +35,16 @@ addDatabase = function(test, app) {
     });
   }
 };
+
+
+/*
+    addInDatase:
+        * app : application to add to database
+    Add <app> in database :
+        * Check if application isn't alread store in database
+        * If it the case, update it (keep lastVersion added by home)
+        * If not, add new document for this application
+ */
 
 addInDatabase = function(app, callback) {
   var clientDS;
@@ -44,18 +63,22 @@ addInDatabase = function(app, callback) {
       }
     }
     if (application !== null) {
-      app.lastVersion = application.lastVersion;
-      return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
-        if (err != null) {
-          log.warn("Error in updating " + app.name + " to database");
-          log.warn(err);
-        } else {
-          if (app.name === 'controller') {
-            controllerAdded = true;
+      if (application.version === app.version) {
+        return callback();
+      } else {
+        app.lastVersion = application.lastVersion;
+        return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
+          if (err != null) {
+            log.warn("Error in updating " + app.name + " to database");
+            log.warn(err);
+          } else {
+            if (app.name === 'controller') {
+              controllerAdded = true;
+            }
           }
-        }
-        return callback(err);
-      });
+          return callback(err);
+        });
+      }
     } else {
       return clientDS.post('/data/', app, function(err, res, body) {
         if ((err == null) && ((body != null ? body.error : void 0) != null)) {
