@@ -1,5 +1,21 @@
 controller = require ('../lib/controller')
 log = require('printit')()
+exec = require('child_process').exec
+
+updateController = (callback) ->
+    exec "npm -g update cozy-controller", (err, stdout) ->
+        if err
+            callback err
+        else
+            restartController callback
+
+restartController = (callback) ->
+    exec "supervisorctl restart cozy-controller", (err, stdout) ->
+        if err
+            callback "This feature is available only if controller is managed by supervisor"
+        else
+            log.info "Controller was successfully restarted."
+            callback()
 
 ###
     Install application.
@@ -58,7 +74,7 @@ module.exports.uninstall = (req, res, next) ->
     controller.uninstall name, (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 
@@ -72,9 +88,48 @@ module.exports.update = (req, res, next) ->
     controller.update name, (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, {"drone": {"port": result.port}}
+
+###
+    Update application
+        * Check if application is installed
+        * Update appplication
+###
+module.exports.updateStack = (req, res, next) ->
+    controller.update 'data-system', (err, result) ->
+        if err
+            log.error err.toString()
+            res.send 400, error: err.toString()
+        else
+            controller.update 'proxy', (err, result) ->
+                if err
+                    log.error err.toString()
+                    res.send 400, error: err.toString()
+                else
+                    controller.update 'home', (err, result) ->
+                        if err
+                            log.error err.toString()
+                            res.send 400, error: err.toString()
+                        else
+                            updateController (err) ->
+                                if err
+                                    log.error err.toString()
+                                    res.send 400, error: err.toString()
+                                else
+                                    res.send 200, {}
+
+###
+    Reboot controller
+###
+module.exports.restartController = (req, res, next) ->
+    restartController (err) ->
+        if err
+            log.error err.toString()
+            res.send 400, error: err.toString()
+        else
+            res.send 200, {}
 
 ###
     Return a list with all applications
@@ -83,7 +138,7 @@ module.exports.all = (req, res, next) ->
     controller.all (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 
@@ -94,7 +149,7 @@ module.exports.running = (req, res, next) ->
     controller.running (err, result) ->
         if err
             log.error err.toString()
-            res.send 400, error:err.toString()
+            res.send 400, error: err.toString()
         else
             res.send 200, app: result
 

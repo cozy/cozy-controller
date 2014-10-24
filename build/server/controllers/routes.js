@@ -26,6 +26,12 @@ module.exports = {
   'apps/:name/update': {
     post: [token.check, applications.update]
   },
+  'apps/update-stack': {
+    post: [token.check, applications.updateStack]
+  },
+  'apps/restart-controller': {
+    post: [token.check, applications.restartController]
+  },
   'drones/:name/light-update': {
     post: [token.check, applications.update]
   },

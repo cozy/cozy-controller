@@ -4,7 +4,6 @@ node_js:
 env:
     global:
         - NODE_ENV=test
-        - TEST_ENV=travis
 services:
     - couchdb
 
@@ -15,4 +14,4 @@ before_install:
     - env | grep PATH
     - sudo env | grep PATH
 
-script: "TEST_ENV=travis sudo npm test"
+script: "sudo npm test"
