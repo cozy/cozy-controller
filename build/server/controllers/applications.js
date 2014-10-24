@@ -20,7 +20,7 @@ updateController = function(callback) {
 restartController = function(callback) {
   return exec("supervisorctl restart cozy-controller", function(err, stdout) {
     if (err) {
-      return callback(err);
+      return callback("This feature is available only if controller is managed by supervisor");
     } else {
       log.info("Controller was successfully restarted.");
       return callback();
