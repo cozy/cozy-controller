@@ -40,7 +40,7 @@ application = module.exports = (callback) ->
                 else
                     console.log "Error during autostart : "
                     console.log err
-                    callback(err) if callback?
+                    callback err  if callback?
 
         displayError = (err) ->
             console.log "WARNING : "
@@ -52,12 +52,12 @@ application = module.exports = (callback) ->
             controller.stopAll ()=>
                 process.removeListener 'uncaughtException', displayError
                 process.removeListener 'SIGTERM', stopProcess
-                process.exit(code)
+                process.exit code
 
         stopProcess = () ->
             console.log "Process is stopped"
             controller.stopAll ()=>
-                process.exit(code)
+                process.exit code
 
         process.on 'uncaughtException', displayError
         process.once 'exit', exitProcess
