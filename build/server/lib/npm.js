@@ -17,7 +17,7 @@ config = require('./conf').get;
       * Remove npm cache
  */
 
-module.exports.install = function(req, target, callback) {
+module.exports.install = function(connection, target, callback) {
   var args, child, options, stderr;
   args = ['npm', '--production', '--loglevel', 'http', '--unsafe-perm', 'true', '--user', target.user];
   if (config('npm_registry')) {
@@ -39,7 +39,7 @@ module.exports.install = function(req, target, callback) {
     return stderr += data;
   });
   child.stdout.on('data', function(data) {
-    return req.connection.setTimeout(3 * 60 * 1000);
+    return connection.setTimeout(3 * 60 * 1000);
   });
   return child.on('close', function(code) {
     var err;

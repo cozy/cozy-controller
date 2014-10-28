@@ -9,7 +9,7 @@ config = require('./conf').get
       * Npm install
       * Remove npm cache
 ###
-module.exports.install = (req, target, callback) ->
+module.exports.install = (connection, target, callback) ->
     args = [
       'npm',
       '--production',
@@ -40,7 +40,7 @@ module.exports.install = (req, target, callback) ->
         stderr += data
 
     child.stdout.on 'data', (data) ->
-        req.connection.setTimeout 3 * 60 * 1000
+        connection.setTimeout 3 * 60 * 1000
 
     child.on 'close', (code) ->
         if code isnt 0

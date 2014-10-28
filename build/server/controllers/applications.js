@@ -43,7 +43,7 @@ module.exports.install = function(req, res, next) {
     });
   }
   manifest = req.body.start;
-  return controller.install(req, manifest, function(err, result) {
+  return controller.install(req.connection, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
       return res.send(400, {
@@ -149,7 +149,7 @@ module.exports.uninstall = function(req, res, next) {
 module.exports.update = function(req, res, next) {
   var name;
   name = req.params.name;
-  return controller.update(name, function(err, result) {
+  return controller.update(req.connection, name, function(err, result) {
     if (err) {
       log.error(err.toString());
       return res.send(400, {
