@@ -15,12 +15,12 @@ controllerAdded = false
     Add <app> in database. Try <test> time if app is data-system
     (data-system should be started to add it in database)
 ###
-addDatabase = (essay, app, callback) ->
-    if essay > 0
+addDatabase = (attempt, app) ->
+    if attempt > 0
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
                 setTimeout () ->
-                    addDatabase essay-1, app
+                    addDatabase attempt-1, app
                 , 1000
 
 ###

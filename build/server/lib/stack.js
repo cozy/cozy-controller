@@ -24,12 +24,12 @@ controllerAdded = false;
     (data-system should be started to add it in database)
  */
 
-addDatabase = function(essay, app, callback) {
-  if (essay > 0) {
+addDatabase = function(attempt, app) {
+  if (attempt > 0) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(essay - 1, app);
+          return addDatabase(attempt - 1, app);
         }, 1000);
       }
     });
