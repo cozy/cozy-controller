@@ -106,14 +106,14 @@ stopApp = (name, callback) ->
         * Git pull
         * install new dependencies
 ###
-updateApp = (name, callback) ->
+updateApp = (connection, name, callback) ->
     app = drones[name]
     log.info "#{name}:update application"
     type[app.repository.type].update app, (err) ->
         if err?
             callback err
         else
-            installDependencies app, 2, (err) ->
+            installDependencies connection, app, 2, (err) ->
                 if err?
                     callback err
                 else
@@ -125,14 +125,14 @@ updateApp = (name, callback) ->
         * Try to install dependencies (npm install)
         * If installation return an error, try again (if <test> isnt 0)
 ###
-installDependencies = (app, test, callback) ->
+installDependencies = (connection, app, test, callback) ->
     test = test - 1
-    npm.install app, (err) ->
+    npm.install connection, app, (err) ->
         if err? and test is 0
             callback err
         else if err?
             log.info 'TRY AGAIN ...'
-            installDependencies app, test, callback
+            installDependencies connection, app, test, callback
         else
             callback()
 
@@ -156,7 +156,7 @@ module.exports.removeRunningApp = (name) ->
         * If application is a stack application, add application in stack.json
         * Start process
 ###
-module.exports.install = (manifest, callback) ->
+module.exports.install = (connection, manifest, callback) ->
     app = new App manifest
     app = app.app
     # Check if app exists
@@ -180,7 +180,7 @@ module.exports.install = (manifest, callback) ->
                     else
                         # NPM install
                         log.info "#{app.name}:npm install"
-                        installDependencies app, 2, (err) ->
+                        installDependencies connection, app, 2, (err) ->
                             if err?
                                 callback err
                             else
@@ -287,12 +287,12 @@ module.exports.uninstall = (name, callback) ->
         * Update code source (git pull / npm install)
         * Restart application if it was started
 ###
-module.exports.update = (name, callback) ->
+module.exports.update = (connection, name, callback) ->
     if drones[name]?
         if running[name]?
             log.info "#{name}:stop application"
             stopApp name, (err) ->
-                updateApp name, (err) ->
+                updateApp connection, name, (err) ->
                     if err?
                         callback err
                     else
@@ -301,7 +301,7 @@ module.exports.update = (name, callback) ->
                             log.info "#{name}:start application"
                             callback err, result
         else
-            updateApp name, callback
+            updateApp connection, name, callback
     else
         err = new Error 'Application is not installed'
         log.error err

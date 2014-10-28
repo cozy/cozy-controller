@@ -126,7 +126,7 @@ stopApp = function(name, callback) {
         * install new dependencies
  */
 
-updateApp = function(name, callback) {
+updateApp = function(connection, name, callback) {
   var app;
   app = drones[name];
   log.info("" + name + ":update application");
@@ -134,7 +134,7 @@ updateApp = function(name, callback) {
     if (err != null) {
       return callback(err);
     } else {
-      return installDependencies(app, 2, function(err) {
+      return installDependencies(connection, app, 2, function(err) {
         if (err != null) {
           return callback(err);
         } else {
@@ -152,14 +152,14 @@ updateApp = function(name, callback) {
         * If installation return an error, try again (if <test> isnt 0)
  */
 
-installDependencies = function(app, test, callback) {
+installDependencies = function(connection, app, test, callback) {
   test = test - 1;
-  return npm.install(app, function(err) {
+  return npm.install(connection, app, function(err) {
     if ((err != null) && test === 0) {
       return callback(err);
     } else if (err != null) {
       log.info('TRY AGAIN ...');
-      return installDependencies(app, test, callback);
+      return installDependencies(connection, app, test, callback);
     } else {
       return callback();
     }
@@ -188,7 +188,7 @@ module.exports.removeRunningApp = function(name) {
         * Start process
  */
 
-module.exports.install = function(manifest, callback) {
+module.exports.install = function(connection, manifest, callback) {
   var app;
   app = new App(manifest);
   app = app.app;
@@ -208,7 +208,7 @@ module.exports.install = function(manifest, callback) {
             return callback(err);
           } else {
             log.info("" + app.name + ":npm install");
-            return installDependencies(app, 2, function(err) {
+            return installDependencies(connection, app, 2, function(err) {
               if (err != null) {
                 return callback(err);
               } else {
@@ -348,13 +348,13 @@ module.exports.uninstall = function(name, callback) {
         * Restart application if it was started
  */
 
-module.exports.update = function(name, callback) {
+module.exports.update = function(connection, name, callback) {
   var err;
   if (drones[name] != null) {
     if (running[name] != null) {
       log.info("" + name + ":stop application");
       return stopApp(name, function(err) {
-        return updateApp(name, function(err) {
+        return updateApp(connection, name, function(err) {
           var app;
           if (err != null) {
             return callback(err);
@@ -368,7 +368,7 @@ module.exports.update = function(name, callback) {
         });
       });
     } else {
-      return updateApp(name, callback);
+      return updateApp(connection, name, callback);
     }
   } else {
     err = new Error('Application is not installed');

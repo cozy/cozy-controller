@@ -9,10 +9,16 @@ config = require('./conf').get
       * Npm install
       * Remove npm cache
 ###
-module.exports.install = (target, callback) ->
+module.exports.install = (connection, target, callback) ->
     args = [
-      'npm'
-      '--production'
+      'npm',
+      '--production',
+      '--loglevel',
+      'http'
+      '--unsafe-perm',
+      'true',
+      '--user',
+      target.user
     ]
     if config 'npm_registry'
         args.push '--registry'
@@ -21,19 +27,20 @@ module.exports.install = (target, callback) ->
         args.push '--strict-ssl'
         args.push config('npm_strict_ssl')
     args.push 'install'
-    args.push '--user'
-    args.push target.user
     options =
         cwd: target.dir
     child = spawn 'sudo', args, options
 
     # Kill NPM if this takes more than 5 minutes
-    setTimeout(child.kill.bind(child, 'SIGKILL'), 5 * 60 * 1000)
+    setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000)
 
     #child.stdout.on 'data', (data) =>
     stderr = ''
     child.stderr.on 'data', (data) ->
         stderr += data
+
+    child.stdout.on 'data', (data) ->
+        connection.setTimeout 3 * 60 * 1000
 
     child.on 'close', (code) ->
         if code isnt 0

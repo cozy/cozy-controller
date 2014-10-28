@@ -26,7 +26,7 @@ module.exports.install = (req, res, next) ->
     if not req.body.start?
         res.send 400, error: "Manifest should be declared in body.start"
     manifest = req.body.start
-    controller.install manifest, (err, result) ->
+    controller.install req.connection, manifest, (err, result) ->
         if err?
             log.error err.toString()
             res.send 400, error: err.toString()
@@ -85,7 +85,7 @@ module.exports.uninstall = (req, res, next) ->
 ###
 module.exports.update = (req, res, next) ->
     name = req.params.name
-    controller.update name, (err, result) ->
+    controller.update req.connection, name, (err, result) ->
         if err
             log.error err.toString()
             res.send 400, error: err.toString()

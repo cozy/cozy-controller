@@ -24,12 +24,12 @@ controllerAdded = false;
     (data-system should be started to add it in database)
  */
 
-addDatabase = function(test, app) {
-  if (test > 0) {
+addDatabase = function(attempt, app) {
+  if (attempt > 0) {
     return addInDatabase(app, function(err) {
       if (app.name === 'data-system' && (err != null)) {
         return setTimeout(function() {
-          return addDatabase(test - 1, app);
+          return addDatabase(attempt - 1, app);
         }, 1000);
       }
     });
@@ -108,7 +108,7 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var appli, data;
+  var appli, controller, controllerPath, data;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
     try {
       data = JSON.parse(data);
@@ -127,24 +127,24 @@ module.exports.addApp = function(app, callback) {
     git: app.repository.url,
     docType: "StackApplication"
   };
-  return addDatabase(5, appli, (function(_this) {
-    return function(err) {
-      var controller, controllerPath;
-      if (!controllerAdded) {
-        controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
-        if (fs.existsSync(controllerPath)) {
-          data = require(controllerPath);
-          controller = {
-            docType: "StackApplication",
-            name: "controller",
-            version: data.version,
-            git: "https://github.com/cozy/cozy-controller.git"
-          };
-          return addInDatabase(controller);
+  addDatabase(5, appli);
+  if (!controllerAdded) {
+    controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+    if (fs.existsSync(controllerPath)) {
+      data = require(controllerPath);
+      controller = {
+        docType: "StackApplication",
+        name: "controller",
+        version: data.version,
+        git: "https://github.com/cozy/cozy-controller.git"
+      };
+      return addInDatabase(controller, function(err) {
+        if (err != null) {
+          return log.warn(err);
         }
-      }
-    };
-  })(this));
+      });
+    }
+  }
 };
 
 

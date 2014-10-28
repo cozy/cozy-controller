@@ -15,12 +15,12 @@ controllerAdded = false
     Add <app> in database. Try <test> time if app is data-system
     (data-system should be started to add it in database)
 ###
-addDatabase = (test, app) ->
-    if test > 0
+addDatabase = (attempt, app) ->
+    if attempt > 0
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
                 setTimeout () ->
-                    addDatabase test-1, app
+                    addDatabase attempt-1, app
                 , 1000
 
 ###
@@ -99,18 +99,19 @@ module.exports.addApp = (app, callback) ->
         git: app.repository.url
         docType: "StackApplication"
     # Add in database
-    addDatabase 5, appli, (err) =>
-        # If controller isn't already add, add it.
-        unless controllerAdded
-            controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
-            if fs.existsSync controllerPath
-                data = require controllerPath
-                controller =
-                    docType: "StackApplication"
-                    name:    "controller"
-                    version: data.version
-                    git: "https://github.com/cozy/cozy-controller.git"
-                addInDatabase controller
+    addDatabase 5, appli
+    # If controller isn't already add, add it.
+    unless controllerAdded
+        controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
+        if fs.existsSync controllerPath
+            data = require controllerPath
+            controller =
+                docType: "StackApplication"
+                name:    "controller"
+                version: data.version
+                git: "https://github.com/cozy/cozy-controller.git"
+            addInDatabase controller, (err) ->
+                log.warn err if err?
 
 ###
     Remove application <name> from stack.json
