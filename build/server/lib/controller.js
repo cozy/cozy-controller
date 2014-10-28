@@ -152,14 +152,14 @@ updateApp = function(name, callback) {
         * If installation return an error, try again (if <test> isnt 0)
  */
 
-installDependencies = function(app, test, callback) {
+installDependencies = function(req, app, test, callback) {
   test = test - 1;
-  return npm.install(app, function(err) {
+  return npm.install(req, app, function(err) {
     if ((err != null) && test === 0) {
       return callback(err);
     } else if (err != null) {
       log.info('TRY AGAIN ...');
-      return installDependencies(app, test, callback);
+      return installDependencies(req, app, test, callback);
     } else {
       return callback();
     }
@@ -188,7 +188,7 @@ module.exports.removeRunningApp = function(name) {
         * Start process
  */
 
-module.exports.install = function(manifest, callback) {
+module.exports.install = function(req, manifest, callback) {
   var app;
   app = new App(manifest);
   app = app.app;
@@ -208,7 +208,7 @@ module.exports.install = function(manifest, callback) {
             return callback(err);
           } else {
             log.info("" + app.name + ":npm install");
-            return installDependencies(app, 2, function(err) {
+            return installDependencies(req, app, 2, function(err) {
               if (err != null) {
                 return callback(err);
               } else {

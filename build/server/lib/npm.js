@@ -17,9 +17,9 @@ config = require('./conf').get;
       * Remove npm cache
  */
 
-module.exports.install = function(target, callback) {
+module.exports.install = function(req, target, callback) {
   var args, child, options, stderr;
-  args = ['npm', '--production'];
+  args = ['npm', '--production', '--loglevel', 'http', '--unsafe-perm', 'true', '--user', target.user];
   if (config('npm_registry')) {
     args.push('--registry');
     args.push(config('npm_registry'));
@@ -29,16 +29,17 @@ module.exports.install = function(target, callback) {
     args.push(config('npm_strict_ssl'));
   }
   args.push('install');
-  args.push('--user');
-  args.push(target.user);
   options = {
     cwd: target.dir
   };
   child = spawn('sudo', args, options);
-  setTimeout(child.kill.bind(child, 'SIGKILL'), 5 * 60 * 1000);
+  setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000);
   stderr = '';
   child.stderr.on('data', function(data) {
     return stderr += data;
+  });
+  child.stdout.on('data', function(data) {
+    return req.connection.setTimeout(3 * 60 * 1000);
   });
   return child.on('close', function(code) {
     var err;

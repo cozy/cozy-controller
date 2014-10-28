@@ -43,7 +43,7 @@ module.exports.install = function(req, res, next) {
     });
   }
   manifest = req.body.start;
-  return controller.install(manifest, function(err, result) {
+  return controller.install(req, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
       return res.send(400, {

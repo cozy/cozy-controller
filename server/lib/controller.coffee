@@ -125,14 +125,14 @@ updateApp = (name, callback) ->
         * Try to install dependencies (npm install)
         * If installation return an error, try again (if <test> isnt 0)
 ###
-installDependencies = (app, test, callback) ->
+installDependencies = (req, app, test, callback) ->
     test = test - 1
-    npm.install app, (err) ->
+    npm.install req, app, (err) ->
         if err? and test is 0
             callback err
         else if err?
             log.info 'TRY AGAIN ...'
-            installDependencies app, test, callback
+            installDependencies req, app, test, callback
         else
             callback()
 
@@ -156,7 +156,7 @@ module.exports.removeRunningApp = (name) ->
         * If application is a stack application, add application in stack.json
         * Start process
 ###
-module.exports.install = (manifest, callback) ->
+module.exports.install = (req, manifest, callback) ->
     app = new App manifest
     app = app.app
     # Check if app exists
@@ -180,7 +180,7 @@ module.exports.install = (manifest, callback) ->
                     else
                         # NPM install
                         log.info "#{app.name}:npm install"
-                        installDependencies app, 2, (err) ->
+                        installDependencies req, app, 2, (err) ->
                             if err?
                                 callback err
                             else
