@@ -173,21 +173,21 @@ module.exports.update = function(req, res, next) {
  */
 
 module.exports.updateStack = function(req, res, next) {
-  return controller.update('data-system', function(err, result) {
+  return controller.update(req.connection, 'data-system', function(err, result) {
     if (err) {
       log.error(err.toString());
       return res.send(400, {
         error: err.toString()
       });
     } else {
-      return controller.update('proxy', function(err, result) {
+      return controller.update(req.connection, 'proxy', function(err, result) {
         if (err) {
           log.error(err.toString());
           return res.send(400, {
             error: err.toString()
           });
         } else {
-          return controller.update('home', function(err, result) {
+          return controller.update(req.connection, 'home', function(err, result) {
             if (err) {
               log.error(err.toString());
               return res.send(400, {

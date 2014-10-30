@@ -98,17 +98,17 @@ module.exports.update = (req, res, next) ->
         * Update appplication
 ###
 module.exports.updateStack = (req, res, next) ->
-    controller.update 'data-system', (err, result) ->
+    controller.update req.connection, 'data-system', (err, result) ->
         if err
             log.error err.toString()
             res.send 400, error: err.toString()
         else
-            controller.update 'proxy', (err, result) ->
+            controller.update req.connection, 'proxy', (err, result) ->
                 if err
                     log.error err.toString()
                     res.send 400, error: err.toString()
                 else
-                    controller.update 'home', (err, result) ->
+                    controller.update req.connection, 'home', (err, result) ->
                         if err
                             log.error err.toString()
                             res.send 400, error: err.toString()
