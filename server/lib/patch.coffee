@@ -12,10 +12,15 @@ checkNewSource = (name) ->
 
 # Return source repository of application <name>
 getRepo = (name) ->
-    reps = fs.readdirSync path.join(pathRoot, name, name)
-    for rep in reps
-        if rep.indexOf('.') is -1
-            return rep
+    mainRepo = path.join(pathRoot, name, name)
+    if fs.existsSync mainRepo
+        reps = fs.readdirSync mainRepo
+        for rep in reps
+            if rep.indexOf('.') is -1
+                return rep
+    else
+        fs.rmdirSync path.join(pathRoot, name)
+        return []
 
 # Move directory from <source> to <dest>
 move = (source, dest, callback) ->
@@ -52,21 +57,24 @@ updateSourceDir = (apps, callback) ->
         name = apps.pop()
         unless checkNewSource(name)
             repo = getRepo(name)
-            # Move old source
-            move path.join(pathRoot, name), path.join(pathRoot, "tmp-#{name}"), (err) =>
-                if err?
-                    callback(err)
-                else
-                    move path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), (err) =>
-                        if err
-                            callback err
-                        else
-                            appPath = "/usr/local/cozy/apps/tmp-#{name}"
-                            rm appPath, (err) ->
-                                if err?
-                                    callback err
-                                else
-                                    updateSourceDir apps, callback
+            if repo.length > 0
+                # Move old source
+                move path.join(pathRoot, name), path.join(pathRoot, "tmp-#{name}"), (err) =>
+                    if err?
+                        callback(err)
+                    else
+                        move path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), (err) =>
+                            if err
+                                callback err
+                            else
+                                appPath = "/usr/local/cozy/apps/tmp-#{name}"
+                                rm appPath, (err) ->
+                                    if err?
+                                        callback err
+                                    else
+                                        updateSourceDir apps, callback
+            else
+                updateSourceDir apps, callback
         else
             log.info "#{name} : Already moved"
             updateSourceDir apps, callback
@@ -119,8 +127,7 @@ removeOldDir = (callback) ->
                 fs.rmdirSync '/usr/local/var/log/cozy'
     if fs.existsSync '/usr/local/cozy/autostart'
         exec 'rm /usr/local/cozy/autostart/*', (err) ->
-            unless err?
-                fs.rmdirSync '/usr/local/cozy/autostart'
+            fs.rmdirSync '/usr/local/cozy/autostart'
             callback(err)
 
 

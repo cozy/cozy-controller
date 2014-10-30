@@ -18,13 +18,19 @@ checkNewSource = function(name) {
 };
 
 getRepo = function(name) {
-  var rep, reps, _i, _len;
-  reps = fs.readdirSync(path.join(pathRoot, name, name));
-  for (_i = 0, _len = reps.length; _i < _len; _i++) {
-    rep = reps[_i];
-    if (rep.indexOf('.') === -1) {
-      return rep;
+  var mainRepo, rep, reps, _i, _len;
+  mainRepo = path.join(pathRoot, name, name);
+  if (fs.existsSync(mainRepo)) {
+    reps = fs.readdirSync(mainRepo);
+    for (_i = 0, _len = reps.length; _i < _len; _i++) {
+      rep = reps[_i];
+      if (rep.indexOf('.') === -1) {
+        return rep;
+      }
     }
+  } else {
+    fs.rmdirSync(path.join(pathRoot, name));
+    return [];
   }
 };
 
@@ -69,29 +75,33 @@ updateSourceDir = function(apps, callback) {
     name = apps.pop();
     if (!checkNewSource(name)) {
       repo = getRepo(name);
-      return move(path.join(pathRoot, name), path.join(pathRoot, "tmp-" + name), (function(_this) {
-        return function(err) {
-          if (err != null) {
-            return callback(err);
-          } else {
-            return move(path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), function(err) {
-              var appPath;
-              if (err) {
-                return callback(err);
-              } else {
-                appPath = "/usr/local/cozy/apps/tmp-" + name;
-                return rm(appPath, function(err) {
-                  if (err != null) {
-                    return callback(err);
-                  } else {
-                    return updateSourceDir(apps, callback);
-                  }
-                });
-              }
-            });
-          }
-        };
-      })(this));
+      if (repo.length > 0) {
+        return move(path.join(pathRoot, name), path.join(pathRoot, "tmp-" + name), (function(_this) {
+          return function(err) {
+            if (err != null) {
+              return callback(err);
+            } else {
+              return move(path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), function(err) {
+                var appPath;
+                if (err) {
+                  return callback(err);
+                } else {
+                  appPath = "/usr/local/cozy/apps/tmp-" + name;
+                  return rm(appPath, function(err) {
+                    if (err != null) {
+                      return callback(err);
+                    } else {
+                      return updateSourceDir(apps, callback);
+                    }
+                  });
+                }
+              });
+            }
+          };
+        })(this));
+      } else {
+        return updateSourceDir(apps, callback);
+      }
     } else {
       log.info("" + name + " : Already moved");
       return updateSourceDir(apps, callback);
@@ -162,9 +172,7 @@ removeOldDir = function(callback) {
   }
   if (fs.existsSync('/usr/local/cozy/autostart')) {
     return exec('rm /usr/local/cozy/autostart/*', function(err) {
-      if (err == null) {
-        fs.rmdirSync('/usr/local/cozy/autostart');
-      }
+      fs.rmdirSync('/usr/local/cozy/autostart');
       return callback(err);
     });
   }
