@@ -35,21 +35,30 @@ module.exports.install = function(connection, target, callback) {
   child = spawn('sudo', args, options);
   setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000);
   stderr = '';
-  child.stderr.on('data', function(data) {
-    return stderr += data;
-  });
-  child.stdout.on('data', function(data) {
-    return connection.setTimeout(3 * 60 * 1000);
-  });
-  return child.on('close', function(code) {
-    var err;
-    if (code !== 0) {
-      log.error("npm:install:err: NPM Install failed : " + stderr);
-      err = new Error('NPM Install failed');
-      return callback(err);
-    } else {
-      log.info('npm:install:success');
-      return callback();
-    }
-  });
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', (function(_this) {
+    return function(data) {
+      return stderr += data;
+    };
+  })(this));
+  child.stdout.setEncoding('utf8');
+  child.stdout.on('data', (function(_this) {
+    return function(data) {
+      stderr += data;
+      return connection.setTimeout(3 * 60 * 1000);
+    };
+  })(this));
+  return child.on('close', (function(_this) {
+    return function(code) {
+      var err;
+      if (code !== 0) {
+        log.error("npm:install:err: NPM Install failed : " + stderr);
+        err = new Error('NPM Install failed');
+        return callback(stderr);
+      } else {
+        log.info('npm:install:success');
+        return callback();
+      }
+    };
+  })(this));
 };
