@@ -138,13 +138,13 @@ module.exports.backupConfig = function() {
     dir_source: conf.dir_source,
     env: conf.env
   };
-  return fs.writeFile(configFile, JSON.stringify(displayConf), function(err) {
+  return fs.writeFile(configFile, JSON.stringify(displayConf, null, 4), function(err) {
     var path;
     if (err != null) {
       log.error(err);
     }
     path = "/etc/cozy/.controller-backup.json";
-    return fs.writeFile(path, JSON.stringify(displayConf), function(err) {
+    return fs.writeFile(path, JSON.stringify(displayConf, null, 4), function(err) {
       if (err != null) {
         return log.error(err);
       }

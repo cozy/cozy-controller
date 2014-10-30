@@ -117,7 +117,7 @@ module.exports.addApp = function(app, callback) {
     }
     data[app.name] = app;
     return fs.open(config('file_stack'), 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
+      return fs.write(fd, JSON.stringify(data, null, 4), 0, data.length, 0, callback);
     });
   });
   data = require(path.join(config('dir_source'), app.name, 'package.json'));
