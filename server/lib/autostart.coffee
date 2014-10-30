@@ -187,7 +187,7 @@ module.exports.start = (callback) ->
                             clientDS.setBasicAuth 'home', permission.get()
                             requestPath = '/request/application/all/'
                             clientDS.post requestPath, {}, (err, res, body) ->
-                                if res.statusCode is 404
+                                if res?.statusCode is 404
                                     callback()
                                 else
                                     start body, clientDS, (errors) ->
