@@ -70,7 +70,8 @@ start = (apps, clientDS, callback) ->
                     if err? and cb is 1
                         log.error "#{app.name}: error"
                         log.error err
-                        errors[app.name] = new Error "Application didn't started"
+                        errors[app.name] =
+                            new Error "Application didn't started"
                         # Add application if drones list
                         controller.addDrone app, ->
                             start apps, clientDS, callback

@@ -40,7 +40,7 @@ module.exports.install = (connection, target, callback) ->
         stderr += data
 
     child.stdout.setEncoding 'utf8'
-    child.stdout.on 'data', (data) =>
+    child.stdout.on 'data', (data)=>
         stderr += data
         connection.setTimeout 3 * 60 * 1000
 

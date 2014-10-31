@@ -12,7 +12,8 @@ updateController = (callback) ->
 restartController = (callback) ->
     exec "supervisorctl restart cozy-controller", (err, stdout) ->
         if err
-            callback "This feature is available only if controller is managed by supervisor"
+            callback "This feature is available only if controller is managed" +
+                " by supervisor"
         else
             log.info "Controller was successfully restarted."
             callback()

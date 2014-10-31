@@ -8,7 +8,8 @@ pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
 checkNewSource = (name) ->
-    return (name is "stack.json") or fs.existsSync path.join(pathRoot, name, "package.json")
+    packagePath = path.join(pathRoot, name, "package.json")
+    return (name is "stack.json") or packagePath
 
 # Return source repository of application <name>
 getRepo = (name) ->
@@ -59,11 +60,15 @@ updateSourceDir = (apps, callback) ->
             repo = getRepo(name)
             if repo.length > 0
                 # Move old source
-                move path.join(pathRoot, name), path.join(pathRoot, "tmp-#{name}"), (err) =>
+                source = path.join(pathRoot, name)
+                dest = path.join(pathRoot, "tmp-#{name}")
+                move source, dest, (err) ->
                     if err?
                         callback(err)
                     else
-                        move path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), (err) =>
+                        source = path.join(pathRoot, "tmp-" + name, name, repo)
+                        dest = path.join(pathRoot, name)
+                        move source, dest, (err) ->
                             if err
                                 callback err
                             else

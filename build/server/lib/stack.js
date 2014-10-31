@@ -51,7 +51,7 @@ addInDatabase = function(app, callback) {
   clientDS = new Client("http://localhost:9101");
   clientDS.setBasicAuth('home', permission.get());
   return clientDS.post('/request/stackapplication/all/', {}, function(err, res, body) {
-    var appli, application, _i, _len;
+    var appli, application, requestPath, _i, _len;
     application = null;
     if (err == null) {
       for (_i = 0, _len = body.length; _i < _len; _i++) {
@@ -67,7 +67,8 @@ addInDatabase = function(app, callback) {
         return callback();
       } else {
         app.lastVersion = application.lastVersion;
-        return clientDS.put("/data/" + application._id + "/ ", app, function(err, res, body) {
+        requestPath = "/data/" + application._id + "/";
+        return clientDS.put(requestPath, app, function(err, res, body) {
           if (err != null) {
             log.warn("Error in updating " + app.name + " to database");
             log.warn(err);
@@ -117,7 +118,10 @@ module.exports.addApp = function(app, callback) {
     }
     data[app.name] = app;
     return fs.open(config('file_stack'), 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(data, null, 4), 0, data.length, 0, callback);
+      var length;
+      length = data.length;
+      data = JSON.stringify(data, null, 2);
+      return fs.write(fd, data, 0, length, 0, callback);
     });
   });
   data = require(path.join(config('dir_source'), app.name, 'package.json'));

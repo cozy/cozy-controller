@@ -14,7 +14,9 @@ log = require('printit')();
 pathRoot = "/usr/local/cozy/apps/";
 
 checkNewSource = function(name) {
-  return (name === "stack.json") || fs.existsSync(path.join(pathRoot, name, "package.json"));
+  var packagePath;
+  packagePath = path.join(pathRoot, name, "package.json");
+  return (name === "stack.json") || packagePath;
 };
 
 getRepo = function(name) {
@@ -70,35 +72,37 @@ rm = function(dir, callback) {
 };
 
 updateSourceDir = function(apps, callback) {
-  var name, repo;
+  var dest, name, repo, source;
   if (apps.length > 0) {
     name = apps.pop();
     if (!checkNewSource(name)) {
       repo = getRepo(name);
       if (repo.length > 0) {
-        return move(path.join(pathRoot, name), path.join(pathRoot, "tmp-" + name), (function(_this) {
-          return function(err) {
-            if (err != null) {
-              return callback(err);
-            } else {
-              return move(path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), function(err) {
-                var appPath;
-                if (err) {
-                  return callback(err);
-                } else {
-                  appPath = "/usr/local/cozy/apps/tmp-" + name;
-                  return rm(appPath, function(err) {
-                    if (err != null) {
-                      return callback(err);
-                    } else {
-                      return updateSourceDir(apps, callback);
-                    }
-                  });
-                }
-              });
-            }
-          };
-        })(this));
+        source = path.join(pathRoot, name);
+        dest = path.join(pathRoot, "tmp-" + name);
+        return move(source, dest, function(err) {
+          if (err != null) {
+            return callback(err);
+          } else {
+            source = path.join(pathRoot, "tmp-" + name, name, repo);
+            dest = path.join(pathRoot, name);
+            return move(source, dest, function(err) {
+              var appPath;
+              if (err) {
+                return callback(err);
+              } else {
+                appPath = "/usr/local/cozy/apps/tmp-" + name;
+                return rm(appPath, function(err) {
+                  if (err != null) {
+                    return callback(err);
+                  } else {
+                    return updateSourceDir(apps, callback);
+                  }
+                });
+              }
+            });
+          }
+        });
       } else {
         return updateSourceDir(apps, callback);
       }
