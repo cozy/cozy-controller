@@ -3,13 +3,14 @@ fs = require 'fs'
 spawn = require('child_process').spawn
 exec = require('child_process').exec
 log = require('printit')()
+rimraf = require 'rimraf'
 
 pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
 checkNewSource = (name) ->
     packagePath = path.join(pathRoot, name, "package.json")
-    return (name is "stack.json") or packagePath
+    return (name is "stack.json") or fs.existsSync packagePath
 
 # Return source repository of application <name>
 getRepo = (name) ->
@@ -20,8 +21,10 @@ getRepo = (name) ->
             if rep.indexOf('.') is -1
                 return rep
     else
-        fs.rmdirSync path.join(pathRoot, name)
+        rimraf path.join(pathRoot, name), (err) ->
+            log.error err if err?
         return []
+
 
 # Move directory from <source> to <dest>
 move = (source, dest, callback) ->
@@ -123,16 +126,14 @@ removeOldDir = (callback) ->
     if fs.existsSync '/usr/local/cozy/tmp'
         fs.rmdirSync '/usr/local/cozy/tmp'
     if fs.existsSync '/etc/cozy/pids'
-        exec 'rm /etc/cozy/pids/*', (err) ->
-            unless err?
-                fs.rmdirSync '/etc/cozy/pids'
+        rimraf '/etc/cozy/pids', (err) ->
+            log.error err if err?
     if fs.existsSync '/usr/local/var/log/cozy'
-        exec 'rm /usr/local/var/log/cozy/*', (err) ->
-            unless err?
-                fs.rmdirSync '/usr/local/var/log/cozy'
+        rimraf '/usr/local/var/log/cozy', (err) ->
+            log.error err if err?
     if fs.existsSync '/usr/local/cozy/autostart'
-        exec 'rm /usr/local/cozy/autostart/*', (err) ->
-            fs.rmdirSync '/usr/local/cozy/autostart'
+        rimraf '/usr/local/cozy/autostart', (err) ->
+            log.error err if err?
             callback(err)
 
 
