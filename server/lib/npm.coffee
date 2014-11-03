@@ -34,19 +34,21 @@ module.exports.install = (connection, target, callback) ->
     # Kill NPM if this takes more than 5 minutes
     setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000)
 
-    #child.stdout.on 'data', (data) =>
     stderr = ''
-    child.stderr.on 'data', (data) ->
+    child.stderr.setEncoding 'utf8'
+    child.stderr.on 'data', (data) =>
         stderr += data
 
-    child.stdout.on 'data', (data) ->
+    child.stdout.setEncoding 'utf8'
+    child.stdout.on 'data', (data)=>
+        stderr += data
         connection.setTimeout 3 * 60 * 1000
 
-    child.on 'close', (code) ->
+    child.on 'close', (code) =>
         if code isnt 0
             log.error "npm:install:err: NPM Install failed : #{stderr}"
             err = new Error('NPM Install failed')
-            callback err
+            callback stderr
         else
             log.info 'npm:install:success'
             callback()

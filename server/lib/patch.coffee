@@ -3,19 +3,28 @@ fs = require 'fs'
 spawn = require('child_process').spawn
 exec = require('child_process').exec
 log = require('printit')()
+rimraf = require 'rimraf'
 
 pathRoot = "/usr/local/cozy/apps/"
 
 # Check if source has already moved
 checkNewSource = (name) ->
-    return (name is "stack.json") or fs.existsSync path.join(pathRoot, name, "package.json")
+    packagePath = path.join(pathRoot, name, "package.json")
+    return (name is "stack.json") or fs.existsSync packagePath
 
 # Return source repository of application <name>
 getRepo = (name) ->
-    reps = fs.readdirSync path.join(pathRoot, name, name)
-    for rep in reps
-        if rep.indexOf('.') is -1
-            return rep
+    mainRepo = path.join(pathRoot, name, name)
+    if fs.existsSync mainRepo
+        reps = fs.readdirSync mainRepo
+        for rep in reps
+            if rep.indexOf('.') is -1
+                return rep
+    else
+        rimraf path.join(pathRoot, name), (err) ->
+            log.error err if err?
+        return []
+
 
 # Move directory from <source> to <dest>
 move = (source, dest, callback) ->
@@ -52,21 +61,28 @@ updateSourceDir = (apps, callback) ->
         name = apps.pop()
         unless checkNewSource(name)
             repo = getRepo(name)
-            # Move old source
-            move path.join(pathRoot, name), path.join(pathRoot, "tmp-#{name}"), (err) =>
-                if err?
-                    callback(err)
-                else
-                    move path.join(pathRoot, "tmp-" + name, name, repo), path.join(pathRoot, name), (err) =>
-                        if err
-                            callback err
-                        else
-                            appPath = "/usr/local/cozy/apps/tmp-#{name}"
-                            rm appPath, (err) ->
-                                if err?
-                                    callback err
-                                else
-                                    updateSourceDir apps, callback
+            if repo.length > 0
+                # Move old source
+                source = path.join(pathRoot, name)
+                dest = path.join(pathRoot, "tmp-#{name}")
+                move source, dest, (err) ->
+                    if err?
+                        callback(err)
+                    else
+                        source = path.join(pathRoot, "tmp-" + name, name, repo)
+                        dest = path.join(pathRoot, name)
+                        move source, dest, (err) ->
+                            if err
+                                callback err
+                            else
+                                appPath = "/usr/local/cozy/apps/tmp-#{name}"
+                                rm appPath, (err) ->
+                                    if err?
+                                        callback err
+                                    else
+                                        updateSourceDir apps, callback
+            else
+                updateSourceDir apps, callback
         else
             log.info "#{name} : Already moved"
             updateSourceDir apps, callback
@@ -110,17 +126,14 @@ removeOldDir = (callback) ->
     if fs.existsSync '/usr/local/cozy/tmp'
         fs.rmdirSync '/usr/local/cozy/tmp'
     if fs.existsSync '/etc/cozy/pids'
-        exec 'rm /etc/cozy/pids/*', (err) ->
-            unless err?
-                fs.rmdirSync '/etc/cozy/pids'
+        rimraf '/etc/cozy/pids', (err) ->
+            log.error err if err?
     if fs.existsSync '/usr/local/var/log/cozy'
-        exec 'rm /usr/local/var/log/cozy/*', (err) ->
-            unless err?
-                fs.rmdirSync '/usr/local/var/log/cozy'
+        rimraf '/usr/local/var/log/cozy', (err) ->
+            log.error err if err?
     if fs.existsSync '/usr/local/cozy/autostart'
-        exec 'rm /usr/local/cozy/autostart/*', (err) ->
-            unless err?
-                fs.rmdirSync '/usr/local/cozy/autostart'
+        rimraf '/usr/local/cozy/autostart', (err) ->
+            log.error err if err?
             callback(err)
 
 

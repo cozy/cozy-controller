@@ -238,7 +238,7 @@ module.exports.start = function(callback) {
               clientDS.setBasicAuth('home', permission.get());
               requestPath = '/request/application/all/';
               return clientDS.post(requestPath, {}, function(err, res, body) {
-                if (res.statusCode === 404) {
+                if ((res != null ? res.statusCode : void 0) === 404) {
                   return callback();
                 } else {
                   return start(body, clientDS, function(errors) {

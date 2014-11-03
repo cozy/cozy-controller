@@ -70,7 +70,8 @@ start = (apps, clientDS, callback) ->
                     if err? and cb is 1
                         log.error "#{app.name}: error"
                         log.error err
-                        errors[app.name] = new Error "Application didn't started"
+                        errors[app.name] =
+                            new Error "Application didn't started"
                         # Add application if drones list
                         controller.addDrone app, ->
                             start apps, clientDS, callback
@@ -187,7 +188,7 @@ module.exports.start = (callback) ->
                             clientDS.setBasicAuth 'home', permission.get()
                             requestPath = '/request/application/all/'
                             clientDS.post requestPath, {}, (err, res, body) ->
-                                if res.statusCode is 404
+                                if res?.statusCode is 404
                                     callback()
                                 else
                                     start body, clientDS, (errors) ->

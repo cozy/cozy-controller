@@ -19,7 +19,7 @@ addDatabase = (attempt, app) ->
     if attempt > 0
         addInDatabase app, (err) ->
             if app.name is 'data-system' and err?
-                setTimeout () ->
+                setTimeout ->
                     addDatabase attempt-1, app
                 , 1000
 
@@ -50,12 +50,14 @@ addInDatabase = (app, callback) ->
                 # Keep field lastVersion (added by home)
                 app.lastVersion = application.lastVersion
                 # Update document if necessary
-                clientDS.put "/data/#{application._id}/ ", app, (err, res, body) ->
+                requestPath = "/data/#{application._id}/"
+                clientDS.put requestPath, app, (err, res, body) ->
                     if err?
                         log.warn "Error in updating #{app.name} to database"
                         log.warn err
                     else
-                        # Put controllerAdded to true if application is controller
+                        # Put controllerAdded to true
+                        # if application is controller
                         if app.name is 'controller'
                             controllerAdded = true
                     callback err
@@ -88,7 +90,9 @@ module.exports.addApp = (app, callback) ->
             data = {}
         data[app.name] = app
         fs.open config('file_stack'), 'w', (err, fd) ->
-            fs.write fd, JSON.stringify(data), 0, data.length, 0, callback
+            length = data.length
+            data = JSON.stringify(data, null, 2)
+            fs.write fd, data, 0, length, 0, callback
 
     ## Store in database
     # Recover application information
