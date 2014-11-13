@@ -52,10 +52,7 @@ addInDatabase = (app, callback) ->
                 # Update document if necessary
                 requestPath = "/data/#{application._id}/"
                 clientDS.put requestPath, app, (err, res, body) ->
-                    if err?
-                        log.warn "Error in updating #{app.name} to database"
-                        log.warn err
-                    else
+                    if not err?
                         # Put controllerAdded to true
                         # if application is controller
                         if app.name is 'controller'
@@ -65,10 +62,7 @@ addInDatabase = (app, callback) ->
             # Add new document for application
             clientDS.post '/data/', app, (err, res, body) ->
                 err = body.error if not err? and body?.error?
-                if err?
-                    log.warn "Error in adding #{app.name} to database"
-                    log.warn err
-                else
+                if not err?
                     # Put controllerAdded to true if application is controller
                     if app.name is 'controller'
                         controllerAdded = true
