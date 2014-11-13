@@ -84,7 +84,7 @@ application = module.exports = function(callback) {
       console.log("Process is stopped");
       return controller.stopAll((function(_this) {
         return function() {
-          return process.exit(code);
+          return process.exit();
         };
       })(this));
     };
