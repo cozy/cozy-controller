@@ -129,7 +129,6 @@ stopApp = function(name, callback) {
 updateApp = function(connection, name, callback) {
   var app;
   app = drones[name];
-  console.log(app);
   log.info("" + name + ":update application");
   return type[app.repository.type].update(app, function(err) {
     if (err != null) {

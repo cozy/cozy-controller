@@ -69,10 +69,7 @@ addInDatabase = function(app, callback) {
         app.lastVersion = application.lastVersion;
         requestPath = "/data/" + application._id + "/";
         return clientDS.put(requestPath, app, function(err, res, body) {
-          if (err != null) {
-            log.warn("Error in updating " + app.name + " to database");
-            log.warn(err);
-          } else {
+          if (err == null) {
             if (app.name === 'controller') {
               controllerAdded = true;
             }
@@ -85,10 +82,7 @@ addInDatabase = function(app, callback) {
         if ((err == null) && ((body != null ? body.error : void 0) != null)) {
           err = body.error;
         }
-        if (err != null) {
-          log.warn("Error in adding " + app.name + " to database");
-          log.warn(err);
-        } else {
+        if (err == null) {
           if (app.name === 'controller') {
             controllerAdded = true;
           }

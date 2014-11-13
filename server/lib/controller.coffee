@@ -108,7 +108,6 @@ stopApp = (name, callback) ->
 ###
 updateApp = (connection, name, callback) ->
     app = drones[name]
-    console.log app
     log.info "#{name}:update application"
     type[app.repository.type].update app, (err) ->
         if err?
