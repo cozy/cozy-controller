@@ -29,6 +29,8 @@ application = module.exports = (callback) ->
                     console.log "### START SERVER ###"
                     americano.start options, (app, server) =>
 
+                        server.timeout = 10 * 60 * 1000
+
                         server.once 'close', (code) ->
                             console.log "Server close with code #{code}"
                             controller.stopAll () =>
