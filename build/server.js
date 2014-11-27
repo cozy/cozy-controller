@@ -40,6 +40,7 @@ application = module.exports = function(callback) {
           if (err == null) {
             console.log("### START SERVER ###");
             return americano.start(options, function(app, server) {
+              server.timeout = 10 * 60 * 1000;
               server.once('close', function(code) {
                 console.log("Server close with code " + code);
                 return controller.stopAll((function(_this) {
