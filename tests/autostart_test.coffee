@@ -100,7 +100,7 @@ describe "Autostart", ->
             it "And proxy is started", (done) ->
                 clientProxy = new Client "http://localhost:#{@port}"
                 clientProxy.get '/', (err, res) ->
-                    res.statusCode.should.equal 200
+                    res.statusCode.should.equal 302
                     done()
 
         ###describe "Install todos", ->
