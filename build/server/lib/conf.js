@@ -88,8 +88,13 @@ module.exports.init = function(callback) {
         npm_strict_ssl: data.npm_strict_ssl || false,
         dir_log: '/usr/local/var/log/cozy',
         dir_source: '/usr/local/cozy/apps',
-        file_token: '/etc/cozy/stack.token'
+        file_token: '/etc/cozy/stack.token',
+        bind_ip_proxy: data.bind_ip_proxy || '0.0.0.0'
       };
+      conf.display_bind = data.bind_ip_proxy != null;
+      if (process.env.BIND_IP_PROXY) {
+        conf.bind_ip_proxy = process.env.BIND_IP_PROXY;
+      }
       conf.file_stack = conf.dir_source + '/stack.json';
       if (data.env != null) {
         conf.env = {
@@ -138,6 +143,9 @@ module.exports.backupConfig = function() {
     dir_source: conf.dir_source,
     env: conf.env
   };
+  if (conf.display_bind) {
+    displayConf.bind_ip_proxy = conf.bind_ip_proxy;
+  }
   return fs.writeFile(configFile, JSON.stringify(displayConf, null, 2), function(err) {
     var path;
     if (err != null) {

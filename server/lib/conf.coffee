@@ -71,6 +71,10 @@ module.exports.init = (callback) ->
                 dir_log :        '/usr/local/var/log/cozy'
                 dir_source :     '/usr/local/cozy/apps'
                 file_token :     '/etc/cozy/stack.token'
+                bind_ip_proxy:   data.bind_ip_proxy or '0.0.0.0'
+            conf.display_bind = data.bind_ip_proxy?
+            if process.env.BIND_IP_PROXY
+                conf.bind_ip_proxy = process.env.BIND_IP_PROXY
             conf.file_stack = conf.dir_source + '/stack.json'
             if data.env?
                 conf.env =
@@ -104,6 +108,8 @@ module.exports.backupConfig = ->
         dir_log : conf.dir_log
         dir_source : conf.dir_source
         env : conf.env
+    if conf.display_bind
+        displayConf.bind_ip_proxy = conf.bind_ip_proxy
     fs.writeFile configFile, JSON.stringify(displayConf, null, 2), (err) ->
         log.error err  if err?
         path = "/etc/cozy/.controller-backup.json"
