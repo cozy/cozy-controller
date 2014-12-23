@@ -1,13 +1,14 @@
 # This test will be usefull when user could change controller configuration.
 # This feature is not available for the moment.
 
-###helpers = require "./helpers"
+helpers = require "./helpers"
 fs = require 'fs'
 should = require('chai').Should()
 Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 client = ""
 configurationFile = "/etc/cozy/controller.json"
+spawn = require('child_process').spawn
 
 
 describe "Configuration", ->
@@ -15,7 +16,79 @@ describe "Configuration", ->
     before helpers.cleanApp
     after helpers.cleanApp
 
-    describe "Stack.json", ->
+
+    describe "Option BIND_IP_PROXY", ->
+
+        describe 'Bind proxy on 127.0.0.1', ->
+            it "When I started server with BIND_IP_PROXY", (done) ->
+                process.env.BIND_IP_PROXY = '127.0.0.1'
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+            it "Then I install proxy", (done) ->
+                @timeout 500000
+                app =
+                    name: "proxy"
+                    repository:
+                        url: "https://github.com/cozy/cozy-proxy.git"
+                        type: "git"
+                    scripts:
+                        start: "server.coffee"
+                client.post 'apps/proxy/install', "start":app, (err, res, body) =>
+                    done()
+
+            it "And proxy listen on 127.0.0.1", (done) ->
+                lsof = spawn 'lsof', ['-i', '-s', 'TCP:listen']
+                lsof.stdout.on 'data', (data)->
+                    tab = data.toString().split('\n')
+                    for proc in tab
+                        if proc.indexOf('cozy-proxy') isnt -1
+                            proc.indexOf('localhost:9104').should.not.equal -1
+
+                lsof.on 'close', (code) ->
+                    done()
+
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
+
+        describe 'Bind proxy on default ip (0.0.0.0)', ->
+            it "When I started server with BIND_IP_PROXY", (done) ->
+                delete process.env.BIND_IP_PROXY
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+            it "Then I install proxy", (done) ->
+                @timeout 500000
+                app =
+                    name: "proxy"
+                    repository:
+                        url: "https://github.com/cozy/cozy-proxy.git"
+                        type: "git"
+                    scripts:
+                        start: "server.coffee"
+                client.post 'apps/proxy/install', "start":app, (err, res, body) =>
+                    done()
+
+            it "And proxy listen on 0.0.0.0", (done) ->
+                lsof = spawn 'lsof', ['-i', '-s', 'TCP:listen']
+                lsof.stdout.on 'data', (data)->
+                    tab = data.toString().split('\n')
+                    for proc in tab
+                        if proc.indexOf('cozy-proxy') isnt -1
+                            proc.indexOf('*:9104').should.not.equal -1
+                lsof.on 'close', (code) ->
+                    done()
+
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
+
+    ###describe "Stack.json", ->
 
         describe "Configuration of stack.json", ->
             after (done) =>

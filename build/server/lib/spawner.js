@@ -83,6 +83,9 @@ module.exports.start = function(app, callback) {
   }
   fs.openSync(app.logFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
+  if (app.name === "proxy") {
+    foreverOptions.options = foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')]);
+  }
   return fs.readFile("" + app.dir + "/package.json", 'utf8', function(err, data) {
     var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, server, start, timeout, _ref5;
     data = JSON.parse(data);

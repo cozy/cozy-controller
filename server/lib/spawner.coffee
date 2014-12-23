@@ -80,6 +80,9 @@ module.exports.start = (app, callback) ->
         'setuid',
         '--setuid'
         app.user]
+    if app.name is "proxy"
+        foreverOptions.options =
+            foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')])
 
         #foreverOptions.command = 'coffee'
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
@@ -163,6 +166,7 @@ module.exports.start = (app, callback) ->
                 process.removeListener 'error', onError
                 process.removeListener 'message', onPort
                 clearTimeout timeout
+
 
         # Start process
         process.start()
