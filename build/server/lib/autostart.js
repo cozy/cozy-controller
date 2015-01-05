@@ -98,7 +98,7 @@ start = function(apps, clientDS, callback) {
           } else {
             appli = appli.value;
             appli.port = result.port;
-            return clientDS.put('/data/', appli, function(err, res, body) {
+            return clientDS.put("data/" + appli._id + "/", appli, function(err, res, body) {
               log.info("" + app.name + ": started");
               return start(apps, clientDS, callback);
             });
