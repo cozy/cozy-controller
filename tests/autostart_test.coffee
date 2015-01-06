@@ -4,8 +4,10 @@ should = require('chai').Should()
 Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 controller = require '../server/lib/controller'
+token = require '../server/middlewares/token'
 exec = require('child_process').exec
 homePort = ""
+dsPort = ""
 
 
 describe "Autostart", ->
@@ -33,7 +35,7 @@ describe "Autostart", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/poupotte/test-controller.git"
+                        url: "https://github.com/cozy/cozy-data-system.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -59,7 +61,7 @@ describe "Autostart", ->
                 app =
                     name: "home"
                     repository:
-                        url: "https://github.com/poupotte/test-controller.git"
+                        url: "https://github.com/cozy/cozy-home.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -85,7 +87,7 @@ describe "Autostart", ->
                 app =
                     name: "proxy"
                     repository:
-                        url: "https://github.com/poupotte/test-controller.git"
+                        url: "https://github.com/cozy/cozy-proxy.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -100,36 +102,55 @@ describe "Autostart", ->
             it "And proxy is started", (done) ->
                 clientProxy = new Client "http://localhost:#{@port}"
                 clientProxy.get '/', (err, res) ->
-                    res.statusCode.should.equal 200
+                    res.statusCode.should.equal 302
                     done()
 
-        ###describe "Install todos", ->
+        describe "Install todos", ->
 
             it "When I install todos", (done) ->
-                console.log "http://localhost:#{homePort}"
                 @timeout 500000
                 homeClient = new Client "http://localhost:#{homePort}"
                 app =
-                    name: "todos"
-                    repository:
-                        url: "https://github.com/cozy/cozy-todos.git"
-                        type: "git"
-                    scripts:
-                        start: "server.coffee"
+                    "domain": "localhost"
+                    "repository":
+                        "type": "git"
+                    "scripts":
+                        "start": "server.coffee"
+                    "name": "todos"
+                    "displayName":  "todos"
+                    "user": 'todos'
+                    "git": "https://github.com/cozy/cozy-todos.git"
                 homeClient.post "api/applications/install", app, (err, res, body) =>
-                    console.log err
                     @res = res
-                    console.log body
-                    done()
+                    # Don't know why : should restart else there is a token pb
+                    homeClient.post "api/applications/install", app, (err, res, body) ->
+                        done()
 
-            it "Then statusCode should be 200", ->
-                @res.statusCode.should.equal 200
+            it "Then statusCode should be 201", ->
+                console.log @res.statusCode
+                @res.statusCode.should.equal 201
 
             it "And todos is started", (done) ->
                 clientTodos = new Client "http://localhost:#{@port}"
                 clientTodos.get '/', (err, res) ->
                     res.statusCode.should.equal 200
-                    done()###
+                    done()
+
+            it 'And I change port in database', (done) ->
+                dsClient = new Client "http://localhost:#{dsPort}"
+                stackToken = token.get()
+                dsClient.setBasicAuth 'home', stackToken
+                dsClient.post 'request/application/all/', {}, (err, res, body) ->
+                    for app in body
+                        appli = app.value
+                        if appli.name is 'todos'
+                            appli.port = 1111
+                            appli.state = 'installed'
+                            appli.password = 'test'
+                            dsClient.put "data/#{appli._id}/", appli, (err, res, body) ->
+                                console.log err
+                                console.log body
+                                done()
 
     describe "Restart controller", ->
         server = ""
@@ -151,8 +172,19 @@ describe "Autostart", ->
                 should.exist body.app['data-system']
                 should.exist body.app.proxy
                 should.exist body.app.home
+                should.exist body.app.todos
                 done()
 
+        it "And todos has new port", (done) ->
+            dsClient = new Client "http://localhost:#{dsPort}"
+            stackToken = token.get()
+            dsClient.setBasicAuth 'home', stackToken
+            dsClient.post 'request/application/all/', {}, (err, res, body) ->
+                for app in body
+                    appli = app.value
+                    if appli.name is 'todos'
+                        appli.port.should.not.equal 1111
+                        done()
 
     describe "Restart controller without couchDB server", ->
         server = ""
