@@ -105,7 +105,7 @@ describe "Autostart", ->
                     res.statusCode.should.equal 302
                     done()
 
-        describe "Install todos", ->
+        ###describe "Install todos", ->
 
             it "When I install todos", (done) ->
                 @timeout 500000
@@ -150,7 +150,7 @@ describe "Autostart", ->
                             dsClient.put "data/#{appli._id}/", appli, (err, res, body) ->
                                 console.log err
                                 console.log body
-                                done()
+                                done() ###
 
     describe "Restart controller", ->
         server = ""
@@ -172,10 +172,10 @@ describe "Autostart", ->
                 should.exist body.app['data-system']
                 should.exist body.app.proxy
                 should.exist body.app.home
-                should.exist body.app.todos
+                #should.exist body.app.todos
                 done()
 
-        it "And todos has new port", (done) ->
+        ###it "And todos has new port", (done) ->
             dsClient = new Client "http://localhost:#{dsPort}"
             stackToken = token.get()
             dsClient.setBasicAuth 'home', stackToken
@@ -184,7 +184,7 @@ describe "Autostart", ->
                     appli = app.value
                     if appli.name is 'todos'
                         appli.port.should.not.equal 1111
-                        done()
+                        done()###
 
     describe "Restart controller without couchDB server", ->
         server = ""

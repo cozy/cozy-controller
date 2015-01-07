@@ -58,16 +58,25 @@ addInDatabase = function(app, callback) {
         appli = body[_i];
         appli = appli.value;
         if (appli.name === app.name) {
-          application = appli;
+          if (application != null) {
+            requestPath = "data/" + appli._id + "/";
+            clientDS.del("data/" + appli._id + "/", function(err, res, body) {
+              if (err != null) {
+                return log.warn(err);
+              }
+            });
+          } else {
+            application = appli;
+          }
         }
       }
     }
     if (application !== null) {
-      if (application.version === app.version) {
+      if (application.version === app.version && (application.git != null)) {
         return callback();
       } else {
         app.lastVersion = application.lastVersion;
-        requestPath = "/data/" + application._id + "/";
+        requestPath = "data/" + application._id + "/";
         return clientDS.put(requestPath, app, function(err, res, body) {
           if (err == null) {
             if (app.name === 'controller') {
