@@ -41,16 +41,23 @@ addInDatabase = (app, callback) ->
             for appli in body
                 appli = appli.value
                 if appli.name is app.name
-                    application = appli
+                    if application?
+                        # Remove if there is several applications
+                        requestPath = "data/#{appli._id}/"
+                        clientDS.del "data/#{appli._id}/", (err, res, body) ->
+                            log.warn err if err?
+                    else
+                        application = appli
         if application isnt null
             # Application is alread in database
-            if application.version is app.version
-                callback()
+            if application.version is app.version and
+                application.git?
+                    callback()
             else
                 # Keep field lastVersion (added by home)
                 app.lastVersion = application.lastVersion
                 # Update document if necessary
-                requestPath = "/data/#{application._id}/"
+                requestPath = "data/#{application._id}/"
                 clientDS.put requestPath, app, (err, res, body) ->
                     if not err?
                         # Put controllerAdded to true
