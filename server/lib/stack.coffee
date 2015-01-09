@@ -97,26 +97,28 @@ module.exports.addApp = (app, callback) ->
 
     ## Store in database
     # Recover application information
-    data = require path.join(config('dir_source'), app.name, 'package.json')
-    appli =
-        name: app.name
-        version: data.version
-        git: app.repository.url
-        docType: "StackApplication"
-    # Add in database
-    addDatabase 5, appli
-    # If controller isn't already add, add it.
-    unless controllerAdded
-        controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
-        if fs.existsSync controllerPath
-            data = require controllerPath
-            controller =
-                docType: "StackApplication"
-                name:    "controller"
-                version: data.version
-                git: "https://github.com/cozy/cozy-controller.git"
-            addInDatabase controller, (err) ->
-                log.warn err if err?
+    manifest = path.join(config('dir_source'), app.name, 'package.json')
+    fs.readFile manifest, (err, data) ->
+        data = JSON.parse(data)
+        appli =
+            name: app.name
+            version: data.version
+            git: app.repository.url
+            docType: "StackApplication"
+        # Add in database
+        addDatabase 5, appli
+        # If controller isn't already add, add it.
+        unless controllerAdded
+            controllerPath = path.join __dirname, '..', '..', '..', 'package.json'
+            if fs.existsSync controllerPath
+                data = require controllerPath
+                controller =
+                    docType: "StackApplication"
+                    name:    "controller"
+                    version: data.version
+                    git: "https://github.com/cozy/cozy-controller.git"
+                addInDatabase controller, (err) ->
+                    log.warn err if err?
 
 ###
     Remove application <name> from stack.json
