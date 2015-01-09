@@ -35,7 +35,7 @@ describe "Autostart", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/cozy/cozy-data-system.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -61,7 +61,7 @@ describe "Autostart", ->
                 app =
                     name: "home"
                     repository:
-                        url: "https://github.com/cozy/cozy-home.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -87,7 +87,7 @@ describe "Autostart", ->
                 app =
                     name: "proxy"
                     repository:
-                        url: "https://github.com/cozy/cozy-proxy.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
