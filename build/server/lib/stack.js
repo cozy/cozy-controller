@@ -130,29 +130,33 @@ module.exports.addApp = function(app, callback) {
   manifest = path.join(config('dir_source'), app.name, 'package.json');
   return fs.readFile(manifest, function(err, data) {
     var appli, controller, controllerPath;
-    data = JSON.parse(data);
-    appli = {
-      name: app.name,
-      version: data.version,
-      git: app.repository.url,
-      docType: "StackApplication"
-    };
-    addDatabase(5, appli);
-    if (!controllerAdded) {
-      controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
-      if (fs.existsSync(controllerPath)) {
-        data = require(controllerPath);
-        controller = {
-          docType: "StackApplication",
-          name: "controller",
-          version: data.version,
-          git: "https://github.com/cozy/cozy-controller.git"
-        };
-        return addInDatabase(controller, function(err) {
-          if (err != null) {
-            return log.warn(err);
-          }
-        });
+    if (err) {
+      return log.warn('Error when read package.json');
+    } else {
+      data = JSON.parse(data);
+      appli = {
+        name: app.name,
+        version: data.version,
+        git: app.repository.url,
+        docType: "StackApplication"
+      };
+      addDatabase(5, appli);
+      if (!controllerAdded) {
+        controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+        if (fs.existsSync(controllerPath)) {
+          data = require(controllerPath);
+          controller = {
+            docType: "StackApplication",
+            name: "controller",
+            version: data.version,
+            git: "https://github.com/cozy/cozy-controller.git"
+          };
+          return addInDatabase(controller, function(err) {
+            if (err != null) {
+              return log.warn(err);
+            }
+          });
+        }
       }
     }
   });
