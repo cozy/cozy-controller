@@ -79,7 +79,7 @@ start = (apps, clientDS, callback) ->
                         # Update port in database
                         appli = appli.value
                         appli.port = result.port
-                        clientDS.put "data/#{appli._id}/", appli, (err, res, body) ->
+                        clientDS.put "data/merge/#{appli._id}/", appli, (err, res, body) ->
                             log.info "#{app.name}: started"
                             start apps, clientDS, callback
             else
