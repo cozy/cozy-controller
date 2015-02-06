@@ -14,7 +14,7 @@ class exports.App
         @app.dir = path.join(homeDir, @app.name)
         @app.user = 'cozy-' + @app.name
         match = @app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
-        @app.logFile = path.join(logDir, "/#{app.name}.log")
+        @app.logFile = path.join(logDir, "/#{@app.name}.log")
 
         ## Find server
         # Priority :
