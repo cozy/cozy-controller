@@ -33,6 +33,7 @@ describe "App Stopped", ->
                         type: "git"
                     scripts:
                         start: "server.coffee"
+                client.headers['content-type'] = 'application/json'
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                     @res = res
                     port = body.drone.port

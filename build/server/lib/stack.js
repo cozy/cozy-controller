@@ -112,7 +112,7 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var appli, controller, controllerPath, data;
+  var manifest;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
     try {
       data = JSON.parse(data);
@@ -127,31 +127,39 @@ module.exports.addApp = function(app, callback) {
       return fs.write(fd, data, 0, length, 0, callback);
     });
   });
-  data = require(path.join(config('dir_source'), app.name, 'package.json'));
-  appli = {
-    name: app.name,
-    version: data.version,
-    git: app.repository.url,
-    docType: "StackApplication"
-  };
-  addDatabase(5, appli);
-  if (!controllerAdded) {
-    controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
-    if (fs.existsSync(controllerPath)) {
-      data = require(controllerPath);
-      controller = {
-        docType: "StackApplication",
-        name: "controller",
+  manifest = path.join(config('dir_source'), app.name, 'package.json');
+  return fs.readFile(manifest, function(err, data) {
+    var appli, controller, controllerPath;
+    if (err) {
+      return log.warn('Error when read package.json');
+    } else {
+      data = JSON.parse(data);
+      appli = {
+        name: app.name,
         version: data.version,
-        git: "https://github.com/cozy/cozy-controller.git"
+        git: app.repository.url,
+        docType: "StackApplication"
       };
-      return addInDatabase(controller, function(err) {
-        if (err != null) {
-          return log.warn(err);
+      addDatabase(5, appli);
+      if (!controllerAdded) {
+        controllerPath = path.join(__dirname, '..', '..', '..', 'package.json');
+        if (fs.existsSync(controllerPath)) {
+          data = require(controllerPath);
+          controller = {
+            docType: "StackApplication",
+            name: "controller",
+            version: data.version,
+            git: "https://github.com/cozy/cozy-controller.git"
+          };
+          return addInDatabase(controller, function(err) {
+            if (err != null) {
+              return log.warn(err);
+            }
+          });
         }
-      });
+      }
     }
-  }
+  });
 };
 
 

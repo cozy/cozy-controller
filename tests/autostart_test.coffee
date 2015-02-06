@@ -35,7 +35,7 @@ describe "Autostart", ->
                 app =
                     name: "data-system"
                     repository:
-                        url: "https://github.com/cozy/cozy-data-system.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -61,7 +61,7 @@ describe "Autostart", ->
                 app =
                     name: "home"
                     repository:
-                        url: "https://github.com/cozy/cozy-home.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -74,7 +74,7 @@ describe "Autostart", ->
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
 
-            it "And data-system is started", (done) ->
+            it "And home is started", (done) ->
                 clientDS = new Client "http://localhost:#{@port}"
                 clientDS.get '/', (err, res) ->
                     res.statusCode.should.equal 200
@@ -87,7 +87,7 @@ describe "Autostart", ->
                 app =
                     name: "proxy"
                     repository:
-                        url: "https://github.com/cozy/cozy-proxy.git"
+                        url: "https://github.com/poupotte/test-controller.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
@@ -102,7 +102,8 @@ describe "Autostart", ->
             it "And proxy is started", (done) ->
                 clientProxy = new Client "http://localhost:#{@port}"
                 clientProxy.get '/', (err, res) ->
-                    res.statusCode.should.equal 302
+                    status = res.statusCode in [200, 302]
+                    status.should.equal true
                     done()
 
         ###describe "Install todos", ->
