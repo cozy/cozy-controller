@@ -1,4 +1,5 @@
 controller = require ('../lib/controller')
+async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
 
@@ -99,27 +100,17 @@ module.exports.update = (req, res, next) ->
         * Update appplication
 ###
 module.exports.updateStack = (req, res, next) ->
-    controller.update req.connection, 'data-system', (err, result) ->
-        if err
-            log.error err.toString()
-            res.send 400, error: err.toString()
-        else
-            controller.update req.connection, 'proxy', (err, result) ->
-                if err
-                    log.error err.toString()
-                    res.send 400, error: err.toString()
-                else
-                    controller.update req.connection, 'home', (err, result) ->
-                        if err
-                            log.error err.toString()
-                            res.send 400, error: err.toString()
-                        else
-                            updateController (err) ->
-                                if err
-                                    log.error err.toString()
-                                    res.send 400, error: err.toString()
-                                else
-                                    res.send 200, {}
+    async.eachSeries ['data-system', 'home', 'proxy'], (app, callback) ->
+        controller.stop app, (err, res) ->
+            controller.update req.connection, app, (err, res) ->
+                callback err
+    , (err) ->
+        updateController (err) ->
+            if err
+                log.error err.toString()
+                res.send 400, error: err.toString()
+            else
+                res.send 200, {}
 
 ###
     Reboot controller

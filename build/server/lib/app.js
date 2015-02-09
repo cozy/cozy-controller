@@ -21,7 +21,7 @@ exports.App = (function() {
     this.app.dir = path.join(homeDir, this.app.name);
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
-    this.app.logFile = path.join(logDir, "/" + app.name + ".log");
+    this.app.logFile = path.join(logDir, "/" + this.app.name + ".log");
     if (((_ref = this.app.scripts) != null ? _ref.start : void 0) != null) {
       this.app.server = this.app.scripts.start;
     } else {
