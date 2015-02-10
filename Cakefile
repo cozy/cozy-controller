@@ -85,6 +85,8 @@ task "coverage", "Generate code coverage of tests", ->
                 exec command, (err, stdout, stderr) ->
                     if err
                         logger.error err
+                        logger.error stderr
+                        logger.error stdout
                         cleanCoverage -> process.exit 1
                     else
                         cleanCoverage ->

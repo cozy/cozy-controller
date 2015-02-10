@@ -48,7 +48,7 @@ application = module.exports = function(callback) {
                     process.removeListener('uncaughtException', displayError);
                     process.removeListener('exit', exitProcess);
                     process.removeListener('SIGTERM', stopProcess);
-                    return console.log("All application are stopped");
+                    return console.log("All applications are stopped");
                   };
                 })(this));
               });

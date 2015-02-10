@@ -96,7 +96,7 @@ describe "Spawner", ->
                 @timeout 100000
                 app =
                     name: "data-systel"
-                client.post 'apps/data-systel/stop', app, (err, res, body) =>
+                client.post 'apps/data-systel/stop', "stop": app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -221,9 +221,9 @@ describe "Spawner", ->
                     res.statusCode.should.equal 200
                     done()
 
-    describe "Recover all application", ->
+    describe "Recover all started application", ->
 
-        it "When I send request to recover all applications", (done) ->
+        it "When I send request to recover all started applications", (done) ->
             client.get 'drones/running', (err, res, body) =>
                 @res = res
                 @body = body
@@ -236,6 +236,21 @@ describe "Spawner", ->
             should.exist @body.app
             should.exist @body.app['data-system']
 
+    describe "Recover all application", ->
+
+        it "When I send request to recover all applications", (done) ->
+            client.get 'apps/all', (err, res, body) =>
+                @res = res
+                console.log body
+                @body = body
+                done()
+
+        it "Then statusCode should be 200", ->
+            @res.statusCode.should.equal 200
+
+        it "And data-system is in list", ->
+            should.exist @body.app
+            should.exist @body.app['data-system']
 
     describe "Uninstall application", ->
 

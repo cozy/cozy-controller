@@ -26,9 +26,9 @@ App = require('./app').App;
 
 path = require('path');
 
-drones = [];
+drones = {};
 
-running = [];
+running = {};
 
 stackApps = ['home', 'data-system', 'proxy'];
 
@@ -394,7 +394,14 @@ module.exports.addDrone = function(app, callback) {
  */
 
 module.exports.all = function(callback) {
-  return callback(null, drones);
+  var apps, key, _i, _len, _ref;
+  apps = {};
+  _ref = Object.keys(drones);
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    key = _ref[_i];
+    apps[key] = drones[key];
+  }
+  return callback(null, apps);
 };
 
 
