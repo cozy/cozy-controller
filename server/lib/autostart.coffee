@@ -6,7 +6,9 @@ path = require 'path'
 App = require('./app').App
 config = require('./conf').get
 log = require('printit')()
+async = require 'async'
 
+dsPort = 0
 couchDBClient = new Client 'http://localhost:5984'
 
 ###
@@ -56,41 +58,54 @@ errors = {}
         * else
             * Add application in list of installed application
 ###
-start = (apps, clientDS, callback) ->
-    if apps? and apps.length > 0
-        appli = apps.pop()
-        app = getManifest(appli.value)
-        if isCorrect(app)
-            if app.state is "installed"
-                # Start application
-                log.info "#{app.name}: starting ..."
-                cb = 0
-                controller.start app, (err, result) ->
-                    cb = cb + 1
-                    if err? and cb is 1
-                        log.error "#{app.name}: error"
-                        log.error err
-                        errors[app.name] =
-                            new Error "Application didn't started"
-                        # Add application if drones list
-                        controller.addDrone app, ->
-                            start apps, clientDS, callback
-                    else
-                        # Update port in database
-                        appli = appli.value
-                        appli.port = result.port
-                        clientDS.put "data/merge/#{appli._id}/", appli, (err, res, body) ->
-                            log.info "#{app.name}: started"
-                            start apps, clientDS, callback
-            else
-                # Add application if drones list
-                app = new App(app)
-                controller.addDrone app.app, ->
-                    start apps, clientDS, callback
+start = (appli, callback) ->
+    app = getManifest(appli.value)
+    if isCorrect(app)
+        if app.state is "installed"
+            # Start application
+            log.info "#{app.name}: starting ..."
+            cb = 0
+            controller.start app, (err, result) =>
+                cb = cb + 1
+                if err? and cb is 1
+                    log.error "#{app.name}: error"
+                    log.error err
+                    errors[app.name] =
+                        new Error "Application didn't started"
+                    # Add application if drones list
+                    controller.addDrone app, ->
+                        callback()
+                else
+                    # Update port in database
+                    appli = appli.value
+                    appli.port = result.port
+                    clientDS = new Client "http://localhost:#{dsPort}"
+                    clientDS.setBasicAuth 'home', permission.get()
+                    clientDS.put "data/merge/#{appli._id}/", appli, (err, res, body) ->
+                        log.info "#{app.name}: started"
+                        callback()
         else
-            start apps, clientDS, callback
+            # Add application if drones list
+            app = new App(app)
+            controller.addDrone app.app, ->
+                callback()
     else
         callback()
+
+###
+    Callback all application
+###
+getApps = (callback) ->
+    clientDS = new Client "http://localhost:#{dsPort}"
+    clientDS.setBasicAuth 'home', permission.get()
+    requestPath = '/request/application/all/'
+    clientDS.post requestPath, {}, (err, res, body) ->
+        if err?
+            callback err
+        else if res?.statusCode is 404
+            callback null, []
+        else
+            callback null, body
 
 ###
     Check if application is started
@@ -121,10 +136,10 @@ recoverStackApp = (callback) ->
         if data? or data is ""
             try
                 data = JSON.parse(data)
-                callback null, data
             catch
                 log.info "Stack isn't installed"
-                callback "Stack isn't installed"
+                return callback "Stack isn't installed"
+            callback null, data
         else
             log.error "Cannot read stack file"
             callback "Cannot read stack file"
@@ -183,22 +198,18 @@ module.exports.start = (callback) ->
                         if err?
                             callback err
                         else
+                            dsPort = port
                             # Start others apps
-                            clientDS = new Client "http://localhost:#{port}"
-                            clientDS.setBasicAuth 'home', permission.get()
-                            requestPath = '/request/application/all/'
-                            clientDS.post requestPath, {}, (err, res, body) ->
-                                if res?.statusCode is 404
-                                    callback()
-                                else
-                                    start body, clientDS, (errors) ->
-                                        # Start home
-                                        startStack manifest, 'home', (err) ->
-                                            log.error err if err?
-                                        # Start proxy
-                                        startStack manifest, 'proxy', (err) ->
-                                            log.error err if err?
-                                            callback()
+                            getApps (err, apps) ->
+                                return callback err if err?
+                                async.eachSeries apps, start, (err) ->
+                                    # Start home
+                                    startStack manifest, 'home', (err) ->
+                                        log.error err if err?
+                                    # Start proxy
+                                    startStack manifest, 'proxy', (err) ->
+                                        log.error err if err?
+                                        callback()
         else
             err = new Error "couchDB isn't started"
             callback err
