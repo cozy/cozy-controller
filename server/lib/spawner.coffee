@@ -167,6 +167,11 @@ module.exports.start = (app, callback) ->
                 process.removeListener 'message', onPort
                 clearTimeout timeout
 
+        onStderr = (err) ->
+            err = err.toString()
+            fs.appendFile app.logFile, err, (err) ->
+                console.log err if err?
+
 
         # Start process
         process.start()
@@ -179,3 +184,4 @@ module.exports.start = (app, callback) ->
         process.once 'start', onStart
         process.on 'restart', onRestart
         process.on 'message', onPort
+        process.on 'stderr', onStderr

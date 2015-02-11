@@ -87,7 +87,7 @@ module.exports.start = function(app, callback) {
     foreverOptions.options = foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')]);
   }
   return fs.readFile("" + app.dir + "/package.json", 'utf8', function(err, data) {
-    var carapaceBin, onError, onExit, onPort, onRestart, onStart, onTimeout, process, responded, server, start, timeout, _ref5;
+    var carapaceBin, onError, onExit, onPort, onRestart, onStart, onStderr, onTimeout, process, responded, server, start, timeout, _ref5;
     data = JSON.parse(data);
     server = app.server;
     if (((_ref5 = data.scripts) != null ? _ref5.start : void 0) != null) {
@@ -165,12 +165,21 @@ module.exports.start = function(app, callback) {
         return clearTimeout(timeout);
       }
     };
+    onStderr = function(err) {
+      err = err.toString();
+      return fs.appendFile(app.logFile, err, function(err) {
+        if (err != null) {
+          return console.log(err);
+        }
+      });
+    };
     process.start();
     timeout = setTimeout(onTimeout, 8000000);
     process.once('exit', onExit);
     process.once('error', onError);
     process.once('start', onStart);
     process.on('restart', onRestart);
-    return process.on('message', onPort);
+    process.on('message', onPort);
+    return process.on('stderr', onStderr);
   });
 };
