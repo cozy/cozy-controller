@@ -241,7 +241,6 @@ describe "Spawner", ->
         it "When I send request to recover all applications", (done) ->
             client.get 'apps/all', (err, res, body) =>
                 @res = res
-                console.log body
                 @body = body
                 done()
 
