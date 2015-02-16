@@ -59,41 +59,42 @@ errors = {}
             * Add application in list of installed application
 ###
 start = (appli, callback) ->
-    app = getManifest(appli.value)
+    app = getManifest appli.value
     if isCorrect(app)
+
         if app.state is "installed"
             # Start application
             log.info "#{app.name}: starting ..."
-            cb = 0
             controller.start app, (err, result) =>
-                cb = cb + 1
-                if err? and cb is 1
+
+                if err?
                     log.error "#{app.name}: error"
                     log.error err
                     errors[app.name] =
                         new Error "Application didn't started"
                     # Add application if drones list
-                    controller.addDrone app, ->
-                        callback()
+                    controller.addDrone app, callback
                 else
                     # Update port in database
                     appli = appli.value
                     appli.port = result.port
                     clientDS = new Client "http://localhost:#{dsPort}"
                     clientDS.setBasicAuth 'home', permission.get()
-                    clientDS.put "data/merge/#{appli._id}/", appli, (err, res, body) ->
+                    requestPath = "data/merge/#{appli._id}/"
+                    clientDS.put requestPath, appli, (err, res, body) ->
                         log.info "#{app.name}: started"
                         callback()
+
         else
             # Add application if drones list
             app = new App(app)
-            controller.addDrone app.app, ->
-                callback()
+            controller.addDrone app.app, callback
     else
         callback()
 
 ###
-    Callback all application
+    Retrive all applications stored in database
+        callback error and applications list
 ###
 getApps = (callback) ->
     clientDS = new Client "http://localhost:#{dsPort}"

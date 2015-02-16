@@ -6,7 +6,7 @@ config = require('../server/lib/conf').get
 client = ""
 
 
-describe "App Stopped", ->
+describe "Duplicated application ", ->
     describe "Application should stopped if server has stopped", ->
         port = 0
 
@@ -69,7 +69,7 @@ describe "App Stopped", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
-                @body.error.should.equal 'Application already exists'
+                @body.indexOf('Application already exists').should.not.equal -1
 
         describe "Try to start an other 'data-system'", ->
 
@@ -91,4 +91,4 @@ describe "App Stopped", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
-                @body.error.should.equal 'Application already exists'
+                @body.indexOf('Application already exists').should.not.equal -1

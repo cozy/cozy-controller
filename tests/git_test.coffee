@@ -37,5 +37,5 @@ describe "Git", ->
 
 
         it "Then body.error should be 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'", ->
-            should.exist @body.error
-            @body.error.should.equal 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'
+            string = 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'
+            @body.indexOf(string).should.not.equal -1
