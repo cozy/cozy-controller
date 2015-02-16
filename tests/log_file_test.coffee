@@ -67,11 +67,6 @@ describe "Log File", ->
             @timeout 100000
             app =
                 name: "data-system"
-                repository:
-                    url: "https://github.com/poupotte/test-controller.git"
-                    type: "git"
-                scripts:
-                    start: "server.coffee"
             client.post 'apps/data-system/uninstall', app, (err, res, body) =>
                 @res = res
                 done()
@@ -84,3 +79,42 @@ describe "Log File", ->
 
         it "And file log has been removed (/usr/local/var/log/cozy/data-system.log-backup)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.not.ok
+
+    describe 'Log uncaught exception', ->
+
+        it "When I install app which crashes", (done) ->
+            @timeout 500000
+            app =
+                name: "data-system"
+                repository:
+                    url: "https://github.com/poupotte/test-controller.git"
+                    type: "git"
+                    branch: 'exception'
+                scripts:
+                    start: "server.coffee"
+            client.post 'apps/data-system/install', "start":app, (err, res, body) =>
+                @res = res
+                @port = body.port
+                dsPort = @port
+                done()
+
+        it "Then statusCode should be 200", ->
+            @res.statusCode.should.equal 200
+
+        it "And exception should logged after 5 seconds", (done) ->
+            @timeout 7 * 1000
+            setTimeout () =>
+                fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
+                data = fs.readFileSync '/usr/local/var/log/cozy/data-system.log', 'utf8'
+                index = data.indexOf("TypeError: Property 'test' of object #<Object> is not a function")
+                index.should.not.equal -1
+                done()
+            , 6 * 1000
+
+        it "And I uninstall application", (done) ->
+            @timeout 100000
+            app =
+                name: "data-system"
+            client.post 'apps/data-system/uninstall', app, (err, res, body) =>
+                @res = res
+                done()

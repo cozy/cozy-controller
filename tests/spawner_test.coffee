@@ -43,8 +43,7 @@ describe "Spawner", ->
 
 
             it "Then body.error should be 'Manifest should be declared in body.start'", ->
-                should.exist @body.error
-                @body.error.should.equal 'Manifest should be declared in body.start'
+                @body.indexOf('Manifest should be declared in body.start').should.not.equal -1
 
         describe "Install data-system", ->
 
@@ -96,7 +95,7 @@ describe "Spawner", ->
                 @timeout 100000
                 app =
                     name: "data-systel"
-                client.post 'apps/data-systel/stop', app, (err, res, body) =>
+                client.post 'apps/data-systel/stop', stop: app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -105,8 +104,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Error: Cannot stop an application not started'", ->
-                should.exist @body.error
-                @body.error.should.equal 'Error: Cannot stop an application not started'
+                @body.indexOf('Cannot stop an application not started').should.not.equal -1
 
         describe "Stop data-system", ->
 
@@ -114,7 +112,7 @@ describe "Spawner", ->
                 @timeout 100000
                 app =
                     name: "data-system"
-                client.post 'apps/data-system/stop', "stop":app, (err, res, body) =>
+                client.post 'apps/data-system/stop', stop:app, (err, res, body) =>
                     @res = res
                     done()
 
@@ -124,7 +122,6 @@ describe "Spawner", ->
             it "And data-system should be stopped", (done) ->
                 clientDS = new Client "http://localhost:#{dsPort}"
                 clientDS.get '/', (err, res) ->
-                    #should.not.exist res
                     done()
 
 
@@ -150,8 +147,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Manifest should be declared in body.start'", ->
-                should.exist @body.error
-                @body.error.should.equal 'Manifest should be declared in body.start'
+                @body.indexOf('Manifest should be declared in body.start').should.not.equal -1
 
         describe "Restart data-system", ->
 
@@ -201,8 +197,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Error: Application is not installed'", ->
-                should.exist @body.error
-                @body.error.should.equal 'Error: Application is not installed'
+                @body.indexOf('Error: Application is not installed').should.not.equal -1
 
         describe "Update data-system", ->
 
@@ -221,9 +216,9 @@ describe "Spawner", ->
                     res.statusCode.should.equal 200
                     done()
 
-    describe "Recover all application", ->
+    describe "Recover all started application", ->
 
-        it "When I send request to recover all applications", (done) ->
+        it "When I send request to recover all started applications", (done) ->
             client.get 'drones/running', (err, res, body) =>
                 @res = res
                 @body = body
@@ -236,6 +231,20 @@ describe "Spawner", ->
             should.exist @body.app
             should.exist @body.app['data-system']
 
+    describe "Recover all application", ->
+
+        it "When I send request to recover all applications", (done) ->
+            client.get 'apps/all', (err, res, body) =>
+                @res = res
+                @body = body
+                done()
+
+        it "Then statusCode should be 200", ->
+            @res.statusCode.should.equal 200
+
+        it "And data-system is in list", ->
+            should.exist @body.app
+            should.exist @body.app['data-system']
 
     describe "Uninstall application", ->
 
@@ -258,8 +267,8 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Error: Cannot uninstall an application not installed'", ->
-                should.exist @body.error
-                @body.error.should.equal 'Error: Cannot uninstall an application not installed'
+                string = 'Error: Cannot uninstall an application not installed'
+                @body.indexOf(string).should.not.equal -1
 
 
         describe "Uninstall data-system", ->

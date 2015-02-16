@@ -37,7 +37,7 @@ application = module.exports = (callback) ->
                                 process.removeListener 'uncaughtException', displayError
                                 process.removeListener 'exit', exitProcess
                                 process.removeListener 'SIGTERM', stopProcess
-                                console.log "All application are stopped"
+                                console.log "All applications are stopped"
                         callback app, server if callback?
                 else
                     console.log "Error during autostart : "

@@ -15,9 +15,9 @@ path = require 'path'
 ########################### Global variables ###################################
 
 # drones contains all application
-drones = []
+drones = {}
 # running contains all started application
-running = []
+running = {}
 
 stackApps = ['home', 'data-system', 'proxy']
 
@@ -319,8 +319,10 @@ module.exports.addDrone = (app, callback) ->
     Return all applications (started or stopped)
 ###
 module.exports.all = (callback) ->
-    callback null, drones
-
+    apps = {}
+    for key in Object.keys(drones)
+        apps[key] = drones[key]
+    callback null, apps
 
 ###
     Return all started applications
