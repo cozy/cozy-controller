@@ -76,7 +76,8 @@ module.exports.init = (app, callback) ->
 module.exports.update = (app, callback) ->
 
     # Default branch is master
-    branch = app.repository.branch or "master"
+    # branch can store in app.repository (controller manifest) or app.branch (database)
+    branch = app.repository.branch or app.branch or "master"
 
     # Setup the git commands to be executed
     commands = [
