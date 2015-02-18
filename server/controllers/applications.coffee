@@ -114,7 +114,7 @@ module.exports.update = (req, res, next) ->
         * Update appplication
 ###
 module.exports.updateStack = (req, res, next) ->
-    async.eachSeries ['data-system', 'home', 'proxy'], (app, callback) ->
+    async.eachSeries ['data-system', 'proxy', 'home'], (app, callback) ->
         controller.stop app, (err, res) ->
             return callback err if err?
             controller.update req.connection, app, (err, res) ->

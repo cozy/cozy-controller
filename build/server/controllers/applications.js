@@ -175,7 +175,7 @@ module.exports.update = function(req, res, next) {
  */
 
 module.exports.updateStack = function(req, res, next) {
-  return async.eachSeries(['data-system', 'home', 'proxy'], function(app, callback) {
+  return async.eachSeries(['data-system', 'proxy', 'home'], function(app, callback) {
     return controller.stop(app, function(err, res) {
       if (err != null) {
         return callback(err);
