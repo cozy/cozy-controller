@@ -81,7 +81,7 @@ module.exports.init = function(app, callback) {
 
 module.exports.update = function(app, callback) {
   var branch, commands, config;
-  branch = app.repository.branch || "master";
+  branch = app.repository.branch || app.branch || "master";
   commands = ["git reset --hard ", "git pull origin " + branch, "git submodule update --recursive"];
   config = {
     cwd: app.dir,
