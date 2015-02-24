@@ -3,11 +3,11 @@ async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
 
-updateController = (callback, count=0) ->
+updateController = (count, callback) ->
     exec "npm -g update cozy-controller", (err, stdout, stderr) ->
         if err or stderr
             if count < 2
-                updateController callback, count + 1
+                updateController count + 1, callback
             else
                 callback "Error during controller update after #{count + 1} try: #{stderr}"
         else
@@ -129,7 +129,7 @@ module.exports.updateStack = (req, res, next) ->
             err.status  = 400
             next err
         else
-            updateController (err) ->
+            updateController 0, (err) ->
                 if err?
                     log.error err.toString()
                     err = new Error "Cannot update stack : #{err.toString()}"
