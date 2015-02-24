@@ -3,10 +3,13 @@ async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
 
-updateController = (callback) ->
-    exec "npm -g update cozy-controller", (err, stdout) ->
-        if err
-            callback err
+updateController = (callback, count=0) ->
+    exec "npm -g update cozy-controller", (err, stdout, stderr) ->
+        if err or stderr
+            if count < 2
+                updateController callback, count + 1
+            else
+                callback "Error during controller update after #{count + 1} try: #{stderr}"
         else
             restartController callback
 

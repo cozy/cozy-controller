@@ -9,10 +9,17 @@ log = require('printit')();
 
 exec = require('child_process').exec;
 
-updateController = function(callback) {
-  return exec("npm -g update cozy-controller", function(err, stdout) {
-    if (err) {
-      return callback(err);
+updateController = function(callback, count) {
+  if (count == null) {
+    count = 0;
+  }
+  return exec("npm -g update cozy-controller", function(err, stdout, stderr) {
+    if (err || stderr) {
+      if (count < 2) {
+        return updateController(callback, count + 1);
+      } else {
+        return callback("Error during controller update after " + (count + 1) + " try: " + stderr);
+      }
     } else {
       return restartController(callback);
     }
