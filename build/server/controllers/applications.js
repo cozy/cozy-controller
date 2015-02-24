@@ -9,10 +9,14 @@ log = require('printit')();
 
 exec = require('child_process').exec;
 
-updateController = function(callback) {
-  return exec("npm -g update cozy-controller", function(err, stdout) {
-    if (err) {
-      return callback(err);
+updateController = function(count, callback) {
+  return exec("npm -g update cozy-controller", function(err, stdout, stderr) {
+    if (err || stderr) {
+      if (count < 2) {
+        return updateController(count + 1, callback);
+      } else {
+        return callback("Error during controller update after " + (count + 1) + " try: " + stderr);
+      }
     } else {
       return restartController(callback);
     }
@@ -191,7 +195,7 @@ module.exports.updateStack = function(req, res, next) {
       err.status = 400;
       return next(err);
     } else {
-      return updateController(function(err) {
+      return updateController(0, function(err) {
         if (err != null) {
           log.error(err.toString());
           err = new Error("Cannot update stack : " + (err.toString()));
