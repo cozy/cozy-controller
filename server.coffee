@@ -6,8 +6,9 @@ controller = require './server/lib/controller'
 ## Changement de configuration : pas pris en compte
 
 application = module.exports = (callback) ->
-    if process.env.USER? and process.env.USER isnt 'root'
-        err = "Are you sure, you are root ?"
+    if process? and process.getuid() isnt 0
+        current_user = if process.env?.USER? then ", current user is #{process.env.USER}" else ""
+        err = "Cozy-controller should be run as root#{current_user}"
         console.log err
         callback(err) if callback?
     else
