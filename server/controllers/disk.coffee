@@ -30,9 +30,11 @@ module.exports.info = (req, res, next) ->
                 freeSpace = lineData[3].substring(0, lineData[3].length - 1)
                 totalSpace = lineData[1].substring(0, lineData[1].length - 1)
                 usedSpace = lineData[2].substring(0, lineData[2].length - 1)
+                unit = lineData[1].slice(-1)
                 data.totalDiskSpace = totalSpace
                 data.freeDiskSpace = freeSpace
                 data.usedDiskSpace = usedSpace
+                data.unit
         return data
 
     getCouchStoragePlace = (callback) ->

@@ -36,3 +36,6 @@ describe "Disk info", ->
 
     it "And body should be have usedDiskSpace attribute", ->
         should.exist @body.usedDiskSpace
+
+    it "And body should be have unit attribute", ->
+        should.exist @body.unit
