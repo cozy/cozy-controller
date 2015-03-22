@@ -8,8 +8,11 @@ config = require('./conf').get
 log = require('printit')()
 async = require 'async'
 
-dsPort = 0
-couchDBClient = new Client 'http://localhost:5984'
+dsHost = process.env.DATASYSTEM_HOST or 'localhost'
+dsPort = process.env.DATASYSTEM_PORT or 9101
+couchdbHost = process.env.COUCH_HOST or 'localhost'
+couchdbPort = process.env.COUCH_PORT or '5984'
+couchDBClient = new Client 'http://#{couchdbHost}:#{couchdbPort}'
 
 ###
     Check if couchDB is started
@@ -78,7 +81,7 @@ start = (appli, callback) ->
                     # Update port in database
                     appli = appli.value
                     appli.port = result.port
-                    clientDS = new Client "http://localhost:#{dsPort}"
+                    clientDS = new Client "http://#{dsHost}:#{dsPort}"
                     clientDS.setBasicAuth 'home', permission.get()
                     requestPath = "data/merge/#{appli._id}/"
                     clientDS.put requestPath, appli, (err, res, body) ->
@@ -97,7 +100,7 @@ start = (appli, callback) ->
         callback error and applications list
 ###
 getApps = (callback) ->
-    clientDS = new Client "http://localhost:#{dsPort}"
+    clientDS = new Client "http://#{dsHost}:#{dsPort}"
     clientDS.setBasicAuth 'home', permission.get()
     requestPath = '/request/application/all/'
     clientDS.post requestPath, {}, (err, res, body) ->
@@ -115,7 +118,7 @@ getApps = (callback) ->
         (proxy return 500)
 ###
 checkStart = (port, callback) ->
-    client = new Client "http://localhost:#{port}"
+    client = new Client "http://#{dsHost}:#{port}"
     client.get "", (err, res) ->
         if res?
             if res.statusCode not in  [200, 401, 402, 302]
