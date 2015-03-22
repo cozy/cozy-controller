@@ -12,7 +12,7 @@ dsHost = process.env.DATASYSTEM_HOST or 'localhost'
 dsPort = process.env.DATASYSTEM_PORT or 9101
 couchdbHost = process.env.COUCH_HOST or 'localhost'
 couchdbPort = process.env.COUCH_PORT or '5984'
-couchDBClient = new Client 'http://#{couchdbHost}:#{couchdbPort}'
+couchDBClient = new Client "http://#{couchdbHost}:#{couchdbPort}"
 
 ###
     Check if couchDB is started

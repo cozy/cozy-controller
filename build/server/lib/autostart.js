@@ -27,7 +27,7 @@ couchdbHost = process.env.COUCH_HOST || 'localhost';
 
 couchdbPort = process.env.COUCH_PORT || '5984';
 
-couchDBClient = new Client('http://#{couchdbHost}:#{couchdbPort}');
+couchDBClient = new Client("http://" + couchdbHost + ":" + couchdbPort);
 
 
 /*
