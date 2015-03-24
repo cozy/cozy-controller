@@ -82,7 +82,7 @@ module.exports.start = function(app, callback) {
     fs.rename(app.logFile, app.backup);
   }
   fs.openSync(app.logFile, 'w');
-  foreverOptions.options = ['--plugin', 'net', '--plugin', 'setuid', '--setuid', app.user];
+  foreverOptions.options = ['--plugin', 'net', '--plugin', 'setgid', '--setgid', app.user, '--plugin', 'setgroups', '--setgroups', app.user, '--plugin', 'setuid', '--setuid', app.user];
   if (app.name === "proxy") {
     foreverOptions.options = foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')]);
   }

@@ -77,6 +77,14 @@ module.exports.start = (app, callback) ->
         '--plugin',
         'net',
         '--plugin',
+        'setgid',
+        '--setgid'
+        app.user,
+        '--plugin',
+        'setgroups',
+        '--setgroups'
+        app.user,
+        '--plugin',
         'setuid',
         '--setuid'
         app.user]
