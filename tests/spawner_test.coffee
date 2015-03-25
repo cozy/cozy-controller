@@ -292,8 +292,9 @@ describe "Spawner", ->
             it "And data-system should be stopped", (done) ->
                 clientDS = new Client "http://localhost:#{dsPort}"
                 clientDS.get '/', (err, res) ->
-                    #should.not.exist res
-                    done()
+                    setTimeout () ->
+                        done()
+                    , 1000
 
             it "And logs file should be removed", ->
                 fs.existsSync('/var/log/cozy/data-system.log').should.not.be.ok
