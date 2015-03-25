@@ -43,7 +43,7 @@ module.exports.info = function(req, res, next) {
         data.totalDiskSpace = totalSpace;
         data.freeDiskSpace = freeSpace;
         data.usedDiskSpace = usedSpace;
-        data.unit;
+        data.unit = unit;
       }
     }
     return data;
