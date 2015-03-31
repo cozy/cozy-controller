@@ -3,6 +3,22 @@ async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
 
+
+sendError = (res, err, code=500) ->
+    err ?=
+        stack:   null
+        message: "Server error occured"
+
+    console.log "Sending error to client :"
+    console.log err.stack
+
+    res.send code,
+        error: true
+        success: false
+        message: err.message
+        stack: err.stack
+
+
 updateController = (count, callback) ->
     exec "npm -g update cozy-controller", (err, stdout, stderr) ->
         if err or stderr
@@ -30,15 +46,13 @@ restartController = (callback) ->
 module.exports.install = (req, res, next) ->
     if not req.body.start?
         err = new Error "Manifest should be declared in body.start"
-        err.status  = 400
-        return next err
+        return sendError res, err, 400
     manifest = req.body.start
     controller.install req.connection, manifest, (err, result) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
 
@@ -51,15 +65,13 @@ module.exports.install = (req, res, next) ->
 module.exports.start = (req, res, next) ->
     if not req.body.start?
         err = new Error "Manifest should be declared in body.start"
-        err.status  = 400
-        return next err
+        return sendError res, err, 400
     manifest = req.body.start
     controller.start manifest, (err, result) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
 
@@ -74,8 +86,7 @@ module.exports.stop = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, app: result
 
@@ -90,8 +101,7 @@ module.exports.uninstall = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, app: result
 
@@ -106,8 +116,7 @@ module.exports.update = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
 
@@ -126,15 +135,13 @@ module.exports.updateStack = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error "Cannot update stack : #{err.toString()}"
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             updateController 0, (err) ->
                 if err?
                     log.error err.toString()
                     err = new Error "Cannot update stack : #{err.toString()}"
-                    err.status  = 400
-                    next err
+                    sendError res, err, 400
                 else
                     res.send 200
 
@@ -146,8 +153,7 @@ module.exports.restartController = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, {}
 
@@ -159,8 +165,7 @@ module.exports.all = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, app: result
 
@@ -172,8 +177,7 @@ module.exports.running = (req, res, next) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
-            err.status  = 400
-            next err
+            sendError res, err, 400
         else
             res.send 200, app: result
 
