@@ -22,7 +22,7 @@ sendError = function(res, err, code) {
   console.log("Sending error to client :");
   console.log(err.stack);
   return res.send(code, {
-    error: true,
+    error: err.message,
     success: false,
     message: err.message,
     stack: err.stack

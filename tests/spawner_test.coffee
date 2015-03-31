@@ -43,7 +43,7 @@ describe "Spawner", ->
 
 
             it "Then body.error should be 'Manifest should be declared in body.start'", ->
-                @body.indexOf('Manifest should be declared in body.start').should.not.equal -1
+                @body.message.should.equal 'Manifest should be declared in body.start'
 
         describe "Install data-system", ->
 
@@ -104,7 +104,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Error: Cannot stop an application not started'", ->
-                @body.indexOf('Cannot stop an application not started').should.not.equal -1
+                @body.message.should.equal 'Error: Cannot stop an application not started'
 
         describe "Stop data-system", ->
 
@@ -147,7 +147,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Manifest should be declared in body.start'", ->
-                @body.indexOf('Manifest should be declared in body.start').should.not.equal -1
+                @body.message.should.equal 'Manifest should be declared in body.start'
 
         describe "Restart data-system", ->
 
@@ -197,7 +197,7 @@ describe "Spawner", ->
                 @res.statusCode.should.equal 400
 
             it "Then body.error should be 'Error: Application is not installed'", ->
-                @body.indexOf('Error: Application is not installed').should.not.equal -1
+                @body.message.should.equal 'Error: Application is not installed'
 
         describe "Update data-system", ->
 
@@ -268,7 +268,7 @@ describe "Spawner", ->
 
             it "And body.error should be 'Error: Cannot uninstall an application not installed'", ->
                 string = 'Error: Cannot uninstall an application not installed'
-                @body.indexOf(string).should.not.equal -1
+                @body.message.should.equal string
 
 
         describe "Uninstall data-system", ->

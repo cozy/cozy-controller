@@ -13,7 +13,7 @@ sendError = (res, err, code=500) ->
     console.log err.stack
 
     res.send code,
-        error: true
+        error: err.message
         success: false
         message: err.message
         stack: err.stack
