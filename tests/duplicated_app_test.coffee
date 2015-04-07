@@ -69,7 +69,7 @@ describe "Duplicated application ", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
-                @body.indexOf('Application already exists').should.not.equal -1
+                @body.message.should.equal 'Application already exists'
 
         describe "Try to start an other 'data-system'", ->
 
@@ -84,6 +84,7 @@ describe "Duplicated application ", ->
                         start: "server.coffee"
                 client.post 'apps/data-system/start', "start":app, (err, res, body) =>
                     @res = res
+                    @err = err
                     @body = body
                     done()
 
@@ -91,4 +92,4 @@ describe "Duplicated application ", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
-                @body.indexOf('Application already exists').should.not.equal -1
+                @body.message.should.equal 'Application already exists'

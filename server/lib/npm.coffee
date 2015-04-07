@@ -2,6 +2,7 @@ path = require 'path'
 spawn = require('child_process').spawn
 log = require('printit')()
 config = require('./conf').get
+npm = require 'npm'
 
 ###
   Install dependencies
@@ -10,45 +11,31 @@ config = require('./conf').get
       * Remove npm cache
 ###
 module.exports.install = (connection, target, callback) ->
-    args = [
-      'npm',
-      '--production',
-      '--loglevel',
-      'http'
-      '--unsafe-perm',
-      'true',
-      '--user',
-      target.user
-    ]
+    setTimeout () ->
+        log.error "npm:install:err: NPM Install failed :Timeout"
+        err = new Error('NPM Install failed : timeout')
+        callback err
+        callback = null
+    , 10 * 60 * 1000
+
+    conf =
+        'production':true,
+        'loglevel':'silent',
+        'global': false
     if config 'npm_registry'
-        args.push '--registry'
-        args.push config('npm_registry')
+        config.registry = config('npm_registry')
     if config 'npm_strict_ssl'
-        args.push '--strict-ssl'
-        args.push config('npm_strict_ssl')
-    args.push 'install'
-    options =
-        cwd: target.dir
-    child = spawn 'sudo', args, options
+        config['strict-ssl'] = config('npm_strict_ssl')
+    npm.load conf, (err) ->
 
-    # Kill NPM if this takes more than 5 minutes
-    setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000)
+        npm.prefix = target.dir
+        npm.commands.install [], (err) ->
 
-    stderr = ''
-    child.stderr.setEncoding 'utf8'
-    child.stderr.on 'data', (data) =>
-        stderr += data
-
-    child.stdout.setEncoding 'utf8'
-    child.stdout.on 'data', (data)=>
-        stderr += data
-        connection.setTimeout 3 * 60 * 1000
-
-    child.on 'close', (code) =>
-        if code isnt 0
-            log.error "npm:install:err: NPM Install failed : #{stderr}"
-            err = new Error('NPM Install failed')
-            callback stderr
-        else
-            log.info 'npm:install:success'
-            callback()
+            npm.commands.cache.clean [], (error) ->
+                if err
+                    log.error "npm:install:err: NPM Install failed : #{stderr}"
+                    err = new Error('NPM Install failed')
+                    callback stderr
+                else
+                    log.info 'npm:install:success'
+                    callback()
