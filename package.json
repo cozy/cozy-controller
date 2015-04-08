@@ -1,6 +1,6 @@
 {
   "name": "cozy-controller",
-  "version": "2.0.20",
+  "version": "2.0.21",
   "description": "Module used to install, update and remove applications in the Cozy Platform.",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
