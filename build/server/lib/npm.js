@@ -20,8 +20,8 @@ npm = require('npm');
  */
 
 module.exports.install = function(connection, target, callback) {
-  var conf;
-  setTimeout(function() {
+  var conf, installTimeout;
+  installTimeout = setTimeout(function() {
     var err;
     log.error("npm:install:err: NPM Install failed :Timeout");
     err = new Error('NPM Install failed : timeout');
@@ -31,7 +31,8 @@ module.exports.install = function(connection, target, callback) {
   conf = {
     'production': true,
     'loglevel': 'silent',
-    'global': false
+    'global': false,
+    'unsafe-perm': true
   };
   if (config('npm_registry')) {
     config.registry = config('npm_registry');
@@ -44,10 +45,16 @@ module.exports.install = function(connection, target, callback) {
     return npm.commands.install([], function(err) {
       return npm.commands.cache.clean([], function(error) {
         if (err) {
-          log.error("npm:install:err: NPM Install failed : " + stderr);
+          clearTimeout(installTimeout);
+          log.error("npm:install:err: NPM Install failed : " + err);
           err = new Error('NPM Install failed');
-          return callback(stderr);
+          return callback(err);
+        } else if (error) {
+          clearTimeout(installTimeout);
+          log.error("npm:install:err: NPM Install failed : " + error);
+          return callback();
         } else {
+          clearTimeout(installTimeout);
           log.info('npm:install:success');
           return callback();
         }
