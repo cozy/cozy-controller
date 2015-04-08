@@ -11,7 +11,7 @@ npm = require 'npm'
       * Remove npm cache
 ###
 module.exports.install = (connection, target, callback) ->
-    setTimeout () ->
+    installTimeout = setTimeout () ->
         log.error "npm:install:err: NPM Install failed :Timeout"
         err = new Error('NPM Install failed : timeout')
         callback err
@@ -21,7 +21,8 @@ module.exports.install = (connection, target, callback) ->
     conf =
         'production':true,
         'loglevel':'silent',
-        'global': false
+        'global': false,
+        'unsafe-perm': true
     if config 'npm_registry'
         config.registry = config('npm_registry')
     if config 'npm_strict_ssl'
@@ -30,12 +31,17 @@ module.exports.install = (connection, target, callback) ->
 
         npm.prefix = target.dir
         npm.commands.install [], (err) ->
-
             npm.commands.cache.clean [], (error) ->
                 if err
-                    log.error "npm:install:err: NPM Install failed : #{stderr}"
+                    clearTimeout installTimeout
+                    log.error "npm:install:err: NPM Install failed : #{err}"
                     err = new Error('NPM Install failed')
-                    callback stderr
+                    callback err
+                else if error
+                    clearTimeout installTimeout
+                    log.error "npm:install:err: NPM Install failed : #{error}"
+                    callback()
                 else
+                    clearTimeout installTimeout
                     log.info 'npm:install:success'
                     callback()
