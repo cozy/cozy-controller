@@ -8,6 +8,9 @@ permission = require '../middlewares/token'
 
 controllerAdded = false
 
+dsHost = process.env.DATASYSTEM_HOST or 'localhost'
+dsPort = process.env.DATASYSTEM_PORT or 9101
+
 ###
     addDatabse:
         * test: number of tests (if app is data-system)
@@ -32,7 +35,7 @@ addDatabase = (attempt, app) ->
         * If not, add new document for this application
 ###
 addInDatabase = (app, callback) ->
-    clientDS = new Client "http://localhost:9101"
+    clientDS = new Client "http://#{dsHost}:#{dsPort}"
     clientDS.setBasicAuth 'home', permission.get()
     # Check if app already exists
     clientDS.post '/request/stackapplication/all/', {}, (err, res, body) ->
