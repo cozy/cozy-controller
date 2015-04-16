@@ -207,13 +207,13 @@ module.exports.start = (callback) ->
                             getApps (err, apps) ->
                                 return callback err if err?
                                 async.eachSeries apps, start, (err) ->
-                                    # Start home
-                                    startStack manifest, 'home', (err) ->
-                                        log.error err if err?
                                     # Start proxy
                                     startStack manifest, 'proxy', (err) ->
                                         log.error err if err?
-                                        callback()
+                                        # Start home
+                                        startStack manifest, 'home', (err) ->
+                                            log.error err if err?
+                                            callback()
         else
             err = new Error "couchDB isn't started"
             callback err
