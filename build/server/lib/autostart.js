@@ -266,16 +266,16 @@ module.exports.start = function(callback) {
                   return callback(err);
                 }
                 return async.eachSeries(apps, start, function(err) {
-                  startStack(manifest, 'home', function(err) {
-                    if (err != null) {
-                      return log.error(err);
-                    }
-                  });
                   return startStack(manifest, 'proxy', function(err) {
                     if (err != null) {
                       log.error(err);
                     }
-                    return callback();
+                    return startStack(manifest, 'home', function(err) {
+                      if (err != null) {
+                        log.error(err);
+                      }
+                      return callback();
+                    });
                   });
                 });
               });
