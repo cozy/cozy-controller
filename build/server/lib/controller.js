@@ -192,7 +192,7 @@ module.exports.install = function(connection, manifest, callback) {
   var app;
   app = new App(manifest);
   app = app.app;
-  if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
+  if (drones[app.name] != null) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
     return startApp(app, callback);

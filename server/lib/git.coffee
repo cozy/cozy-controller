@@ -24,9 +24,10 @@ onWrongGitUrl = (app, done) ->
 module.exports.init = (app, callback) ->
     url = app.repository.url
 
-    # Detects if a string is a valid Git URL
-    match = url.match /\/([\w\-_\.]+)\.git$/
-    unless match
+    # Detects if the repository has already been checked out
+    if url.match /^\/usr\/local\/cozy/
+        callback null
+    else if not url.match /\/([\w\-_\.]+)\.git$/
         # URL isn't a Git url, removes the app's directory
         onWrongGitUrl app, callback
     else
