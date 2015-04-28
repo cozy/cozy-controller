@@ -66,8 +66,8 @@ start = (appli, callback) ->
     if isCorrect(app)
         clientDS = new Client "http://#{dsHost}:#{dsPort}"
         clientDS.setBasicAuth 'home', permission.get()
-        clientDS.put 'request/access/byApp', key:app.id, (err, access) ->
-            app.password = access.token if not err?
+        clientDS.post 'request/access/byApp/', key:app.id, (err, res, access) ->
+            app.password = access[0].value.token if not err? and access?[0]?
 
             if app.state is "installed"
                 # Start application
