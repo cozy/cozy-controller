@@ -68,7 +68,7 @@ module.exports.start = (app, callback) ->
         app.backup = app.logFile + "-backup"
         if fs.existsSync(app.backup)
             fs.unlink app.backup
-        fs.rename app.logFile, app.backup
+        fs.renameSync app.logFile, app.backup
     # Create logFile
     fs.openSync app.logFile, 'w'
 
