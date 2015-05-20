@@ -79,7 +79,7 @@ module.exports.start = function(app, callback) {
     if (fs.existsSync(app.backup)) {
       fs.unlink(app.backup);
     }
-    fs.rename(app.logFile, app.backup);
+    fs.renameSync(app.logFile, app.backup);
   }
   fs.openSync(app.logFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setgid', '--setgid', app.user, '--plugin', 'setgroups', '--setgroups', app.user, '--plugin', 'setuid', '--setuid', app.user];

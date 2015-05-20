@@ -186,6 +186,14 @@ module.exports.removeRunningApp = function(name) {
         * Install dependencies
         * If application is a stack application, add application in stack.json
         * Start process
+    Error code :
+        1 -> Error in user creation
+        2- -> Error in code source retrieval
+            20 -> Git repo doesn't exist
+            21 -> Can"t access to github
+            22 -> Git repo exist but it receives an error during clone
+        3 -> Error in dependencies installation (npm)
+        4 -> Error in application starting
  */
 
 module.exports.install = function(connection, manifest, callback) {
@@ -200,20 +208,31 @@ module.exports.install = function(connection, manifest, callback) {
     drones[app.name] = app;
     return user.create(app, function(err) {
       if (err != null) {
+        err.code = 1;
         return callback(err);
       } else {
         log.info(app.name + ":git clone");
         return type[app.repository.type].init(app, function(err) {
           if (err != null) {
+            if (err.code == null) {
+              err.code = 2;
+            }
+            err.code = 20 + err.code;
             return callback(err);
           } else {
             log.info(app.name + ":npm install");
             return installDependencies(connection, app, 2, function(err) {
               if (err != null) {
+                err.code = 3;
                 return callback(err);
               } else {
                 log.info(app.name + ":start application");
-                return startApp(app, callback);
+                return startApp(app, function(err, result) {
+                  if (err != null) {
+                    err.code = 4;
+                  }
+                  return callback(err, result);
+                });
               }
             });
           }
