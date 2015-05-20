@@ -155,6 +155,14 @@ module.exports.removeRunningApp = (name) ->
         * Install dependencies
         * If application is a stack application, add application in stack.json
         * Start process
+    Error code :
+        1 -> Error in user creation
+        2- -> Error in code source retrieval
+            20 -> Git repo doesn't exist
+            21 -> Can"t access to github
+            22 -> Git repo exist but it receives an error during clone
+        3 -> Error in dependencies installation (npm)
+        4 -> Error in application starting
 ###
 module.exports.install = (connection, manifest, callback) ->
     app = new App manifest
@@ -170,23 +178,33 @@ module.exports.install = (connection, manifest, callback) ->
         # Create user if necessary
         user.create app, (err) ->
             if err?
+                # Error on user creation : code 1
+                err.code = 1
                 callback err
             else
                 # Git clone
                 log.info "#{app.name}:git clone"
                 type[app.repository.type].init app, (err) ->
                     if err?
+                        # Error on source retrieval : code 2-
+                        err.code = 2 if not err.code?
+                        err.code = 20 + err.code
                         callback err
                     else
                         # NPM install
                         log.info "#{app.name}:npm install"
                         installDependencies connection, app, 2, (err) ->
                             if err?
+                                # Error on dependencies : code 3
+                                err.code = 3
                                 callback err
                             else
                                 log.info "#{app.name}:start application"
                                 # Start application
-                                startApp app, callback
+                                startApp app, (err, result)->
+                                    # Error application.starting: code 4
+                                    err.code = 4 if err?
+                                    callback err, result
 
 ###
     Start aplication defined by <manifest>

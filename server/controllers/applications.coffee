@@ -17,6 +17,7 @@ sendError = (res, err, code=500) ->
         success: false
         message: err.message
         stack: err.stack
+        code: err.code if err.code?
 
 
 updateController = (count, callback) ->
@@ -51,7 +52,6 @@ module.exports.install = (req, res, next) ->
     controller.install req.connection, manifest, (err, result) ->
         if err?
             log.error err.toString()
-            err = new Error err.toString()
             sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
