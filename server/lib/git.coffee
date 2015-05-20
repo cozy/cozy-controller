@@ -52,8 +52,6 @@ module.exports.init = (app, callback) ->
             # URL without .git
             repoUrl = url.substr 0, (url.length-4)
             request.get repoUrl, (err, res, body) ->
-                console.log repoUrl
-                console.log res.statusCode
                 if res?.statusCode isnt 200
                     # Repo doesn't exist on remote, removes the app's directory
                     onBadGitUrl app, callback

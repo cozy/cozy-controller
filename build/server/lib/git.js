@@ -76,8 +76,6 @@ module.exports.init = function(app, callback) {
       repoUrl = url.substr(0, url.length - 4);
       return request.get(repoUrl, function(err, res, body) {
         var branch, commands, config;
-        console.log(repoUrl);
-        console.log(res.statusCode);
         if ((res != null ? res.statusCode : void 0) !== 200) {
           return onBadGitUrl(app, callback);
         } else {
