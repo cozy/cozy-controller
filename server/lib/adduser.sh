@@ -23,6 +23,9 @@ if command -v useradd; then
      exit 0
    fi
    exit $RESULT
+elif command -v pw; then
+   pw add group $USER
+   pw add user $USER -g $USER -d /home/$USER -m -s /usr/local/bin/bash
 elif command -v adduser; then
    adduser --home $HOME --gecos $USER,na,na,na $USER
 elif command -v dscl; then
