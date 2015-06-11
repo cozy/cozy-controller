@@ -51,6 +51,18 @@ getManifest = (app) ->
 # Store all error in application started
 errors = {}
 
+retrievePassword = (app, cb) ->
+    if app.password?
+        cb null, app.password
+    else
+        clientDS = new Client "http://#{dsHost}:#{dsPort}"
+        clientDS.setBasicAuth 'home', permission.get()
+        clientDS.post 'request/access/byApp/', key:app.id, (err, res, access) ->
+            if not err? and access?[0]?
+                cb null, access[0].value.token
+            else
+                cb "Can't retrieve application password"
+
 ###
     Start all applications (other than stack applications)
         * Recover manifest application from document stored in database
@@ -64,11 +76,11 @@ errors = {}
 start = (appli, callback) ->
     app = getManifest appli.value
     if isCorrect(app)
-        clientDS = new Client "http://#{dsHost}:#{dsPort}"
-        clientDS.setBasicAuth 'home', permission.get()
-        clientDS.post 'request/access/byApp/', key:app.id, (err, res, access) ->
-            app.password = access[0].value.token if not err? and access?[0]?
-
+        retrievePassword app, (err, password) ->
+            if err?
+                log.error err
+            else
+                app.password = password
             if app.state is "installed"
                 # Start application
                 log.info "#{app.name}: starting ..."
