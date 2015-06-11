@@ -57,7 +57,7 @@ retrievePassword = (app, cb) ->
     else
         clientDS = new Client "http://#{dsHost}:#{dsPort}"
         clientDS.setBasicAuth 'home', permission.get()
-        clientDS.post 'request/access/byApp/', key:app.id, (err, res, access) ->
+        clientDS.post 'request/access/byApp/', key:app._id, (err, res, access) ->
             if not err? and access?[0]?
                 cb null, access[0].value.token
             else
@@ -97,6 +97,8 @@ start = (appli, callback) ->
                         # Update port in database
                         appli = appli.value
                         appli.port = result.port
+                        if not appli.permissions
+                            delete appli.password
                         clientDS = new Client "http://#{dsHost}:#{dsPort}"
                         clientDS.setBasicAuth 'home', permission.get()
                         requestPath = "data/merge/#{appli._id}/"
