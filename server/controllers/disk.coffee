@@ -38,18 +38,22 @@ module.exports.info = (req, res, next) ->
         return data
 
     getCouchStoragePlace = (callback) ->
-        couchConfigFile = "/etc/couchdb/local.ini"
-        databaseDirLine = "database_dir"
-        fs.readFile couchConfigFile, 'utf8', (err, data) ->
-            dir = '/'
-            if not err?
-                lines = data.toString().split('\n')
-                for line in lines
-                    if line.indexOf(databaseDirLine) is 0
-                        dir = line.split('=')[1]
-                callback null, dir.trim()
-            else
-                callback err
+        readCouchFile = (couchConfigFile) ->
+            databaseDirLine = "database_dir"
+            fs.readFile couchConfigFile, 'utf8', (err, data) ->
+                dir = '/'
+                if not err?
+                    lines = data.toString().split('\n')
+                    for line in lines
+                        if line.indexOf(databaseDirLine) is 0
+                            dir = line.split('=')[1]
+                    callback null, dir.trim()
+                else
+                    callback err
+        if fs.existsSync "/usr/local/etc/couchdb/local.ini"
+            readCouchFile "/usr/local/etc/couchdb/local.ini"
+        else
+            readCouchFile "/etc/couchdb/local.ini"
 
     getCouchStoragePlace (err, dir) ->
         exec "df -H #{dir}", (err, resp) ->
