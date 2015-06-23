@@ -4,13 +4,29 @@ compareVersions = require 'mozilla-version-comparator'
 exec = require('child_process').exec
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
 conf = require('./conf').get
+log = require('printit')()
 
 ###
     Clean up current modification if the Git URL is wrong
 ###
 onWrongGitUrl = (app, done) ->
     err = new Error "Invalid Git url: #{app.repository.url}"
+    err.code = 0
     exec "rm -rf #{app.appDir}", {}, -> done err
+
+###
+    Clean up current modification if the Git URL is wrong
+###
+onBadGitUrl = (app, done) ->
+    request.get 'https://github.com', (err, res, body) ->
+        if res?.statusCode isnt 200
+            err = new Error "Can't access to github"
+            err.code = 1
+            exec "rm -rf #{app.appDir}", {}, -> done err
+        else
+            err = new Error "Can't access to git url: #{app.repository.url}"
+            err.code = 0
+            exec "rm -rf #{app.appDir}", {}, -> done err
 
 ###
     Initialize repository of <app>
@@ -36,10 +52,9 @@ module.exports.init = (app, callback) ->
             # URL without .git
             repoUrl = url.substr 0, (url.length-4)
             request.get repoUrl, (err, res, body) ->
-
                 if res?.statusCode isnt 200
                     # Repo doesn't exist on remote, removes the app's directory
-                    onWrongGitUrl app, callback
+                    onBadGitUrl app, callback
                 else
                     # Setup the Git commands to be executed
                     commands = []
@@ -65,7 +80,13 @@ module.exports.init = (app, callback) ->
                     config =
                         cwd: conf('dir_source')
                         user: app.user
-                    executeUntilEmpty commands, config, callback
+                    executeUntilEmpty commands, config, (err) ->
+                        if err?
+                            log.error err
+                            log.info 'Retry to init repository'
+                            executeUntilEmpty commands, config, callback
+                        else
+                            callback()
 
 ###
     Update repository of <app>

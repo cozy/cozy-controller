@@ -6,7 +6,7 @@ exec = require('child_process').exec
 ###
 module.exports.info = (req, res, next) ->
     freeMemCmd =
-        "free | grep cache: | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
+        "free | grep /cache | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
     extractValFromDfValue = (val) ->
         unit = val[val.length - 1]
         val = val.substring(0, val.length - 1)
@@ -26,7 +26,7 @@ module.exports.info = (req, res, next) ->
         for line in lines
             line = line.replace /[\s]+/g, ' '
             lineData = line.split(' ')
-            if lineData.length > 5 and lineData[5] is '/'
+            if lineData.length > 5 and (lineData[5] is '/' or dir.indexOf(lineData[5]) isnt -1)
                 freeSpace = lineData[3].substring(0, lineData[3].length - 1)
                 totalSpace = lineData[1].substring(0, lineData[1].length - 1)
                 usedSpace = lineData[2].substring(0, lineData[2].length - 1)
@@ -38,21 +38,25 @@ module.exports.info = (req, res, next) ->
         return data
 
     getCouchStoragePlace = (callback) ->
-        couchConfigFile = "/usr/local/etc/couchdb/local.ini"
-        databaseDirLine = "database_dir"
-        fs.readFile couchConfigFile, (err, data) ->
-            dir = '/'
-            if not err?
-                lines = data.toString().split('\n')
-                for line in lines
-                    if line.indexOf(databaseDirLine) is 0
-                        dir = line.split('=')[1]
-                callback null, dir.trim()
-            else
-                callback err
+        readCouchFile = (couchConfigFile) ->
+            databaseDirLine = "database_dir"
+            fs.readFile couchConfigFile, 'utf8', (err, data) ->
+                dir = '/'
+                if not err?
+                    lines = data.toString().split('\n')
+                    for line in lines
+                        if line.indexOf(databaseDirLine) is 0
+                            dir = line.split('=')[1]
+                    callback null, dir.trim()
+                else
+                    callback err
+        if fs.existsSync "/usr/local/etc/couchdb/local.ini"
+            readCouchFile "/usr/local/etc/couchdb/local.ini"
+        else
+            readCouchFile "/etc/couchdb/local.ini"
 
     getCouchStoragePlace (err, dir) ->
-        exec 'df -h', (err, resp) ->
+        exec "df -H #{dir}", (err, resp) ->
             if err
                 res.send 500, err
             else

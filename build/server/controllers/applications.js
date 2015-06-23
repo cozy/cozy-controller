@@ -25,7 +25,8 @@ sendError = function(res, err, code) {
     error: err.message,
     success: false,
     message: err.message,
-    stack: err.stack
+    stack: err.stack,
+    code: err.code != null ? err.code : void 0
   });
 };
 
@@ -71,7 +72,6 @@ module.exports.install = function(req, res, next) {
   return controller.install(req.connection, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
-      err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
       return res.send(200, {

@@ -12,7 +12,7 @@ exec = require('child_process').exec;
 
 module.exports.info = function(req, res, next) {
   var extractDataFromDfResult, extractValFromDfValue, freeMemCmd, getCouchStoragePlace;
-  freeMemCmd = "free | grep cache: | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
+  freeMemCmd = "free | grep /cache | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
   extractValFromDfValue = function(val) {
     var unit;
     unit = val[val.length - 1];
@@ -35,7 +35,7 @@ module.exports.info = function(req, res, next) {
       line = lines[i];
       line = line.replace(/[\s]+/g, ' ');
       lineData = line.split(' ');
-      if (lineData.length > 5 && lineData[5] === '/') {
+      if (lineData.length > 5 && (lineData[5] === '/' || dir.indexOf(lineData[5]) !== -1)) {
         freeSpace = lineData[3].substring(0, lineData[3].length - 1);
         totalSpace = lineData[1].substring(0, lineData[1].length - 1);
         usedSpace = lineData[2].substring(0, lineData[2].length - 1);
@@ -49,28 +49,35 @@ module.exports.info = function(req, res, next) {
     return data;
   };
   getCouchStoragePlace = function(callback) {
-    var couchConfigFile, databaseDirLine;
-    couchConfigFile = "/usr/local/etc/couchdb/local.ini";
-    databaseDirLine = "database_dir";
-    return fs.readFile(couchConfigFile, function(err, data) {
-      var dir, i, len, line, lines;
-      dir = '/';
-      if (err == null) {
-        lines = data.toString().split('\n');
-        for (i = 0, len = lines.length; i < len; i++) {
-          line = lines[i];
-          if (line.indexOf(databaseDirLine) === 0) {
-            dir = line.split('=')[1];
+    var readCouchFile;
+    readCouchFile = function(couchConfigFile) {
+      var databaseDirLine;
+      databaseDirLine = "database_dir";
+      return fs.readFile(couchConfigFile, 'utf8', function(err, data) {
+        var dir, i, len, line, lines;
+        dir = '/';
+        if (err == null) {
+          lines = data.toString().split('\n');
+          for (i = 0, len = lines.length; i < len; i++) {
+            line = lines[i];
+            if (line.indexOf(databaseDirLine) === 0) {
+              dir = line.split('=')[1];
+            }
           }
+          return callback(null, dir.trim());
+        } else {
+          return callback(err);
         }
-        return callback(null, dir.trim());
-      } else {
-        return callback(err);
-      }
-    });
+      });
+    };
+    if (fs.existsSync("/usr/local/etc/couchdb/local.ini")) {
+      return readCouchFile("/usr/local/etc/couchdb/local.ini");
+    } else {
+      return readCouchFile("/etc/couchdb/local.ini");
+    }
   };
   return getCouchStoragePlace(function(err, dir) {
-    return exec('df -h', function(err, resp) {
+    return exec("df -H " + dir, function(err, resp) {
       if (err) {
         return res.send(500, err);
       } else {
