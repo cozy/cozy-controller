@@ -63,12 +63,14 @@ describe "Duplicated application ", ->
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
                     @res = res
                     @body = body
+                    @err = err
                     done()
 
             it "Then statusCode should be 400", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
+                @body.success.should.equal false
                 @body.message.should.equal 'Application already exists'
 
         describe "Try to start an other 'data-system'", ->
@@ -92,4 +94,4 @@ describe "Duplicated application ", ->
                 @res.statusCode.should.equal 400
 
             it "And body.error should be 'Application already exists'", ->
-                @body.message.should.equal 'Application already exists'
+                @body.message.should.equal 'Error: Application already exists'
