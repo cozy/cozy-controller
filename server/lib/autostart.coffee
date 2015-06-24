@@ -51,6 +51,18 @@ getManifest = (app) ->
 # Store all error in application started
 errors = {}
 
+retrievePassword = (app, cb) ->
+    if app.password?
+        cb null, app.password
+    else
+        clientDS = new Client "http://#{dsHost}:#{dsPort}"
+        clientDS.setBasicAuth 'home', permission.get()
+        clientDS.post 'request/access/byApp/', key:app._id, (err, res, access) ->
+            if not err? and access?[0]?
+                cb null, access[0].value.token
+            else
+                cb "Can't retrieve application password"
+
 ###
     Start all applications (other than stack applications)
         * Recover manifest application from document stored in database
@@ -64,34 +76,40 @@ errors = {}
 start = (appli, callback) ->
     app = getManifest appli.value
     if isCorrect(app)
+        retrievePassword app, (err, password) ->
+            if err?
+                log.error err
+            else
+                app.password = password
+            if app.state is "installed"
+                # Start application
+                log.info "#{app.name}: starting ..."
+                controller.start app, (err, result) =>
 
-        if app.state is "installed"
-            # Start application
-            log.info "#{app.name}: starting ..."
-            controller.start app, (err, result) =>
+                    if err?
+                        log.error "#{app.name}: error"
+                        log.error err
+                        errors[app.name] =
+                            new Error "Application didn't started"
+                        # Add application if drones list
+                        controller.addDrone app, callback
+                    else
+                        # Update port in database
+                        appli = appli.value
+                        appli.port = result.port
+                        if not appli.permissions
+                            delete appli.password
+                        clientDS = new Client "http://#{dsHost}:#{dsPort}"
+                        clientDS.setBasicAuth 'home', permission.get()
+                        requestPath = "data/merge/#{appli._id}/"
+                        clientDS.put requestPath, appli, (err, res, body) ->
+                            log.info "#{app.name}: started"
+                            callback()
 
-                if err?
-                    log.error "#{app.name}: error"
-                    log.error err
-                    errors[app.name] =
-                        new Error "Application didn't started"
-                    # Add application if drones list
-                    controller.addDrone app, callback
-                else
-                    # Update port in database
-                    appli = appli.value
-                    appli.port = result.port
-                    clientDS = new Client "http://#{dsHost}:#{dsPort}"
-                    clientDS.setBasicAuth 'home', permission.get()
-                    requestPath = "data/merge/#{appli._id}/"
-                    clientDS.put requestPath, appli, (err, res, body) ->
-                        log.info "#{app.name}: started"
-                        callback()
-
-        else
-            # Add application if drones list
-            app = new App(app)
-            controller.addDrone app.app, callback
+            else
+                # Add application if drones list
+                app = new App(app)
+                controller.addDrone app.app, callback
     else
         callback()
 
