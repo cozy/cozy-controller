@@ -34,7 +34,8 @@ startApp = (app, callback) ->
     # Start Application
     if running[app.name]?
         # Check if an application with same already exists
-        callback 'Application already exists'
+        err = new Error 'Application already exists'
+        callback err
     else
         # Start application (with spawner)
         spawner.start app, (err, result) ->

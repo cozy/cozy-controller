@@ -37,5 +37,5 @@ describe "Git", ->
 
 
         it "Then body.error should be 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'", ->
-            string = 'Error: Invalid Git url: https://github.com/cozy/cozy-data-systel.git'
+            string = "Can't access to git url: https://github.com/cozy/cozy-data-systel.git"
             @body.message.should.equal string
