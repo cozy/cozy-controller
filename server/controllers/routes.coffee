@@ -1,8 +1,11 @@
 applications = require './applications'
 disk = require './disk'
+index = require './index'
 token = require '../middlewares/token'
 
 module.exports =
+
+    '': get: index.index
 
     'apps/:name/start': post: [
             token.check
