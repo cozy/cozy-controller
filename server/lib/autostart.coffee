@@ -98,11 +98,13 @@ start = (appli, callback) ->
                         appli = appli.value
                         appli.port = result.port
                         if not appli.permissions
+                            password = appli.password
                             delete appli.password
                         clientDS = new Client "http://#{dsHost}:#{dsPort}"
                         clientDS.setBasicAuth 'home', permission.get()
                         requestPath = "data/merge/#{appli._id}/"
                         clientDS.put requestPath, appli, (err, res, body) ->
+                            appli.password = password
                             log.info "#{app.name}: started"
                             callback()
 
