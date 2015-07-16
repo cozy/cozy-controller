@@ -52,14 +52,14 @@ getManifest = (app) ->
 errors = {}
 
 retrievePassword = (app, cb) ->
-    if app.password?
-        cb null, app.password
-    else
-        clientDS = new Client "http://#{dsHost}:#{dsPort}"
-        clientDS.setBasicAuth 'home', permission.get()
-        clientDS.post 'request/access/byApp/', key:app._id, (err, res, access) ->
-            if not err? and access?[0]?
-                cb null, access[0].value.token
+    clientDS = new Client "http://#{dsHost}:#{dsPort}"
+    clientDS.setBasicAuth 'home', permission.get()
+    clientDS.post 'request/access/byApp/', key:app._id, (err, res, access) ->
+        if not err? and access?[0]?
+            cb null, access[0].value.token
+        else
+            if app.password?
+                cb null, app.password
             else
                 cb "Can't retrieve application password"
 
