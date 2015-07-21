@@ -188,7 +188,7 @@ describe "Spawner", ->
                         type: "git"
                     scripts:
                         start: "server.coffee"
-                client.post 'apps/data-systel/update', app, (err, res, body) =>
+                client.post 'apps/data-systel/update', update: app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -202,7 +202,7 @@ describe "Spawner", ->
         describe "Update data-system", ->
 
             it "When I update data-system", (done) ->
-                @timeout 100000*
+                @timeout 100000
                 app =
                     name: "data-system"
                     repository:
@@ -210,7 +210,7 @@ describe "Spawner", ->
                         type: "git"
                     scripts:
                         start: "server.coffee"
-                client.post 'apps/data-system/update', app, (err, res, body) =>
+                client.post 'apps/data-system/update', update: app, (err, res, body) =>
                     @res = res
                     done()
 
