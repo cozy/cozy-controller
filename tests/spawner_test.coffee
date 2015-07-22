@@ -182,13 +182,13 @@ describe "Spawner", ->
             it "When I restart data-system", (done) ->
                 @timeout 100000
                 app =
-                    name: "data-system"
+                    name: "data-systel"
                     repository:
                         url: "https://github.com/cozy/cozy-data-systel.git"
                         type: "git"
                     scripts:
                         start: "server.coffee"
-                client.post 'apps/data-systel/update', app, (err, res, body) =>
+                client.post 'apps/data-systel/update', update: app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -203,7 +203,14 @@ describe "Spawner", ->
 
             it "When I update data-system", (done) ->
                 @timeout 100000
-                client.post 'apps/data-system/update', {}, (err, res, body) =>
+                app =
+                    name: "data-system"
+                    repository:
+                        url: "https://github.com/cozy/cozy-data-system.git"
+                        type: "git"
+                    scripts:
+                        start: "server.coffee"
+                client.post 'apps/data-system/update', update: app, (err, res, body) =>
                     @res = res
                     done()
 

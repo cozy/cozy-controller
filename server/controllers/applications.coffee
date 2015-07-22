@@ -111,8 +111,8 @@ module.exports.uninstall = (req, res, next) ->
         * Update appplication
 ###
 module.exports.update = (req, res, next) ->
-    name = req.params.name
-    controller.update req.connection, name, (err, result) ->
+    manifest = req.body.update
+    controller.update req.connection, manifest, (err, result) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
