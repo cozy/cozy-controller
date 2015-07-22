@@ -306,6 +306,8 @@ module.exports.uninstall = (name, callback) ->
         * Restart application if it was started
 ###
 module.exports.update = (connection, manifest, callback) ->
+    if manifest in stackApps
+        manifest = drones[manifest]
     app = new App manifest
     app = app.app
     if drones[app.name]?
