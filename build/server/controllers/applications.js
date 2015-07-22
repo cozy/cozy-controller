@@ -167,9 +167,9 @@ module.exports.uninstall = function(req, res, next) {
  */
 
 module.exports.update = function(req, res, next) {
-  var name;
-  name = req.params.name;
-  return controller.update(req.connection, name, function(err, result) {
+  var manifest;
+  manifest = req.body.update;
+  return controller.update(req.connection, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
       err = new Error(err.toString());

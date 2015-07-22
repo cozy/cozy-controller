@@ -128,10 +128,8 @@ stopApp = function(name, callback) {
         * install new dependencies
  */
 
-updateApp = function(connection, name, callback) {
-  var app;
-  app = drones[name];
-  log.info(name + ":update application");
+updateApp = function(connection, app, callback) {
+  log.info(app.name + ":update application");
   return type[app.repository.type].update(app, function(err) {
     if (err != null) {
       return callback(err);
@@ -369,27 +367,27 @@ module.exports.uninstall = function(name, callback) {
         * Restart application if it was started
  */
 
-module.exports.update = function(connection, name, callback) {
-  var err;
-  if (drones[name] != null) {
-    if (running[name] != null) {
-      log.info(name + ":stop application");
-      return stopApp(name, function(err) {
-        return updateApp(connection, name, function(err) {
-          var app;
+module.exports.update = function(connection, manifest, callback) {
+  var app, err;
+  app = new App(manifest);
+  app = app.app;
+  if (drones[app.name] != null) {
+    if (running[app.name] != null) {
+      log.info(app.name + ":stop application");
+      return stopApp(app.name, function(err) {
+        return updateApp(connection, app, function(err) {
           if (err != null) {
             return callback(err);
           } else {
-            app = drones[name];
             return startApp(app, function(err, result) {
-              log.info(name + ":start application");
+              log.info(app.name + ":start application");
               return callback(err, result);
             });
           }
         });
       });
     } else {
-      return updateApp(connection, name, callback);
+      return updateApp(connection, app, callback);
     }
   } else {
     err = new Error('Application is not installed');
