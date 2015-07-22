@@ -369,6 +369,9 @@ module.exports.uninstall = function(name, callback) {
 
 module.exports.update = function(connection, manifest, callback) {
   var app, err;
+  if (indexOf.call(stackApps, manifest) >= 0) {
+    manifest = drones[manifest];
+  }
   app = new App(manifest);
   app = app.app;
   if (drones[app.name] != null) {
