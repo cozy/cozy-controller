@@ -2,7 +2,7 @@
 module.exports = {
   index: function(req, res, next) {
     var manifest;
-    manifest = require('../../package.json');
+    manifest = require('../../../package.json');
     return res.send("Cozy Controller version " + manifest.version);
   }
 };
