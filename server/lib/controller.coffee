@@ -168,7 +168,7 @@ module.exports.install = (connection, manifest, callback) ->
     app = new App manifest
     app = app.app
     # Check if app exists
-    if drones[app.name]? or fs.existsSync(app.dir)
+    if drones[app.name]?
         log.info "#{app.name}:already installed"
         log.info "#{app.name}:start application"
         # Start application

@@ -64,10 +64,11 @@ onBadGitUrl = function(app, done) {
  */
 
 module.exports.init = function(app, callback) {
-  var match, url;
+  var url;
   url = app.repository.url;
-  match = url.match(/\/([\w\-_\.]+)\.git$/);
-  if (!match) {
+  if (url.match(/^\/usr\/local\/cozy/)) {
+    return callback(null);
+  } else if (!url.match(/\/([\w\-_\.]+)\.git$/)) {
     return onWrongGitUrl(app, callback);
   } else {
     return exec('git --version', function(err, stdout, stderr) {
