@@ -21,6 +21,7 @@ sendError = (res, err, code=500) ->
 
 
 updateController = (count, callback) ->
+    log.info "controller: update"
     exec "npm -g update cozy-controller", (err, stdout, stderr) ->
         if err or stderr
             if count < 2
@@ -29,6 +30,17 @@ updateController = (count, callback) ->
                 callback "Error during controller update after #{count + 1} try: #{stderr}"
         else
             restartController callback
+
+updateMonitor = (count, callback) ->
+    log.info "monitor: update"
+    exec "npm -g update cozy-monitor", (err, stdout, stderr) ->
+        if err or stderr
+            if count < 2
+                updateMonitor count + 1, callback
+            else
+                callback "Error during monitor update after #{count + 1} try: #{stderr}"
+        else
+            callback()
 
 restartController = (callback) ->
     exec "supervisorctl restart cozy-controller", (err, stdout) ->
@@ -137,13 +149,15 @@ module.exports.updateStack = (req, res, next) ->
             err = new Error "Cannot update stack : #{err.toString()}"
             sendError res, err, 400
         else
-            updateController 0, (err) ->
-                if err?
-                    log.error err.toString()
-                    err = new Error "Cannot update stack : #{err.toString()}"
-                    sendError res, err, 400
-                else
-                    res.send 200
+            updateMonitor 0, (err) ->
+                log.error err.toString() if err?
+                updateController 0, (err) ->
+                    if err?
+                        log.error err.toString()
+                        err = new Error "Cannot update stack : #{err.toString()}"
+                        sendError res, err, 400
+                    else
+                        res.send 200
 
 ###
     Reboot controller
