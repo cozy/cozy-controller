@@ -90,7 +90,7 @@ start = (appli, callback) ->
                         log.error "#{app.name}: error"
                         log.error err
                         errors[app.name] =
-                            new Error "Application didn't started"
+                            new Error "Application didn't start"
                         # Add application if drones list
                         controller.addDrone app, callback
                     else
@@ -180,9 +180,9 @@ startStack = (stackManifest, app, callback) ->
         log.info "#{app}: starting ..."
         controller.start stackManifest[app], (err, result) ->
             if err? or not result
-                log.error "#{app} didn't started"
+                log.error "#{app} didn't start"
                 log.error err
-                err = new Error "#{app} didn't started"
+                err = new Error "#{app} didn't start"
                 callback err
             else
                 log.info "#{app}: checking ..."
