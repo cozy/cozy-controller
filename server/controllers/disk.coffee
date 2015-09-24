@@ -86,16 +86,20 @@ module.exports.info = (req, res, next) ->
             line = line.replace /[\s]+/g, ' '
             lineData = line.split(' ')
             if lineData.length > 5 and (lineData[5] is '/' or dir.indexOf(lineData[5]) isnt -1)
-                freeSpace = lineData[3].substring(0, lineData[3].length - 1)
                 totalSpace = lineData[1].substring(0, lineData[1].length - 1)
                 usedSpace = lineData[2].substring(0, lineData[2].length - 1)
-                unit = lineData[1].slice(-1)
+                freeSpace = lineData[3].substring(0, lineData[3].length - 1)
+                totalUnit = lineData[1].slice(-1)
+                usedUnit = lineData[2].slice(-1)
+                freeUnit = lineData[3].slice(-1)
 
                 if lineData[5] is '/'
                     defaultData.totalDiskSpace = totalSpace
                     defaultData.freeDiskSpace = freeSpace
                     defaultData.usedDiskSpace = usedSpace
-                    defaultData.unit = unit
+                    defaultData.totalUnit = totalUnit
+                    defaultData.usedUnit = usedUnit
+                    defaultData.freeUnit = freeUnit
                     defaultData.dir = '/usr/local/var/lib/couchdb'
                     defaultData.mount = '/'
 

@@ -145,9 +145,10 @@ module.exports.updateStack = (req, res, next) ->
                 callback err
     , (err) ->
         if err?
-            log.error err.toString()
-            err = new Error "Cannot update stack : #{err.toString()}"
-            sendError res, err, 400
+            restartController (error) ->
+                log.error err.toString()
+                err = new Error "Cannot update stack : #{err.toString()}"
+                sendError res, err, 400
         else
             updateMonitor 0, (err) ->
                 log.error err.toString() if err?
