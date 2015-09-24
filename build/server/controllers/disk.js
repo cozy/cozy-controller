@@ -81,7 +81,7 @@ module.exports.info = function(req, res, next) {
     return val;
   };
   extractDataFromDfResult = function(dir, resp) {
-    var currentMountPoint, data, defaultData, freeSpace, i, len, line, lineData, lines, totalSpace, unit, usedSpace;
+    var currentMountPoint, data, defaultData, freeSpace, freeUnit, i, len, line, lineData, lines, totalSpace, totalUnit, usedSpace, usedUnit;
     data = null;
     defaultData = {};
     lines = resp.split('\n');
@@ -91,15 +91,19 @@ module.exports.info = function(req, res, next) {
       line = line.replace(/[\s]+/g, ' ');
       lineData = line.split(' ');
       if (lineData.length > 5 && (lineData[5] === '/' || dir.indexOf(lineData[5]) !== -1)) {
-        freeSpace = lineData[3].substring(0, lineData[3].length - 1);
         totalSpace = lineData[1].substring(0, lineData[1].length - 1);
         usedSpace = lineData[2].substring(0, lineData[2].length - 1);
-        unit = lineData[1].slice(-1);
+        freeSpace = lineData[3].substring(0, lineData[3].length - 1);
+        totalUnit = lineData[1].slice(-1);
+        usedUnit = lineData[2].slice(-1);
+        freeUnit = lineData[3].slice(-1);
         if (lineData[5] === '/') {
           defaultData.totalDiskSpace = totalSpace;
           defaultData.freeDiskSpace = freeSpace;
           defaultData.usedDiskSpace = usedSpace;
-          defaultData.unit = unit;
+          defaultData.totalUnit = totalUnit;
+          defaultData.usedUnit = usedUnit;
+          defaultData.freeUnit = freeUnit;
           defaultData.dir = '/usr/local/var/lib/couchdb';
           defaultData.mount = '/';
         } else if (dir.indexOf(lineData[5]) === 0) {

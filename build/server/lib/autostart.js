@@ -124,7 +124,7 @@ start = function(appli, callback) {
             if (err != null) {
               log.error(app.name + ": error");
               log.error(err);
-              errors[app.name] = new Error("Application didn't started");
+              errors[app.name] = new Error("Application didn't start");
               return controller.addDrone(app, callback);
             } else {
               appli = appli.value;
@@ -242,9 +242,9 @@ startStack = function(stackManifest, app, callback) {
     return controller.start(stackManifest[app], function(err, result) {
       var timeout;
       if ((err != null) || !result) {
-        log.error(app + " didn't started");
+        log.error(app + " didn't start");
         log.error(err);
-        err = new Error(app + " didn't started");
+        err = new Error(app + " didn't start");
         return callback(err);
       } else {
         log.info(app + ": checking ...");

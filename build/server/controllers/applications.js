@@ -219,9 +219,11 @@ module.exports.updateStack = function(req, res, next) {
     });
   }, function(err) {
     if (err != null) {
-      log.error(err.toString());
-      err = new Error("Cannot update stack : " + (err.toString()));
-      return sendError(res, err, 400);
+      return restartController(function(error) {
+        log.error(err.toString());
+        err = new Error("Cannot update stack : " + (err.toString()));
+        return sendError(res, err, 400);
+      });
     } else {
       return updateMonitor(0, function(err) {
         if (err != null) {
