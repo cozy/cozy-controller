@@ -54,9 +54,9 @@ module.exports.delete = (app, callback) ->
             if fs.existsSync app.logFile
                 fs.unlink app.logFile, (err) ->
                     if fs.existsSync app.backup
-                        fs.unlink app.backup, (err) ->
-                            callback()
-                    else
-                        callback()
+                        fs.unlinkSync app.backup
+                    if fs.existsSync app.backupErr
+                        fs.unlinkSync app.backupErr
+                    callback()
             else
                 callback()

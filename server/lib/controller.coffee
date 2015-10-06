@@ -284,6 +284,7 @@ module.exports.uninstall = (name, callback) ->
                 name: name
                 dir: userDir
                 logFile: config('dir_log') + name + ".log"
+                errFile: config('dir_log') + name + "-err.log"
                 backup: config('dir_log') + name + ".log-backup"
             repo.delete app, (err) ->
                 log.info "#{name}:delete directory"
