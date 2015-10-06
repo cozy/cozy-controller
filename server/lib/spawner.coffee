@@ -55,7 +55,7 @@ module.exports.start = (app, callback) ->
         cwd:       app.dir
         logFile:   app.logFile
         outFile:   app.logFile
-        errFile:   app.logFile
+        errFile:   app.errFile
         #hideEnv:   env
         env:       env
         killTree:  true
@@ -66,11 +66,20 @@ module.exports.start = (app, callback) ->
     if fs.existsSync(app.logFile)
         # If a logFile exists, create a backup
         app.backup = app.logFile + "-backup"
+        # delete previous backup
         if fs.existsSync(app.backup)
-            fs.unlink app.backup
+            fs.unlinkSync app.backup
         fs.renameSync app.logFile, app.backup
-    # Create logFile
-    fs.openSync app.logFile, 'w'
+    if fs.existsSync(app.errFile)
+        # If a errFile exists, create a backup
+        app.backupErr = app.errFile + "-backup"
+        if fs.existsSync(app.backupErr)
+            fs.unlinkSync app.backupErr
+        fs.renameSync app.errFile, app.backupErr
+    # Create logFile and errFile
+    fd = []
+    fd[0] = fs.openSync app.logFile, 'w'
+    fd[1] = fs.openSync app.errFile, 'w'
 
     # Initialize forever options
     foreverOptions.options = [
@@ -90,7 +99,8 @@ module.exports.start = (app, callback) ->
         app.user]
     if app.name is "proxy"
         foreverOptions.options =
-            foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')])
+            foreverOptions.options.concat(['--bind_ip', \
+               config('bind_ip_proxy')])
 
         #foreverOptions.command = 'coffee'
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
@@ -125,7 +135,9 @@ module.exports.start = (app, callback) ->
 
         onExit = ->
             app.backup = app.logFile + "-backup"
+            app.backupErr = app.errFile + "-backup"
             fs.rename app.logFile, app.backup
+            fs.rename app.errFile, app.backupErr
             # Remove listeners to related events.
             appliProcess.removeListener 'error', onError
             clearTimeout timeout
@@ -151,6 +163,7 @@ module.exports.start = (app, callback) ->
                 data: data
                 pid: monitor.childData.pid
                 pkg: app
+                fd: fd
 
         onRestart = ->
             log.info "#{app.name}:restart"
@@ -177,7 +190,7 @@ module.exports.start = (app, callback) ->
 
         onStderr = (err) ->
             err = err.toString()
-            fs.appendFile app.logFile, err, (err) ->
+            fs.appendFile app.errFile, err, (err) ->
                 console.log err if err?
 
 

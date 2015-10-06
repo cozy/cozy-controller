@@ -39,6 +39,9 @@ describe "Log File", ->
         it "And file log has been created (/usr/local/var/log/cozy/data-system.log)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
 
+        it "And file error log has been created (/usr/local/var/log/cozy/data-system-err.log)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system-err.log').should.be.ok
+
     describe "Backup log file ", ->
 
         it "When I restart data-system", (done) ->
@@ -60,6 +63,9 @@ describe "Log File", ->
 
         it "And file log has been created (/usr/local/var/log/cozy/data-system.log-backup)", ->
             fs.existsSync('/usr/local/var/log/cozy/data-system.log-backup').should.be.ok
+
+        it "And file errorlog has been created (/usr/local/var/log/cozy/data-system-err.log-backup)", ->
+            fs.existsSync('/usr/local/var/log/cozy/data-system-err.log-backup').should.be.ok
 
     describe "Remove log file ", ->
 
@@ -104,8 +110,8 @@ describe "Log File", ->
         it "And exception should logged after 5 seconds", (done) ->
             @timeout 7 * 1000
             setTimeout () =>
-                fs.existsSync('/usr/local/var/log/cozy/data-system.log').should.be.ok
-                data = fs.readFileSync '/usr/local/var/log/cozy/data-system.log', 'utf8'
+                fs.existsSync('/usr/local/var/log/cozy/data-system-err.log').should.be.ok
+                data = fs.readFileSync '/usr/local/var/log/cozy/data-system-err.log', 'utf8'
                 index = data.indexOf("TypeError: Property 'test' of object #<Object> is not a function")
                 index.should.not.equal -1
                 done()
