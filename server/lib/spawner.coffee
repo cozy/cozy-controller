@@ -66,14 +66,15 @@ module.exports.start = (app, callback) ->
     if fs.existsSync(app.logFile)
         # If a logFile exists, create a backup
         app.backup = app.logFile + "-backup"
+        # delete previous backup
         if fs.existsSync(app.backup)
-            fs.unlink app.backup
+            fs.unlinkSync app.backup
         fs.renameSync app.logFile, app.backup
     if fs.existsSync(app.errFile)
         # If a errFile exists, create a backup
         app.backupErr = app.errFile + "-backup"
         if fs.existsSync(app.backupErr)
-            fs.unlink app.backupErr
+            fs.unlinkSync app.backupErr
         fs.renameSync app.errFile, app.backupErr
     # Create logFile and errFile
     fs.openSync app.logFile, 'w'
