@@ -103,7 +103,11 @@ module.exports.start = (app, callback) ->
 
         #foreverOptions.command = 'coffee'
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
-        data = JSON.parse(data)
+        try
+            data = JSON.parse(data)
+        catch
+            log.parse 'Error parsing package.json'
+            data = {}
         server = app.server
         if data.scripts?.start?
             start = data.scripts.start.split(' ')

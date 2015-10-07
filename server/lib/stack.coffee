@@ -103,9 +103,13 @@ module.exports.addApp = (app, callback) ->
     manifest = path.join(config('dir_source'), app.name, 'package.json')
     fs.readFile manifest, (err, data) ->
         if err
-            log.warn 'Error when read package.json'
+            log.warn 'Error reading package.json'
         else
-            data = JSON.parse(data)
+            try
+                data = JSON.parse(data)
+            catch
+                log.parse 'Error parsing package.json'
+                data = {}
             appli =
                 name: app.name
                 version: data.version
