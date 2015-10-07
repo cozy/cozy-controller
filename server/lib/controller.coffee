@@ -92,6 +92,10 @@ stopApp = (name, callback) ->
     monitor.once 'exit', onStop
     monitor.once 'error', onErr
     try
+        # Close fd for logs files
+        fs.closeSync running[name].fd[0]
+        fs.closeSync running[name].fd[1]
+    try
         delete running[name]
         #callback null, name
         monitor.stop()

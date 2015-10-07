@@ -12,7 +12,7 @@ config = require('../lib/conf').get
 ###
 module.exports.start = (app, callback) ->
     result = {}
-    @process.stop() if @process
+    @appliProcess.stop() if @appliProcess
 
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
@@ -20,7 +20,7 @@ module.exports.start = (app, callback) ->
     else
         pwd = app.password
 
-    # Transmit application's name and token to drone
+    # Transmit application's name and token to appliProcess
     env =
         NAME: app.name
         TOKEN: pwd
@@ -77,8 +77,9 @@ module.exports.start = (app, callback) ->
             fs.unlinkSync app.backupErr
         fs.renameSync app.errFile, app.backupErr
     # Create logFile and errFile
-    fs.openSync app.logFile, 'w'
-    fs.openSync app.errFile, 'w'
+    fd = []
+    fd[0] = fs.openSync app.logFile, 'w'
+    fd[1] = fs.openSync app.errFile, 'w'
 
     # Initialize forever options
     foreverOptions.options = [
@@ -123,14 +124,14 @@ module.exports.start = (app, callback) ->
         fs.stat app.startScript, (err, stats) ->
             if err?
                 callback err
-        # Initialize process
+        # Initialize application process
         foreverOptions.options.push app.startScript
         carapaceBin = path.join(require.resolve('cozy-controller-carapace'), \
             '..', '..', 'bin', 'carapace')
-        process = new forever.Monitor(carapaceBin, foreverOptions)
+        appliProcess = new forever.Monitor(carapaceBin, foreverOptions)
         responded = false
 
-        ## Manage events of process
+        ## Manage events of application process
 
         onExit = ->
             app.backup = app.logFile + "-backup"
@@ -138,39 +139,40 @@ module.exports.start = (app, callback) ->
             fs.rename app.logFile, app.backup
             fs.rename app.errFile, app.backupErr
             # Remove listeners to related events.
-            process.removeListener 'error', onError
+            appliProcess.removeListener 'error', onError
             clearTimeout timeout
             log.error 'Callback on Exit'
             if callback then callback new Error "#{app.name} CANT START"
             else
                 log.error "#{app.name} HAS FAILLED TOO MUCH"
-                setTimeout (-> process.exit 1), 1
+                setTimeout (-> appliProcess.exit 1), 1
 
         onError = (err) ->
             if not responded
                 err = err.toString()
                 responded = true
                 callback err
-                process.removeListener 'exit', onExit
-                process.removeListener 'message', onPort
+                appliProcess.removeListener 'exit', onExit
+                appliProcess.removeListener 'message', onPort
                 clearTimeout timeout
 
         onStart = (monitor, data) ->
             result =
-                monitor: process
+                monitor: appliProcess
                 process: monitor.child
                 data: data
                 pid: monitor.childData.pid
                 pkg: app
+                fd: fd
 
         onRestart = ->
             log.info "#{app.name}:restart"
 
         onTimeout = ->
-            process.removeListener 'exit', onExit
-            process.stop()
+            appliProcess.removeListener 'exit', onExit
+            appliProcess.stop()
             controller.removeRunningApp(app.name)
-            err = new Error 'Error spawning drone'
+            err = new Error 'Error spawning application'
             log.error 'callback timeout'
             callback err
 
@@ -181,9 +183,9 @@ module.exports.start = (app, callback) ->
                 callback null, result
 
                 # Remove listeners to related events
-                process.removeListener 'exit', onExit
-                process.removeListener 'error', onError
-                process.removeListener 'message', onPort
+                appliProcess.removeListener 'exit', onExit
+                appliProcess.removeListener 'error', onError
+                appliProcess.removeListener 'message', onPort
                 clearTimeout timeout
 
         onStderr = (err) ->
@@ -192,15 +194,15 @@ module.exports.start = (app, callback) ->
                 console.log err if err?
 
 
-        # Start process
-        process.start()
+        # Start application process
+        appliProcess.start()
 
         timeout = setTimeout onTimeout, 8000000
 
-        # Listen to the appropriate events and start the drone process.
-        process.once 'exit', onExit
-        process.once 'error', onError
-        process.once 'start', onStart
-        process.on 'restart', onRestart
-        process.on 'message', onPort
-        process.on 'stderr', onStderr
+        # Listen to the appropriate events and start the application process.
+        appliProcess.once 'exit', onExit
+        appliProcess.once 'error', onError
+        appliProcess.once 'start', onStart
+        appliProcess.on 'restart', onRestart
+        appliProcess.on 'message', onPort
+        appliProcess.on 'stderr', onStderr
