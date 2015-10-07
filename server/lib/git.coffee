@@ -65,15 +65,16 @@ module.exports.init = (app, callback) ->
                     # 1.7.10 is the version where --single-branch became
                     # available.
                     if not gitVersion? or \
-                       compareVersions("1.7.10", gitVersion[0]) is -1
+                       compareVersions("1.7.10", gitVersion[1]) is 1
                         commands.push "git clone #{url} #{app.name} && " + \
                                       "cd #{app.dir} && " + \
+                                      "git branch #{branch} origin/#{branch} && " + \
                                       "git checkout #{branch} && " + \
                                       "git submodule update --init --recursive"
                     else
                         commands.push "git clone #{url} --depth 1 " + \
                                       "--branch #{branch} " + \
-                                      "--single-branch && " + \
+                                      "--single-branch #{app.name} && " + \
                                       "cd #{app.dir} && " + \
                                       "git submodule update --init --recursive"
 
