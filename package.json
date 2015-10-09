@@ -3,12 +3,7 @@
   "version": "2.0.32",
   "description": "Module used to install, update and remove applications in the Cozy Platform.",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
-  "licenses": [
-    {
-      "type": "AGPL v3",
-      "url": "http://www.gnu.org/licenses/agpl-3.0.html"
-    }
-  ],
+  "license": "AGPL-3.0",
   "engines": {
     "node": ">= 0.8.0"
   },
