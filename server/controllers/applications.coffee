@@ -69,6 +69,46 @@ module.exports.install = (req, res, next) ->
             res.send 200, {"drone": {"port": result.port}}
 
 ###
+    Change application branch.
+        * Try to stop application
+        * Change application branch
+        * Start application if necessary
+###
+module.exports.changeBranch = (req, res, next) ->
+    manifest = req.body.manifest
+    name = req.params.name
+    newBranch = req.params.branch
+    started = true
+
+    # Stop app if it started
+    controller.stop name, (err, result) ->
+        if err? and err.toString() is 'Error: Cannot stop an application not started'
+            # If application is not started, don't restart it after branch change
+            started = false
+        else if err?
+            # If stop function send another error, stop process
+            log.error err.toString()
+            return sendError res, err, 400
+
+        # Change application branch
+        controller.changeBranch req.connection, manifest, newBranch, (err, result) ->
+            if err?
+                log.error err.toString()
+                sendError res, err, 400
+            else
+                unless started
+                    res.send 200, {}
+
+                # Restart app if necessary
+                else
+                    controller.start manifest, (err, result) ->
+                        if err?
+                            log.error err.toString()
+                            sendError res, err, 400
+                        else
+                            res.send 200, {"drone": {"port": result.port}}
+
+###
     Start application
         * Check if application is declared in body.start
         * Check if application is installed

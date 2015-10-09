@@ -230,6 +230,34 @@ module.exports.start = (manifest, callback) ->
         callback err
 
 ###
+    Change aplication branch
+        * Git checkout
+        * Install dependencies
+###
+module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
+    # Git checkout
+    app = new App manifest
+    app = app.app
+    log.info "#{app.name}:git checkout"
+    type['git'].changeBranch app, newBranch, (err) ->
+        if err?
+            # Error on source retrieval : code 2-
+            err.code = 2 if not err.code?
+            err.code = 20 + err.code
+            callback err
+        else
+            # NPM install
+            log.info "#{app.name}:npm install"
+            installDependencies connection, app, 2, (err) ->
+                if err?
+                    # Error on dependencies : code 3
+                    err.code = 3
+                    callback err
+                else
+                    callback()
+
+
+###
     Stop application <name>
         * Check if application is started
         * Stop process

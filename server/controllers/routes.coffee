@@ -17,6 +17,11 @@ module.exports =
             applications.install
         ]
 
+    "apps/:name/change-branch/:branch":post: [
+            token.check
+            applications.changeBranch
+        ]
+
     # Old route
     'drones/:name/start': post: [
             token.check
