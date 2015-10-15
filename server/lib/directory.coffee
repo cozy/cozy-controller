@@ -28,11 +28,3 @@ module.exports.create = (app, callback) ->
                         callback err
         catch error
             callback error
-
-
-###
-    Remove appplication directory
-###
-module.exports.remove = (app, callback) ->
-    ## TODOS
-    callback()
