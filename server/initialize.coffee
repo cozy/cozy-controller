@@ -1,9 +1,11 @@
 fs = require 'fs'
 path = require 'path'
+async = require 'async'
 log = require('printit')()
 
 permission = require './middlewares/token'
 App = require('./lib/app').App
+directory = require './lib/directory'
 conf = require './lib/conf'
 config = require('./lib/conf').get
 oldConfig = require('./lib/conf').getOld
@@ -15,6 +17,24 @@ randomString = (length=32) ->
     string = ""
     string += Math.random().toString(36).substr(2) while string.length < length
     string.substr 0, length
+
+
+###
+    Patch (15/10/15)
+    Add directory for all applications
+###
+initAppsDir = (callback) ->
+    apps = fs.readdirSync config('dir_source')
+    async.forEach apps, (app, cb) ->
+        if app is 'stack.json'
+            cb()
+        else
+            appli =
+                name: app
+                user: "cozy-#{app}"
+            directory.create appli, cb
+    , callback
+
 
 ###
     Initialize source directory
@@ -86,11 +106,12 @@ initFiles = (callback) ->
         else
             mkdirp config('dir_log'), (err) ->
                 mkdirp config('dir_app'), (err) ->
-                    if process.env.NODE_ENV is "production" or
-                            process.env.NODE_ENV is "test"
-                        initTokenFile callback
-                    else
-                        callback()
+                    initAppsDir (err) ->
+                        if process.env.NODE_ENV is "production" or
+                                process.env.NODE_ENV is "test"
+                            initTokenFile callback
+                        else
+                            callback()
 
 ###
     Initialize files :
