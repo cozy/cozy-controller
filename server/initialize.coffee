@@ -85,11 +85,12 @@ initFiles = (callback) ->
             callback err
         else
             mkdirp config('dir_log'), (err) ->
-                if process.env.NODE_ENV is "production" or
-                        process.env.NODE_ENV is "test"
-                    initTokenFile callback
-                else
-                    callback()
+                mkdirp config('dir_app'), (err) ->
+                    if process.env.NODE_ENV is "production" or
+                            process.env.NODE_ENV is "test"
+                        initTokenFile callback
+                    else
+                        callback()
 
 ###
     Initialize files :

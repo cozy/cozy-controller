@@ -2,6 +2,7 @@ fs = require 'fs'
 spawner = require './spawner'
 npm = require './npm'
 repo = require './repo'
+directory = require './directory'
 user = require './user'
 stack = require './stack'
 config = require('./conf').get
@@ -186,29 +187,34 @@ module.exports.install = (connection, manifest, callback) ->
                 err.code = 1
                 callback err
             else
-                # Git clone
-                log.info "#{app.name}:git clone"
-                type[app.repository.type].init app, (err) ->
+                # Create repository for application
+                directory.create app, (err) ->
                     if err?
-                        # Error on source retrieval : code 2-
-                        err.code = 2 if not err.code?
-                        err.code = 20 + err.code
                         callback err
                     else
-                        # NPM install
-                        log.info "#{app.name}:npm install"
-                        installDependencies connection, app, 2, (err) ->
+                        # Git clone
+                        log.info "#{app.name}:git clone"
+                        type[app.repository.type].init app, (err) ->
                             if err?
-                                # Error on dependencies : code 3
-                                err.code = 3
+                                # Error on source retrieval : code 2-
+                                err.code = 2 if not err.code?
+                                err.code = 20 + err.code
                                 callback err
                             else
-                                log.info "#{app.name}:start application"
-                                # Start application
-                                startApp app, (err, result)->
-                                    # Error application.starting: code 4
-                                    err.code = 4 if err?
-                                    callback err, result
+                                # NPM install
+                                log.info "#{app.name}:npm install"
+                                installDependencies connection, app, 2, (err) ->
+                                    if err?
+                                        # Error on dependencies : code 3
+                                        err.code = 3
+                                        callback err
+                                    else
+                                        log.info "#{app.name}:start application"
+                                        # Start application
+                                        startApp app, (err, result)->
+                                            # Error application.starting: code 4
+                                            err.code = 4 if err?
+                                            callback err, result
 
 ###
     Start aplication defined by <manifest>
