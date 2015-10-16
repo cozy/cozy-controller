@@ -169,8 +169,7 @@ module.exports.removeRunningApp = (name) ->
         4 -> Error in application starting
 ###
 module.exports.install = (connection, manifest, callback) ->
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     # Check if app exists
     if drones[app.name]? or fs.existsSync(app.dir)
         log.info "#{app.name}:already installed"
@@ -216,8 +215,7 @@ module.exports.install = (connection, manifest, callback) ->
         * Start process
 ###
 module.exports.start = (manifest, callback) ->
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     if drones[app.name]? or fs.existsSync(app.dir)
         drones[app.name] = app
         startApp app, (err, result) ->
@@ -236,8 +234,7 @@ module.exports.start = (manifest, callback) ->
 ###
 module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
     # Git checkout
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     log.info "#{app.name}:git checkout"
     type['git'].changeBranch app, newBranch, (err) ->
         if err?
@@ -341,8 +338,7 @@ module.exports.uninstall = (name, callback) ->
 module.exports.update = (connection, manifest, callback) ->
     if manifest in stackApps
         manifest = drones[manifest]
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     if drones[app.name]?
         if running[app.name]?
             log.info "#{app.name}:stop application"
