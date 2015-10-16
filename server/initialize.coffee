@@ -55,7 +55,7 @@ initAppsFiles = (callback) ->
     Init stack token stored in '/etc/cozy/stack.token'
 ###
 initTokenFile = (callback) ->
-    log.info "init : token file"
+    log.info "init: token file"
     tokenFile = config('file_token')
     if tokenFile is '/etc/cozy/stack.token' and not fs.existsSync '/etc/cozy'
         fs.mkdirSync '/etc/cozy'
@@ -74,7 +74,7 @@ initTokenFile = (callback) ->
                     callback(err)
 
 ###
-    Initialize files :
+    Initialize files:
         * Initialize stack file and directory of source code
         * Initialize log files
         * Initialize token file
@@ -92,7 +92,7 @@ initFiles = (callback) ->
                     callback()
 
 ###
-    Initialize files :
+    Initialize files:
         * Initialize configuration
         * Initialize files
         * Rewrite file configuration

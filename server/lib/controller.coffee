@@ -181,7 +181,7 @@ module.exports.install = (connection, manifest, callback) ->
         # Create user if necessary
         user.create app, (err) ->
             if err?
-                # Error on user creation : code 1
+                # Error on user creation: code 1
                 err.code = 1
                 callback err
             else
@@ -189,7 +189,7 @@ module.exports.install = (connection, manifest, callback) ->
                 log.info "#{app.name}:git clone"
                 type[app.repository.type].init app, (err) ->
                     if err?
-                        # Error on source retrieval : code 2-
+                        # Error on source retrieval: code 2-
                         err.code = 2 if not err.code?
                         err.code = 20 + err.code
                         callback err
@@ -198,7 +198,7 @@ module.exports.install = (connection, manifest, callback) ->
                         log.info "#{app.name}:npm install"
                         installDependencies connection, app, 2, (err) ->
                             if err?
-                                # Error on dependencies : code 3
+                                # Error on dependencies: code 3
                                 err.code = 3
                                 callback err
                             else

@@ -28,8 +28,8 @@ addDatabase = (attempt, app) ->
 
 ###
     addInDatase:
-        * app : application to add to database
-    Add <app> in database :
+        * app: application to add to database
+    Add <app> in database:
         * Check if application isn't alread store in database
         * If it the case, update it (keep lastVersion added by home)
         * If not, add new document for this application

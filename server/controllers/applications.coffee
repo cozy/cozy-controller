@@ -9,7 +9,7 @@ sendError = (res, err, code=500) ->
         stack:   null
         message: "Server error occured"
 
-    console.log "Sending error to client :"
+    console.log "Sending error to client: "
     console.log err.stack
 
     res.send code,
@@ -187,7 +187,7 @@ module.exports.updateStack = (req, res, next) ->
         if err?
             restartController (error) ->
                 log.error err.toString()
-                err = new Error "Cannot update stack : #{err.toString()}"
+                err = new Error "Cannot update stack: #{err.toString()}"
                 sendError res, err, 400
         else
             updateMonitor 0, (err) ->
@@ -195,7 +195,7 @@ module.exports.updateStack = (req, res, next) ->
                 updateController 0, (err) ->
                     if err?
                         log.error err.toString()
-                        err = new Error "Cannot update stack : #{err.toString()}"
+                        err = new Error "Cannot update stack: #{err.toString()}"
                         sendError res, err, 400
                     else
                         res.send 200
