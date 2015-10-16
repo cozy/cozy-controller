@@ -19,7 +19,8 @@ module.exports =
             applications.install
         ]
 
-    "apps/:name/change-branch/:branch":post: [
+    "apps/:name/change-branch/:branch":
+        post: [
             token.check
             applications.changeBranch
         ]
