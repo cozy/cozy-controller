@@ -66,11 +66,11 @@ module.exports.init = (callback) ->
             else
                 oldConf.file_stack = false###
             conf =
-                npm_registry :   data.npm_registry or false
-                npm_strict_ssl : data.npm_strict_ssl or false
-                dir_log :        '/usr/local/var/log/cozy'
-                dir_source :     '/usr/local/cozy/apps'
-                file_token :     '/etc/cozy/stack.token'
+                npm_registry:   data.npm_registry or false
+                npm_strict_ssl: data.npm_strict_ssl or false
+                dir_log:        '/usr/local/var/log/cozy'
+                dir_source:     '/usr/local/cozy/apps'
+                file_token:     '/etc/cozy/stack.token'
                 bind_ip_proxy:   data.bind_ip_proxy or '0.0.0.0'
             conf.display_bind = data.bind_ip_proxy?
             if process.env.BIND_IP_PROXY

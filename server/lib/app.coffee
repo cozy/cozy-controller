@@ -18,7 +18,7 @@ class exports.App
         @app.errFile = path.join(logDir, "/#{@app.name}-err.log")
 
         ## Find server
-        # Priority :
+        # Priority:
         #  * script.start defined in @app
         #  * script.start defined in package.json
         #  * build/server.js (if exsits)

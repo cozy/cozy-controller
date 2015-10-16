@@ -9,7 +9,7 @@ sendError = (res, err, code=500) ->
         stack:   null
         message: "Server error occured"
 
-    console.log "Sending error to client :"
+    console.log "Sending error to client: "
     console.log err.stack
 
     res.send code,
@@ -67,6 +67,48 @@ module.exports.install = (req, res, next) ->
             sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
+
+###
+    Change application branch.
+        * Try to stop application
+        * Change application branch
+        * Start application if necessary
+###
+module.exports.changeBranch = (req, res, next) ->
+    manifest = req.body.manifest
+    name = req.params.name
+    newBranch = req.params.branch
+    started = true
+
+    # Stop app if it started
+    controller.stop name, (err, result) ->
+        if err? and err.toString() is 'Error: Cannot stop an application not started'
+            # If application is not started, don't restart it after branch change
+            started = false
+        else if err?
+            # If stop function send another error, stop process
+            log.error err.toString()
+            sendError res, err, 400
+        else
+
+            # Change application branch
+            conn = req.connection
+            controller.changeBranch conn, manifest, newBranch, (err, result) ->
+                if err?
+                    log.error err.toString()
+                    sendError res, err, 400
+                else
+                    unless started
+                        res.send 200, {}
+
+                    # Restart app if necessary
+                    else
+                        controller.start manifest, (err, result) ->
+                            if err?
+                                log.error err.toString()
+                                sendError res, err, 400
+                            else
+                                res.send 200, {"drone": {"port": result.port}}
 
 ###
     Start application
@@ -147,7 +189,7 @@ module.exports.updateStack = (req, res, next) ->
         if err?
             restartController (error) ->
                 log.error err.toString()
-                err = new Error "Cannot update stack : #{err.toString()}"
+                err = new Error "Cannot update stack: #{err.toString()}"
                 sendError res, err, 400
         else
             updateMonitor 0, (err) ->
@@ -155,7 +197,7 @@ module.exports.updateStack = (req, res, next) ->
                 updateController 0, (err) ->
                     if err?
                         log.error err.toString()
-                        err = new Error "Cannot update stack : #{err.toString()}"
+                        err = new Error "Cannot update stack: #{err.toString()}"
                         sendError res, err, 400
                     else
                         res.send 200
