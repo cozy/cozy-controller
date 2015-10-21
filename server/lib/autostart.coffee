@@ -34,8 +34,8 @@ couchDBStarted = (test=5, callback) ->
 isCorrect = (app) ->
     return app.git? and app.name? and
         app.state? and
-        fs.existsSync(path.join(config('dir_source'), app.name)) and
-        fs.existsSync(path.join(config('dir_source'), app.name, "package.json"))
+        fs.existsSync(path.join(config('dir_app_bin'), app.name)) and
+        fs.existsSync(path.join(config('dir_app_bin'), app.name, "package.json"))
 
 ###
     Return manifest of <app> from database application

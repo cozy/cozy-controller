@@ -313,14 +313,14 @@ module.exports.uninstall = (name, callback) ->
             else
                 callback null, name
     else
-        userDir = path.join(config('dir_source'), name)
+        userDir = path.join(config('dir_app_bin'), name)
         if fs.existsSync userDir
             app =
                 name: name
                 dir: userDir
-                logFile: config('dir_log') + name + ".log"
-                errFile: config('dir_log') + name + "-err.log"
-                backup: config('dir_log') + name + ".log-backup"
+                logFile: config('dir_app_log') + name + ".log"
+                errFile: config('dir_app_log') + name + "-err.log"
+                backup: config('dir_app_log') + name + ".log-backup"
             repo.delete app, (err) ->
                 log.info "#{name}:delete directory"
                 # Remove drone in RAM

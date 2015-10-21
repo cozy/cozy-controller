@@ -24,11 +24,11 @@ randomString = (length=32) ->
     Add directory for all applications
 ###
 initAppsDir = (callback) ->
-    apps = fs.readdirSync config('dir_source')
+    apps = fs.readdirSync config('dir_app_bin')
     async.forEach apps, (app, cb) ->
         if app is 'stack.json'
             # Create directory only for application
-            # Stack.json is a file stored in 'dir_source' used for stack configuration.
+            # Stack.json is a file stored in 'dir_app_bin' used for stack configuration.
             cb()
         else
             appli =
@@ -44,8 +44,8 @@ initAppsDir = (callback) ->
         * Remove old directory if necessary
 ###
 initDir = (callback) ->
-    newDir = config('dir_source')
-    oldDir = oldConfig('dir_source')
+    newDir = config('dir_app_bin')
+    oldDir = oldConfig('dir_app_bin')
     mkdirp newDir, (err) ->
         fs.chmod newDir, '0777', (err) ->
             if err?
@@ -106,8 +106,8 @@ initFiles = (callback) ->
         if err?
             callback err
         else
-            mkdirp config('dir_log'), (err) ->
-                mkdirp config('dir_app'), (err) ->
+            mkdirp config('dir_app_log'), (err) ->
+                mkdirp config('dir_app_data'), (err) ->
                     initAppsDir (err) ->
                         if process.env.NODE_ENV isnt "development"
                             initTokenFile callback

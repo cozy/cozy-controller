@@ -18,7 +18,7 @@ changeOwner = (user, path, callback) ->
     Create directory for <app>
 ###
 module.exports.create = (app, callback) ->
-    dirPath = path.join config('dir_app'), app.name
+    dirPath = path.join config('dir_app_data'), app.name
     user = app.user
     if fs.existsSync dirPath
         callback()

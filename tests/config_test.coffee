@@ -155,7 +155,7 @@ describe "Configuration", ->
 
             it "When I initialize log directory", ->
                 conf =
-                    "dir_log": "/usr/local/cozy"
+                    "dir_app_log": "/usr/local/cozy"
                 fs.writeFileSync configurationFile, JSON.stringify(conf)
 
             it "And I started server", (done) ->
@@ -192,7 +192,7 @@ describe "Configuration", ->
 
             it "When I change log directory", ->
                 conf =
-                    "old_dir_log": "/usr/local/cozy"
+                    "old_dir_app_log": "/usr/local/cozy"
                 fs.writeFileSync configurationFile, JSON.stringify(conf)
 
             it "And I started server", (done) ->
