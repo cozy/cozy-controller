@@ -27,6 +27,8 @@ initAppsDir = (callback) ->
     apps = fs.readdirSync config('dir_source')
     async.forEach apps, (app, cb) ->
         if app is 'stack.json'
+            # Create directory only for application
+            # Stack.json is a file stored in 'dir_source' used for stack configuration.
             cb()
         else
             appli =
@@ -75,7 +77,7 @@ initAppsFiles = (callback) ->
     Init stack token stored in '/etc/cozy/stack.token'
 ###
 initTokenFile = (callback) ->
-    log.info "init : token file"
+    log.info "init: token file"
     tokenFile = config('file_token')
     if tokenFile is '/etc/cozy/stack.token' and not fs.existsSync '/etc/cozy'
         fs.mkdirSync '/etc/cozy'
@@ -94,7 +96,7 @@ initTokenFile = (callback) ->
                     callback(err)
 
 ###
-    Initialize files :
+    Initialize files:
         * Initialize stack file and directory of source code
         * Initialize log files
         * Initialize token file
@@ -107,14 +109,13 @@ initFiles = (callback) ->
             mkdirp config('dir_log'), (err) ->
                 mkdirp config('dir_app'), (err) ->
                     initAppsDir (err) ->
-                        if process.env.NODE_ENV is "production" or
-                                process.env.NODE_ENV is "test"
+                        if process.env.NODE_ENV isnt "development"
                             initTokenFile callback
                         else
                             callback()
 
 ###
-    Initialize files :
+    Initialize files:
         * Initialize configuration
         * Initialize files
         * Rewrite file configuration

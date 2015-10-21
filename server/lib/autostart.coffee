@@ -142,7 +142,7 @@ checkStart = (port, callback) ->
     client.get "", (err, res) ->
         if res?
             if res.statusCode not in  [200, 401, 402, 302]
-                log.warn "Warning : receives error #{res.statusCode}"
+                log.warn "Warning: receives error #{res.statusCode}"
             callback()
         else
             checkStart port, callback
@@ -200,7 +200,7 @@ startStack = (stackManifest, app, callback) ->
         callback()
 
 ###
-    Autostart :
+    Autostart:
         * Stack application are declared in file stack
             /usr/local/cozy/stack.json by default
         *  Other applications are declared in couchDB

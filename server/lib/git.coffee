@@ -66,22 +66,26 @@ module.exports.init = (app, callback) ->
                     # available.
                     if not gitVersion? or \
                        compareVersions("1.7.10", gitVersion[1]) is 1
-                        commands.push "git clone #{url} #{app.name} && " + \
-                                      "cd #{app.dir} && " + \
-                                      "git branch #{branch} origin/#{branch} && " + \
-                                      "git checkout #{branch} && " + \
-                                      "git submodule update --init --recursive"
+                        commands = [
+                            "git clone #{url} #{app.name}"
+                            "cd #{app.dir}"
+                        ]
+                        if branch isnt 'master'
+                            commands.push "git branch #{branch} origin/#{branch}"
+                            commands.push "git checkout #{branch}"
+
                     else
-                        commands.push "git clone #{url} --depth 1 " + \
-                                      "--branch #{branch} " + \
-                                      "--single-branch #{app.name} && " + \
-                                      "cd #{app.dir} && " + \
-                                      "git submodule update --init --recursive"
+                        commands = [
+                            "git clone #{url} --depth 1 --branch #{branch} --single-branch #{app.name}"
+                            "cd #{app.dir}"
+                        ]
+
+                    commands.push "git submodule update --init --recursive"
 
                     config =
                         cwd: conf('dir_source')
                         user: app.user
-                    executeUntilEmpty commands, config, (err) ->
+                    executeUntilEmpty commands, config, (err) =>
                         if err?
                             log.error err
                             log.info 'Retry to init repository'
@@ -106,6 +110,23 @@ module.exports.update = (app, callback) ->
         "git reset --hard "
         "git pull origin #{branch}"
         "git submodule update --recursive"
+    ]
+
+    config =
+        cwd: app.dir # runs all the command in the app's directory
+        env: "USER": app.user
+
+    executeUntilEmpty commands, config, callback
+
+###
+    Change branch of <app>
+###
+module.exports.changeBranch = (app, newBranch, callback) ->
+
+    # Setup the git commands to be executed
+    commands = [
+        "git fetch origin #{newBranch}:#{newBranch}"
+        "git checkout #{newBranch}"
     ]
 
     config =

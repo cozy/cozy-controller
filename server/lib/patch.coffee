@@ -35,7 +35,7 @@ move = (source, dest, callback) ->
     child.on 'close', (code) ->
         if code isnt 0
             log.info "Cannot move old source"
-            callback "#{name} : Cannot move old source"
+            callback "#{name}: Cannot move old source"
         else
             callback()
 
@@ -48,14 +48,14 @@ rm = (dir, callback) ->
     child.on 'close', (code) ->
         if code isnt 0
             log.error "Cannot move old source"
-            callback "#{name} : Cannot remove old source"
+            callback "#{name}: Cannot remove old source"
         else
-            log.info "#{dir} : Moved"
+            log.info "#{dir}: Moved"
             callback()
 
 # Move old source path to new source path
-# Old path : /usr/local/cozy/apps/<name>/<name>/<repo>
-# New path : /usr/local/cozy/apps/<name>/<repo>
+# Old path: /usr/local/cozy/apps/<name>/<name>/<repo>
+# New path: /usr/local/cozy/apps/<name>/<repo>
 updateSourceDir = (apps, callback) ->
     if apps.length > 0
         name = apps.pop()
@@ -84,7 +84,7 @@ updateSourceDir = (apps, callback) ->
             else
                 updateSourceDir apps, callback
         else
-            log.info "#{name} : Already moved"
+            log.info "#{name}: Already moved"
             updateSourceDir apps, callback
     else
         callback()
