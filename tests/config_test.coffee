@@ -88,7 +88,7 @@ describe "Configuration", ->
                 @timeout 10000
                 helpers.stopApp done
 
-    ###describe "Stack.json", ->
+    describe "Stack.json", ->
 
         describe "Configuration of stack.json", ->
             after (done) =>
@@ -261,4 +261,4 @@ describe "Configuration", ->
                 helpers.stopApp done
 
             it "And I remove old stack.token", (done) ->
-                fs.unlinkSync "/etc/cozy/test/stack.token"###
+                fs.unlinkSync "/etc/cozy/test/stack.token"
