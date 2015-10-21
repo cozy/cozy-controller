@@ -55,6 +55,7 @@ describe "Configuration", ->
                 helpers.stopApp done
 
         describe 'Bind proxy on default ip (0.0.0.0)', ->
+
             it "When I started server with BIND_IP_PROXY", (done) ->
                 delete process.env.BIND_IP_PROXY
                 @timeout 100000
@@ -90,17 +91,9 @@ describe "Configuration", ->
 
     describe "Stack.json", ->
 
-        describe "Configuration of stack.json", ->
-            after (done) =>
-                @timeout 10000
-                helpers.stopApp done
+        describe "Configuration of stack.json (default)", ->
 
-            it "When I initialize configuration file", ->
-                conf =
-                    "file_stack": "/usr/local/cozy/stack.json"
-                fs.writeFileSync configurationFile, JSON.stringify(conf)
-
-            it "And I started server", (done) ->
+            it "I started server", (done) ->
                 @timeout 100000
                 helpers.startApp () =>
                     client = helpers.getClient()
@@ -119,29 +112,6 @@ describe "Configuration", ->
                     @res = res
                     @port = body.drone.port
                     dsPort = @port
-                    done()
-
-            it "Then stack file should contains data-system information", ->
-                data = fs.readFileSync "/usr/local/cozy/stack.json", 'utf8'
-                data = JSON.parse(data)
-                should.exist data['data-system']
-
-
-        describe "New configuration of stack.json", ->
-            after (done) =>
-                @timeout 10000
-                helpers.stopApp done
-
-            it "When I change configuration file", ->
-                conf =
-                    "old":
-                        "file_stack": "/usr/local/cozy/stack.json"
-                fs.writeFileSync configurationFile, JSON.stringify(conf)
-
-            it "And I started server", (done) ->
-                @timeout 100000
-                helpers.startApp () =>
-                    client = helpers.getClient()
                     done()
 
             it "Then stack file should contains data-system information", ->
@@ -149,16 +119,41 @@ describe "Configuration", ->
                 data = JSON.parse(data)
                 should.exist data['data-system']
 
-    describe "Log directory", ->
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
 
-        describe "Configuration of log directory", ->
 
-            it "When I initialize log directory", ->
-                conf =
-                    "dir_app_log": "/usr/local/cozy"
+        describe "New configuration of stack.json", ->
+
+            it "When I change configuration file", ->
+                conf = "file_stack": "/usr/local/cozy/stack.json"
                 fs.writeFileSync configurationFile, JSON.stringify(conf)
+                fs.renameSync '/usr/local/cozy/apps/stack.json', '/usr/local/cozy/stack.json'
 
             it "And I started server", (done) ->
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+            it "And data-system should be started", (done) ->
+                @timeout 500000
+                client.get 'drones/running', (err, res, body) =>
+                    isRunning  = 'data-system' in Object.keys(body.app)
+                    isRunning.should.equal true
+                    done()
+
+
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
+
+    describe "Log directory", ->
+
+        describe "Configuration of log directory (default)", ->
+
+            it "I started server", (done) ->
                 @timeout 100000
                 helpers.startApp () =>
                     client = helpers.getClient()
@@ -173,15 +168,59 @@ describe "Configuration", ->
                         type: "git"
                     scripts:
                         start: "server.coffee"
-                client.post 'apps/data-system/install', "start":app, (err, res, body) =>
-                    @res = res
-                    @port = body.drone.port
-                    dsPort = @port
+                client.post 'apps/data-system/uninstall', "name":"data-system", (err, res, body) =>
+                    client.post 'apps/data-system/install', "start":app, (err, res, body) =>
+                        @res = res
+                        @port = body.drone.port
+                        dsPort = @port
+                        done()
+
+            it "Then data-system logs should be stored in log directory", ->
+                log = fs.existsSync "/usr/local/var/log/cozy/data-system.log"
+                log.should.equal true
+
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
+
+
+        describe "New configuration of log directory", ->
+
+            it "When I change log directory", ->
+                conf =
+                    "dir_app_log": "/usr/local/cozy"
+                fs.writeFileSync configurationFile, JSON.stringify(conf)
+                fs.renameSync '/usr/local/cozy/stack.json', '/usr/local/cozy/apps/stack.json'
+
+            it "And I started server", (done) ->
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
                     done()
 
             it "Then data-system logs should be stored in log directory", ->
-                log = fs.existSync "/usr/local/cozy/data-system.log"
-                log.should.be true
+                log = fs.existsSync "/usr/local/cozy/data-system.log"
+                log.should.equal true
+
+            it "And I stopped server", (done) ->
+                @timeout 10000
+                helpers.stopApp done
+
+    describe "Stack.token", ->
+
+        describe "Configuration of stack.token (default)", ->
+
+            it "I started server", (done) ->
+                @timeout 100000
+                helpers.startApp () =>
+                    client = helpers.getClient()
+                    done()
+
+            it "Then stack file should contains data-system information", ->
+                log = fs.existsSync "/etc/cozy/stack.token"
+                log.should.equal true
+                data = fs.readFileSync "/etc/cozy/stack.token"
+                data.length.should.equal 32
 
             it "And I stopped server", (done) ->
                 @timeout 10000
@@ -190,31 +229,8 @@ describe "Configuration", ->
 
         describe "New configuration of stack.token", ->
 
-            it "When I change log directory", ->
-                conf =
-                    "old_dir_app_log": "/usr/local/cozy"
-                fs.writeFileSync configurationFile, JSON.stringify(conf)
-
-            it "And I started server", (done) ->
-                @timeout 100000
-                helpers.startApp () =>
-                    client = helpers.getClient()
-                    done()
-
-            it "Then stack file should contains data-system information", ->
-                log = fs.existSync "/usr/local/cozy/data-system.log"
-                log.should.be true
-
-            it "And I stopped server", (done) ->
-                @timeout 10000
-                helpers.stopApp done
-
-    describe "Stack.token", ->
-
-        describe "Configuration of stack.token", ->
-
-            it "When I initialize token file", ->
-                if not fs.existSync "/etc/cozy/test"
+            it "When I initialize configuration for token file", ->
+                if not fs.existsSync "/etc/cozy/test"
                     fs.mkdirSync "/etc/cozy/test"
                 conf =
                     "file_token": "/etc/cozy/test/stack.token"
@@ -227,38 +243,15 @@ describe "Configuration", ->
                     done()
 
             it "Then stack token should be stored in token file", ->
-                log = fs.existSync "/etc/cozy/test/stack.token"
-                log.should.be true
+                log = fs.existsSync "/etc/cozy/test/stack.token"
+                log.should.equal true
                 data = fs.readFileSync "/etc/cozy/test/stack.token"
-                data.length.should.be 32
+                data.length.should.equal 32
 
 
             it "And I stopped server", (done) ->
                 @timeout 10000
                 helpers.stopApp done
 
-
-        describe "New configuration of stack.token", ->
-
-            it "When I change token file", ->
-                conf = {}
-                fs.writeFileSync configurationFile, JSON.stringify(conf)
-
-            it "And I started server", (done) ->
-                @timeout 100000
-                helpers.startApp () =>
-                    client = helpers.getClient()
-                    done()
-
-            it "Then stack file should contains data-system information", ->
-                log = fs.existSync "/etc/cozy/stack.token"
-                log.should.be true
-                data = fs.readFileSync "/etc/cozy/stack.token"
-                data.length.should.be 32
-
-            it "And I stopped server", (done) ->
-                @timeout 10000
-                helpers.stopApp done
-
-            it "And I remove old stack.token", (done) ->
+            it "And I remove old stack.token", ->
                 fs.unlinkSync "/etc/cozy/test/stack.token"
