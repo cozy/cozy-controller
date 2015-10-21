@@ -14,7 +14,11 @@ spawn = require('child_process').spawn
 describe "Configuration", ->
 
     before helpers.cleanApp
-    after helpers.cleanApp
+    after (done)->
+        helpers.cleanApp () ->
+            conf = {}
+            fs.writeFileSync configurationFile, JSON.stringify(conf)
+            done()
 
 
     describe "Option BIND_IP_PROXY", ->
