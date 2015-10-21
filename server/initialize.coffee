@@ -8,7 +8,6 @@ App = require('./lib/app').App
 directory = require './lib/directory'
 conf = require './lib/conf'
 config = require('./lib/conf').get
-oldConfig = require('./lib/conf').getOld
 mkdirp = require 'mkdirp'
 patch = require './lib/patch'
 
@@ -41,20 +40,11 @@ initAppsDir = (callback) ->
 ###
     Initialize source directory
         * Create new directory
-        * Remove old directory if necessary
 ###
 initDir = (callback) ->
     newDir = config('dir_app_bin')
-    oldDir = oldConfig('dir_app_bin')
     mkdirp newDir, (err) ->
-        fs.chmod newDir, '0777', (err) ->
-            if err?
-                callback err
-            else
-                if oldDir
-                    fs.renameSync path.join(oldDir, "stack.json"),
-                        path.join(newDir, "stack.json")
-                callback()
+        fs.chmod newDir, '0777', callback
 
 ###
     Initialize source code directory and stack.json file
@@ -65,13 +55,10 @@ initAppsFiles = (callback) ->
         callback err if err?
         log.info 'init: stack file'
         stackFile = config('file_stack')
-        if oldConfig('file_stack')
-            fs.rename oldConfig('file_stack'), stackFile, callback
+        if not fs.existsSync stackFile
+            fs.open stackFile,'w', callback
         else
-            if not fs.existsSync stackFile
-                fs.open stackFile,'w', callback
-            else
-                callback()
+            callback()
 
 ###
     Init stack token stored in '/etc/cozy/stack.token'
@@ -128,7 +115,6 @@ module.exports.init = (callback) ->
                 callback err
             else
                 initFiles (err) ->
-                    conf.backupConfig()
                     callback err
     if fs.existsSync '/usr/local/cozy/autostart'
         patch.apply ->

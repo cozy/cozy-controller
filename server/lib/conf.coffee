@@ -69,29 +69,3 @@ module.exports.init = (callback) ->
 ###
 module.exports.get = (arg) ->
     return conf[arg]
-
-###
-    Return old configuration for <arg>
-###
-module.exports.getOld = (arg) ->
-    return oldConf[arg]
-
-###
-    Remove Old configuration
-        * Rewrite file configuration without old configuration
-        * Usefull after changes (move code soource for example)
-###
-module.exports.backupConfig = ->
-    displayConf =
-        npm_registry : conf.npm_registry
-        npm_strict_ssl : conf.npm_strict_ssl
-        dir_log : conf.dir_log
-        dir_source : conf.dir_source
-        env : conf.env
-    if conf.display_bind
-        displayConf.bind_ip_proxy = conf.bind_ip_proxy
-    fs.writeFile configFile, JSON.stringify(displayConf, null, 2), (err) ->
-        log.error err  if err?
-        path = "/etc/cozy/.controller-backup.json"
-        fs.writeFile path, JSON.stringify(displayConf, null, 2), (err) ->
-            log.error err  if err?
