@@ -1,10 +1,7 @@
 fs = require 'fs'
-log = require('printit')()
 
 ## Global variables
 conf = {}
-oldConf = {}
-patch = "0"
 configFile = '/etc/cozy/controller.json'
 
 ###
@@ -20,14 +17,9 @@ readFile = (callback) ->
             else
                 data = fs.readFileSync configFile, 'utf8'
                 data = JSON.parse(data)
-            data.old = {}
+            callback null, data
         catch
             callback null, {}
-        if fs.existsSync '/etc/cozy/.controller-backup.json'
-            data.old = require '/etc/cozy/.controller-backup.json'
-            callback null, data
-        else
-            callback null, data
     else
         callback null, {}
 
@@ -35,9 +27,6 @@ readFile = (callback) ->
     Initialize configuration
         * Use configuration store in configuration file or default configuration
         * conf : Current configuration
-        * oldConf : Old configuration, usefull to move source code between
-            different configurations for example
-        * patch : usefull between old and new controller
 ###
 module.exports.init = (callback) ->
     readFile (err, data) ->
@@ -52,10 +41,10 @@ module.exports.init = (callback) ->
                 dir_app_data :   data.dir_app_data or '/usr/local/var/cozy'
                 file_token :     data.file_token or '/etc/cozy/stack.token'
                 bind_ip_proxy:   data.bind_ip_proxy or '0.0.0.0'
-            conf.display_bind = data.bind_ip_proxy?
+                display_bind:    data.bind_ip_proxy?
+            conf.file_stack =    data.file_stack or conf.dir_app_bin + '/stack.json'
             if process.env.BIND_IP_PROXY
                 conf.bind_ip_proxy = process.env.BIND_IP_PROXY
-            conf.file_stack = conf.dir_app_bin + '/stack.json'
             if data.env?
                 conf.env =
                     global:         data.env.global or false
