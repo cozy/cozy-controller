@@ -287,7 +287,7 @@ module.exports.stopAll = (callback) ->
         * Remove code source
         * Delete application from drones (and running if necessary)
 ###
-module.exports.uninstall = (name, callback) ->
+module.exports.uninstall = (name, purge=false, callback) ->
     if drones[name]?
         # Stop application
         if running[name]?
@@ -302,9 +302,13 @@ module.exports.uninstall = (name, callback) ->
                 log.error err
         # Remove repo and log files
         app = drones[name]
+        if purge
+            log.info "#{name}:delete directory"
+            directory.remove app, (err) ->
+                log.error err if err?
         # Remove repo
         repo.delete app, (err) ->
-            log.info "#{name}:delete directory"
+            log.info "#{name}:delete source"
             # Remove drone in RAM
             if drones[name]?
                 delete drones[name]
@@ -321,8 +325,12 @@ module.exports.uninstall = (name, callback) ->
                 logFile: config('dir_app_log') + name + ".log"
                 errFile: config('dir_app_log') + name + "-err.log"
                 backup: config('dir_app_log') + name + ".log-backup"
-            repo.delete app, (err) ->
+            if purge
                 log.info "#{name}:delete directory"
+                directory.remove app, (err) ->
+                    log.error err if err?
+            repo.delete app, (err) ->
+                log.info "#{name}:delete source"
                 # Remove drone in RAM
                 if drones[name]?
                     delete drones[name]

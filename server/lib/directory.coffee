@@ -1,7 +1,9 @@
 path = require 'path'
 fs = require 'fs'
-config = require('./conf').get
+rmdir = require 'rimraf'
 spawn = require('child_process').spawn
+
+config = require('./conf').get
 
 ###
     Change owner for folder path
@@ -32,3 +34,13 @@ module.exports.create = (app, callback) ->
                         callback err
         catch error
             callback error
+
+###
+    Remove directory for <app>
+###
+module.exports.remove = (app, callback) ->
+    dirPath = path.join config('dir_app_data'), app.name
+    if fs.existsSync dirPath
+        rmdir dirPath, callback
+    else
+        callback()

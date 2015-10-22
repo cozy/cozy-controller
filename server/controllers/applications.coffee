@@ -151,7 +151,8 @@ module.exports.stop = (req, res, next) ->
 ###
 module.exports.uninstall = (req, res, next) ->
     name = req.params.name
-    controller.uninstall name, (err, result) ->
+    purge = req.body.purge?
+    controller.uninstall name, purge, (err, result) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
