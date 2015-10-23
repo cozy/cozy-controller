@@ -2,7 +2,8 @@ controller = require ('../lib/controller')
 async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
-
+latest = require 'latest'
+pkg = require '../../package.json'
 
 sendError = (res, err, code=500) ->
     err ?=
@@ -21,13 +22,18 @@ sendError = (res, err, code=500) ->
 
 
 updateController = (count, callback) ->
-    log.info "controller: update"
-    exec "npm -g update cozy-controller", (err, stdout, stderr) ->
-        if err or stderr
-            if count < 2
-                updateController count + 1, callback
-            else
-                callback "Error during controller update after #{count + 1} try: #{stderr}"
+    # Check if a new version is available
+    latest 'cozy-controller', (err, version) ->
+        if version isnt pkg.version
+            log.info "controller: update"
+            exec "npm -g update cozy-controller", (err, stdout, stderr) ->
+                if err or stderr
+                    if count < 2
+                        updateController count + 1, callback
+                    else
+                        callback "Error during controller update after #{count + 1} try: #{stderr}"
+                else
+                    restartController callback
         else
             restartController callback
 
@@ -185,6 +191,7 @@ module.exports.update = (req, res, next) ->
 ###
 module.exports.updateStack = (req, res, next) ->
     options = req.body
+
     async.eachSeries ['data-system', 'proxy', 'home'], (app, callback) ->
         controller.stop app, (err, res) ->
             return callback err if err?
