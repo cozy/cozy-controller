@@ -100,7 +100,7 @@ module.exports.addApp = (app, callback) ->
 
     ## Store in database
     # Recover application information
-    manifest = path.join(config('dir_source'), app.name, 'package.json')
+    manifest = path.join(config('dir_app_bin'), app.name, 'package.json')
     fs.readFile manifest, (err, data) ->
         if err
             log.warn 'Error when read package.json'

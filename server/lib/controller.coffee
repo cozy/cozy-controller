@@ -2,6 +2,7 @@ fs = require 'fs'
 spawner = require './spawner'
 npm = require './npm'
 repo = require './repo'
+directory = require './directory'
 user = require './user'
 stack = require './stack'
 config = require('./conf').get
@@ -185,29 +186,34 @@ module.exports.install = (connection, manifest, callback) ->
                 err.code = 1
                 callback err
             else
-                # Git clone
-                log.info "#{app.name}:git clone"
-                type[app.repository.type].init app, (err) ->
+                # Create repository for application
+                directory.create app, (err) ->
                     if err?
-                        # Error on source retrieval: code 2-
-                        err.code = 2 if not err.code?
-                        err.code = 20 + err.code
                         callback err
                     else
-                        # NPM install
-                        log.info "#{app.name}:npm install"
-                        installDependencies connection, app, 2, (err) ->
+                        # Git clone
+                        log.info "#{app.name}:git clone"
+                        type[app.repository.type].init app, (err) ->
                             if err?
-                                # Error on dependencies: code 3
-                                err.code = 3
+                                # Error on source retrieval : code 2-
+                                err.code ?= 2
+                                err.code = 20 + err.code
                                 callback err
                             else
-                                log.info "#{app.name}:start application"
-                                # Start application
-                                startApp app, (err, result)->
-                                    # Error application.starting: code 4
-                                    err.code = 4 if err?
-                                    callback err, result
+                                # NPM install
+                                log.info "#{app.name}:npm install"
+                                installDependencies connection, app, 2, (err) ->
+                                    if err?
+                                        # Error on dependencies : code 3
+                                        err.code = 3
+                                        callback err
+                                    else
+                                        log.info "#{app.name}:start application"
+                                        # Start application
+                                        startApp app, (err, result)->
+                                            # Error application.starting: code 4
+                                            err.code = 4 if err?
+                                            callback err, result
 
 ###
     Start aplication defined by <manifest>
@@ -281,7 +287,7 @@ module.exports.stopAll = (callback) ->
         * Remove code source
         * Delete application from drones (and running if necessary)
 ###
-module.exports.uninstall = (name, callback) ->
+module.exports.uninstall = (name, purge=false, callback) ->
     if drones[name]?
         # Stop application
         if running[name]?
@@ -296,9 +302,13 @@ module.exports.uninstall = (name, callback) ->
                 log.error err
         # Remove repo and log files
         app = drones[name]
+        if purge
+            log.info "#{name}:delete directory"
+            directory.remove app, (err) ->
+                log.error err if err?
         # Remove repo
         repo.delete app, (err) ->
-            log.info "#{name}:delete directory"
+            log.info "#{name}:delete source"
             # Remove drone in RAM
             if drones[name]?
                 delete drones[name]
@@ -307,16 +317,20 @@ module.exports.uninstall = (name, callback) ->
             else
                 callback null, name
     else
-        userDir = path.join(config('dir_source'), name)
+        userDir = path.join(config('dir_app_bin'), name)
         if fs.existsSync userDir
             app =
                 name: name
                 dir: userDir
-                logFile: config('dir_log') + name + ".log"
-                errFile: config('dir_log') + name + "-err.log"
-                backup: config('dir_log') + name + ".log-backup"
-            repo.delete app, (err) ->
+                logFile: config('dir_app_log') + name + ".log"
+                errFile: config('dir_app_log') + name + "-err.log"
+                backup: config('dir_app_log') + name + ".log-backup"
+            if purge
                 log.info "#{name}:delete directory"
+                directory.remove app, (err) ->
+                    log.error err if err?
+            repo.delete app, (err) ->
+                log.info "#{name}:delete source"
                 # Remove drone in RAM
                 if drones[name]?
                     delete drones[name]

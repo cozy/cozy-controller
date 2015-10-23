@@ -83,7 +83,7 @@ module.exports.init = (app, callback) ->
                     commands.push "git submodule update --init --recursive"
 
                     config =
-                        cwd: conf('dir_source')
+                        cwd: conf('dir_app_bin')
                         user: app.user
                     executeUntilEmpty commands, config, (err) =>
                         if err?
