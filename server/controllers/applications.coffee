@@ -21,33 +21,28 @@ sendError = (res, err, code=500) ->
         code: err.code if err.code?
 
 
-updateController = (count, callback) ->
+updateController = (callback) ->
     # Check if a new version is available
     latest 'cozy-controller', (err, version) ->
-        if version isnt pkg.version
+        if not err? and version isnt pkg.version
             log.info "controller: update"
             exec "npm -g update cozy-controller", (err, stdout, stderr) ->
                 if err or stderr
-                    if count < 2
-                        updateController count + 1, callback
-                    else
-                        callback "Error during controller update after #{count + 1} try: #{stderr}"
+                    callback "Error during controller update: #{stderr}"
                 else
-                    restartController callback
+                    callback()
         else
-            restartController callback
+            callback()
 
-updateMonitor = (block, count, callback) ->
-    if block
+
+updateMonitor = (callback) ->
+    if @blockMonitor
         callback()
     else
         log.info "monitor: update"
         exec "npm -g update cozy-monitor", (err, stdout, stderr) ->
             if err or stderr
-                if count < 2
-                    updateMonitor count + 1, callback
-                else
-                    callback "Error during monitor update after #{count + 1} try: #{stderr}"
+                callback "Error during monitor update: #{stderr}"
             else
                 callback()
 
@@ -204,15 +199,21 @@ module.exports.updateStack = (req, res, next) ->
                 err = new Error "Cannot update stack: #{err.toString()}"
                 sendError res, err, 400
         else
-            updateMonitor options.blockMonitor, 0, (err) ->
+            async.retry 3, updateMonitor.bind(options), (err, result) ->
                 log.error err.toString() if err?
-                updateController 0, (err) ->
+                async.retry 3, updateController, (err, result) ->
                     if err?
                         log.error err.toString()
                         err = new Error "Cannot update stack: #{err.toString()}"
                         sendError res, err, 400
                     else
-                        res.send 200
+                        restartController (err) ->
+                            if err?
+                                log.error err.toString()
+                                err = new Error "Cannot update stack: #{err.toString()}"
+                                sendError res, err, 400
+                            else
+                                res.send 200
 
 ###
     Reboot controller
