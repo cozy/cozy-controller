@@ -52,6 +52,8 @@
     "cozy-controller": "./bin/cozy-controller"
   },
   "scripts": {
-    "test": "cake --use-js tests"
+    "test": "cake --use-js tests",
+    "build": "cake build",
+    "prepublish": "npm run build"
   }
 }
