@@ -3,7 +3,12 @@ async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
 latest = require 'latest'
-pkg = require '../../package.json'
+try
+    # Coffee
+    pkg = require '../../package.json'
+catch
+    # JS
+    pkg = require '../../../package.json'
 
 sendError = (res, err, code=500) ->
     err ?=
