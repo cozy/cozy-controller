@@ -23,10 +23,10 @@ config = require('../lib/conf').get;
  */
 
 module.exports.start = function(app, callback) {
-  var env, environment, foreverOptions, i, j, key, len, len1, pwd, ref, ref1, ref2, ref3, ref4, result;
+  var env, environment, fd, foreverOptions, i, j, key, len, len1, pwd, ref, ref1, ref2, ref3, ref4, result;
   result = {};
-  if (this.process) {
-    this.process.stop();
+  if (this.appliProcess) {
+    this.appliProcess.stop();
   }
   if ((ref = app.name) === "home" || ref === "proxy" || ref === "data-system") {
     pwd = token.get();
@@ -68,7 +68,7 @@ module.exports.start = function(app, callback) {
     cwd: app.dir,
     logFile: app.logFile,
     outFile: app.logFile,
-    errFile: app.logFile,
+    errFile: app.errFile,
     env: env,
     killTree: true,
     killTTL: 0,
@@ -77,17 +77,26 @@ module.exports.start = function(app, callback) {
   if (fs.existsSync(app.logFile)) {
     app.backup = app.logFile + "-backup";
     if (fs.existsSync(app.backup)) {
-      fs.unlink(app.backup);
+      fs.unlinkSync(app.backup);
     }
     fs.renameSync(app.logFile, app.backup);
   }
-  fs.openSync(app.logFile, 'w');
+  if (fs.existsSync(app.errFile)) {
+    app.backupErr = app.errFile + "-backup";
+    if (fs.existsSync(app.backupErr)) {
+      fs.unlinkSync(app.backupErr);
+    }
+    fs.renameSync(app.errFile, app.backupErr);
+  }
+  fd = [];
+  fd[0] = fs.openSync(app.logFile, 'w');
+  fd[1] = fs.openSync(app.errFile, 'w');
   foreverOptions.options = ['--plugin', 'net', '--plugin', 'setgid', '--setgid', app.user, '--plugin', 'setgroups', '--setgroups', app.user, '--plugin', 'setuid', '--setuid', app.user];
   if (app.name === "proxy") {
     foreverOptions.options = foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')]);
   }
   return fs.readFile(app.dir + "/package.json", 'utf8', function(err, data) {
-    var carapaceBin, onError, onExit, onPort, onRestart, onStart, onStderr, onTimeout, process, ref5, responded, server, start, timeout;
+    var appliProcess, carapaceBin, onError, onExit, onPort, onRestart, onStart, onStderr, onTimeout, ref5, responded, server, start, timeout;
     data = JSON.parse(data);
     server = app.server;
     if (((ref5 = data.scripts) != null ? ref5.start : void 0) != null) {
@@ -107,12 +116,14 @@ module.exports.start = function(app, callback) {
     });
     foreverOptions.options.push(app.startScript);
     carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
-    process = new forever.Monitor(carapaceBin, foreverOptions);
+    appliProcess = new forever.Monitor(carapaceBin, foreverOptions);
     responded = false;
     onExit = function() {
       app.backup = app.logFile + "-backup";
+      app.backupErr = app.errFile + "-backup";
       fs.rename(app.logFile, app.backup);
-      process.removeListener('error', onError);
+      fs.rename(app.errFile, app.backupErr);
+      appliProcess.removeListener('error', onError);
       clearTimeout(timeout);
       log.error('Callback on Exit');
       if (callback) {
@@ -120,7 +131,7 @@ module.exports.start = function(app, callback) {
       } else {
         log.error(app.name + " HAS FAILLED TOO MUCH");
         return setTimeout((function() {
-          return process.exit(1);
+          return appliProcess.exit(1);
         }), 1);
       }
     };
@@ -129,28 +140,29 @@ module.exports.start = function(app, callback) {
         err = err.toString();
         responded = true;
         callback(err);
-        process.removeListener('exit', onExit);
-        process.removeListener('message', onPort);
+        appliProcess.removeListener('exit', onExit);
+        appliProcess.removeListener('message', onPort);
         return clearTimeout(timeout);
       }
     };
     onStart = function(monitor, data) {
       return result = {
-        monitor: process,
+        monitor: appliProcess,
         process: monitor.child,
         data: data,
         pid: monitor.childData.pid,
-        pkg: app
+        pkg: app,
+        fd: fd
       };
     };
     onRestart = function() {
       return log.info(app.name + ":restart");
     };
     onTimeout = function() {
-      process.removeListener('exit', onExit);
-      process.stop();
+      appliProcess.removeListener('exit', onExit);
+      appliProcess.stop();
       controller.removeRunningApp(app.name);
-      err = new Error('Error spawning drone');
+      err = new Error('Error spawning application');
       log.error('callback timeout');
       return callback(err);
     };
@@ -159,27 +171,27 @@ module.exports.start = function(app, callback) {
         responded = true;
         result.port = info.data.port;
         callback(null, result);
-        process.removeListener('exit', onExit);
-        process.removeListener('error', onError);
-        process.removeListener('message', onPort);
+        appliProcess.removeListener('exit', onExit);
+        appliProcess.removeListener('error', onError);
+        appliProcess.removeListener('message', onPort);
         return clearTimeout(timeout);
       }
     };
     onStderr = function(err) {
       err = err.toString();
-      return fs.appendFile(app.logFile, err, function(err) {
+      return fs.appendFile(app.errFile, err, function(err) {
         if (err != null) {
           return console.log(err);
         }
       });
     };
-    process.start();
+    appliProcess.start();
     timeout = setTimeout(onTimeout, 8000000);
-    process.once('exit', onExit);
-    process.once('error', onError);
-    process.once('start', onStart);
-    process.on('restart', onRestart);
-    process.on('message', onPort);
-    return process.on('stderr', onStderr);
+    appliProcess.once('exit', onExit);
+    appliProcess.once('error', onError);
+    appliProcess.once('start', onStart);
+    appliProcess.on('restart', onRestart);
+    appliProcess.on('message', onPort);
+    return appliProcess.on('stderr', onStderr);
   });
 };

@@ -22,6 +22,7 @@ exports.App = (function() {
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
     this.app.logFile = path.join(logDir, "/" + this.app.name + ".log");
+    this.app.errFile = path.join(logDir, "/" + this.app.name + "-err.log");
     if (((ref = this.app.scripts) != null ? ref.start : void 0) != null) {
       this.app.server = this.app.scripts.start;
     } else {

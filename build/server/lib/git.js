@@ -81,10 +81,10 @@ module.exports.init = function(app, callback) {
         } else {
           commands = [];
           branch = app.repository.branch || "master";
-          if ((gitVersion == null) || compareVersions("1.7.10", gitVersion[0]) === -1) {
-            commands.push(("git clone " + url + " " + app.name + " && ") + ("cd " + app.dir + " && ") + ("git checkout " + branch + " && ") + "git submodule update --init --recursive");
+          if ((gitVersion == null) || compareVersions("1.7.10", gitVersion[1]) === 1) {
+            commands.push(("git clone " + url + " " + app.name + " && ") + ("cd " + app.dir + " && ") + ("git branch " + branch + " origin/" + branch + " && ") + ("git checkout " + branch + " && ") + "git submodule update --init --recursive");
           } else {
-            commands.push(("git clone " + url + " --depth 1 ") + ("--branch " + branch + " ") + "--single-branch && " + ("cd " + app.dir + " && ") + "git submodule update --init --recursive");
+            commands.push(("git clone " + url + " --depth 1 ") + ("--branch " + branch + " ") + ("--single-branch " + app.name + " && ") + ("cd " + app.dir + " && ") + "git submodule update --init --recursive");
           }
           config = {
             cwd: conf('dir_source'),

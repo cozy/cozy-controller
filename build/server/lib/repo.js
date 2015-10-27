@@ -79,12 +79,12 @@ module.exports["delete"] = function(app, callback) {
       if (fs.existsSync(app.logFile)) {
         return fs.unlink(app.logFile, function(err) {
           if (fs.existsSync(app.backup)) {
-            return fs.unlink(app.backup, function(err) {
-              return callback();
-            });
-          } else {
-            return callback();
+            fs.unlinkSync(app.backup);
           }
+          if (fs.existsSync(app.backupErr)) {
+            fs.unlinkSync(app.backupErr);
+          }
+          return callback();
         });
       } else {
         return callback();
