@@ -8,8 +8,8 @@ fs = require 'fs'
 class exports.App
 
     constructor: (@app) ->
-        homeDir = config('dir_source')
-        logDir = config('dir_log')
+        homeDir = config('dir_app_bin')
+        logDir = config('dir_app_log')
 
         @app.dir = path.join(homeDir, @app.name)
         @app.user = 'cozy-' + @app.name
@@ -18,7 +18,7 @@ class exports.App
         @app.errFile = path.join(logDir, "/#{@app.name}-err.log")
 
         ## Find server
-        # Priority :
+        # Priority:
         #  * script.start defined in @app
         #  * script.start defined in package.json
         #  * build/server.js (if exsits)

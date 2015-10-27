@@ -34,8 +34,8 @@ couchDBStarted = (test=5, callback) ->
 isCorrect = (app) ->
     return app.git? and app.name? and
         app.state? and
-        fs.existsSync(path.join(config('dir_source'), app.name)) and
-        fs.existsSync(path.join(config('dir_source'), app.name, "package.json"))
+        fs.existsSync(path.join(config('dir_app_bin'), app.name)) and
+        fs.existsSync(path.join(config('dir_app_bin'), app.name, "package.json"))
 
 ###
     Return manifest of <app> from database application
@@ -142,7 +142,7 @@ checkStart = (port, callback) ->
     client.get "", (err, res) ->
         if res?
             if res.statusCode not in  [200, 401, 402, 302]
-                log.warn "Warning : receives error #{res.statusCode}"
+                log.warn "Warning: receives error #{res.statusCode}"
             callback()
         else
             checkStart port, callback
@@ -200,7 +200,7 @@ startStack = (stackManifest, app, callback) ->
         callback()
 
 ###
-    Autostart :
+    Autostart:
         * Stack application are declared in file stack
             /usr/local/cozy/stack.json by default
         *  Other applications are declared in couchDB

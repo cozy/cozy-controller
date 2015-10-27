@@ -46,7 +46,7 @@ module.exports.install = (connection, target, callback) ->
 
     child.on 'close', (code) =>
         if code isnt 0
-            log.error "npm:install:err: NPM Install failed : #{stderr}"
+            log.error "npm:install:err: NPM Install failed: #{stderr}"
             err = new Error('NPM Install failed')
             callback stderr
         else

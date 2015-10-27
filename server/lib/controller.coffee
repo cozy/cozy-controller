@@ -170,8 +170,7 @@ module.exports.removeRunningApp = (name) ->
         4 -> Error in application starting
 ###
 module.exports.install = (connection, manifest, callback) ->
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     # Check if app exists
     if drones[app.name]? or fs.existsSync(app.dir)
         log.info "#{app.name}:already installed"
@@ -183,7 +182,7 @@ module.exports.install = (connection, manifest, callback) ->
         # Create user if necessary
         user.create app, (err) ->
             if err?
-                # Error on user creation : code 1
+                # Error on user creation: code 1
                 err.code = 1
                 callback err
             else
@@ -197,7 +196,7 @@ module.exports.install = (connection, manifest, callback) ->
                         type[app.repository.type].init app, (err) ->
                             if err?
                                 # Error on source retrieval : code 2-
-                                err.code = 2 if not err.code?
+                                err.code ?= 2
                                 err.code = 20 + err.code
                                 callback err
                             else
@@ -222,8 +221,7 @@ module.exports.install = (connection, manifest, callback) ->
         * Start process
 ###
 module.exports.start = (manifest, callback) ->
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     if drones[app.name]? or fs.existsSync(app.dir)
         drones[app.name] = app
         startApp app, (err, result) ->
@@ -234,6 +232,33 @@ module.exports.start = (manifest, callback) ->
     else
         err = new Error 'Cannot start an application not installed'
         callback err
+
+###
+    Change aplication branch
+        * Git checkout
+        * Install dependencies
+###
+module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
+    # Git checkout
+    app = new App(manifest).app
+    log.info "#{app.name}:git checkout"
+    type['git'].changeBranch app, newBranch, (err) ->
+        if err?
+            # Error on source retrieval : code 2-
+            err.code = 2 if not err.code?
+            err.code = 20 + err.code
+            callback err
+        else
+            # NPM install
+            log.info "#{app.name}:npm install"
+            installDependencies connection, app, 2, (err) ->
+                if err?
+                    # Error on dependencies : code 3
+                    err.code = 3
+                    callback err
+                else
+                    callback()
+
 
 ###
     Stop application <name>
@@ -262,7 +287,7 @@ module.exports.stopAll = (callback) ->
         * Remove code source
         * Delete application from drones (and running if necessary)
 ###
-module.exports.uninstall = (name, callback) ->
+module.exports.uninstall = (name, purge=false, callback) ->
     if drones[name]?
         # Stop application
         if running[name]?
@@ -277,9 +302,13 @@ module.exports.uninstall = (name, callback) ->
                 log.error err
         # Remove repo and log files
         app = drones[name]
+        if purge
+            log.info "#{name}:delete directory"
+            directory.remove app, (err) ->
+                log.error err if err?
         # Remove repo
         repo.delete app, (err) ->
-            log.info "#{name}:delete directory"
+            log.info "#{name}:delete source"
             # Remove drone in RAM
             if drones[name]?
                 delete drones[name]
@@ -288,16 +317,20 @@ module.exports.uninstall = (name, callback) ->
             else
                 callback null, name
     else
-        userDir = path.join(config('dir_source'), name)
+        userDir = path.join(config('dir_app_bin'), name)
         if fs.existsSync userDir
             app =
                 name: name
                 dir: userDir
-                logFile: config('dir_log') + name + ".log"
-                errFile: config('dir_log') + name + "-err.log"
-                backup: config('dir_log') + name + ".log-backup"
-            repo.delete app, (err) ->
+                logFile: config('dir_app_log') + name + ".log"
+                errFile: config('dir_app_log') + name + "-err.log"
+                backup: config('dir_app_log') + name + ".log-backup"
+            if purge
                 log.info "#{name}:delete directory"
+                directory.remove app, (err) ->
+                    log.error err if err?
+            repo.delete app, (err) ->
+                log.info "#{name}:delete source"
                 # Remove drone in RAM
                 if drones[name]?
                     delete drones[name]
@@ -319,8 +352,7 @@ module.exports.uninstall = (name, callback) ->
 module.exports.update = (connection, manifest, callback) ->
     if manifest in stackApps
         manifest = drones[manifest]
-    app = new App manifest
-    app = app.app
+    app = new App(manifest).app
     if drones[app.name]?
         if running[app.name]?
             log.info "#{app.name}:stop application"

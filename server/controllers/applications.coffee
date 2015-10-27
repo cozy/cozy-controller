@@ -2,14 +2,15 @@ controller = require ('../lib/controller')
 async = require 'async'
 log = require('printit')()
 exec = require('child_process').exec
-
+latest = require 'latest'
+pkg = require '../../package.json'
 
 sendError = (res, err, code=500) ->
     err ?=
         stack:   null
         message: "Server error occured"
 
-    console.log "Sending error to client :"
+    console.log "Sending error to client: "
     console.log err.stack
 
     res.send code,
@@ -20,27 +21,30 @@ sendError = (res, err, code=500) ->
         code: err.code if err.code?
 
 
-updateController = (count, callback) ->
-    log.info "controller: update"
-    exec "npm -g update cozy-controller", (err, stdout, stderr) ->
-        if err or stderr
-            if count < 2
-                updateController count + 1, callback
-            else
-                callback "Error during controller update after #{count + 1} try: #{stderr}"
-        else
-            restartController callback
-
-updateMonitor = (count, callback) ->
-    log.info "monitor: update"
-    exec "npm -g update cozy-monitor", (err, stdout, stderr) ->
-        if err or stderr
-            if count < 2
-                updateMonitor count + 1, callback
-            else
-                callback "Error during monitor update after #{count + 1} try: #{stderr}"
+updateController = (callback) ->
+    # Check if a new version is available
+    latest 'cozy-controller', (err, version) ->
+        if not err? and version isnt pkg.version
+            log.info "controller: update"
+            exec "npm -g update cozy-controller", (err, stdout, stderr) ->
+                if err or stderr
+                    callback "Error during controller update: #{stderr}"
+                else
+                    callback()
         else
             callback()
+
+
+updateMonitor = (callback) ->
+    if @blockMonitor
+        callback()
+    else
+        log.info "monitor: update"
+        exec "npm -g update cozy-monitor", (err, stdout, stderr) ->
+            if err or stderr
+                callback "Error during monitor update: #{stderr}"
+            else
+                callback()
 
 restartController = (callback) ->
     exec "supervisorctl restart cozy-controller", (err, stdout) ->
@@ -67,6 +71,48 @@ module.exports.install = (req, res, next) ->
             sendError res, err, 400
         else
             res.send 200, {"drone": {"port": result.port}}
+
+###
+    Change application branch.
+        * Try to stop application
+        * Change application branch
+        * Start application if necessary
+###
+module.exports.changeBranch = (req, res, next) ->
+    manifest = req.body.manifest
+    name = req.params.name
+    newBranch = req.params.branch
+    started = true
+
+    # Stop app if it started
+    controller.stop name, (err, result) ->
+        if err? and err.toString() is 'Error: Cannot stop an application not started'
+            # If application is not started, don't restart it after branch change
+            started = false
+        else if err?
+            # If stop function send another error, stop process
+            log.error err.toString()
+            sendError res, err, 400
+        else
+
+            # Change application branch
+            conn = req.connection
+            controller.changeBranch conn, manifest, newBranch, (err, result) ->
+                if err?
+                    log.error err.toString()
+                    sendError res, err, 400
+                else
+                    unless started
+                        res.send 200, {}
+
+                    # Restart app if necessary
+                    else
+                        controller.start manifest, (err, result) ->
+                            if err?
+                                log.error err.toString()
+                                sendError res, err, 400
+                            else
+                                res.send 200, {"drone": {"port": result.port}}
 
 ###
     Start application
@@ -109,7 +155,8 @@ module.exports.stop = (req, res, next) ->
 ###
 module.exports.uninstall = (req, res, next) ->
     name = req.params.name
-    controller.uninstall name, (err, result) ->
+    purge = req.body.purge?
+    controller.uninstall name, purge, (err, result) ->
         if err?
             log.error err.toString()
             err = new Error err.toString()
@@ -138,6 +185,8 @@ module.exports.update = (req, res, next) ->
         * Update appplication
 ###
 module.exports.updateStack = (req, res, next) ->
+    options = req.body
+
     async.eachSeries ['data-system', 'proxy', 'home'], (app, callback) ->
         controller.stop app, (err, res) ->
             return callback err if err?
@@ -147,18 +196,24 @@ module.exports.updateStack = (req, res, next) ->
         if err?
             restartController (error) ->
                 log.error err.toString()
-                err = new Error "Cannot update stack : #{err.toString()}"
+                err = new Error "Cannot update stack: #{err.toString()}"
                 sendError res, err, 400
         else
-            updateMonitor 0, (err) ->
+            async.retry 3, updateMonitor.bind(options), (err, result) ->
                 log.error err.toString() if err?
-                updateController 0, (err) ->
+                async.retry 3, updateController, (err, result) ->
                     if err?
                         log.error err.toString()
-                        err = new Error "Cannot update stack : #{err.toString()}"
+                        err = new Error "Cannot update stack: #{err.toString()}"
                         sendError res, err, 400
                     else
-                        res.send 200
+                        restartController (err) ->
+                            if err?
+                                log.error err.toString()
+                                err = new Error "Cannot update stack: #{err.toString()}"
+                                sendError res, err, 400
+                            else
+                                res.send 200
 
 ###
     Reboot controller
