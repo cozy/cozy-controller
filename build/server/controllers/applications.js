@@ -11,7 +11,11 @@ exec = require('child_process').exec;
 
 latest = require('latest');
 
-pkg = require('../../package.json');
+try {
+  pkg = require('../../package.json');
+} catch (_error) {
+  pkg = require('../../../package.json');
+}
 
 sendError = function(res, err, code) {
   if (code == null) {
