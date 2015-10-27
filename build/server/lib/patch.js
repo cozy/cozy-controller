@@ -52,7 +52,7 @@ move = function(source, dest, callback) {
   return child.on('close', function(code) {
     if (code !== 0) {
       log.info("Cannot move old source");
-      return callback(name + " : Cannot move old source");
+      return callback(name + ": Cannot move old source");
     } else {
       return callback();
     }
@@ -69,9 +69,9 @@ rm = function(dir, callback) {
   return child.on('close', function(code) {
     if (code !== 0) {
       log.error("Cannot move old source");
-      return callback(name + " : Cannot remove old source");
+      return callback(name + ": Cannot remove old source");
     } else {
-      log.info(dir + " : Moved");
+      log.info(dir + ": Moved");
       return callback();
     }
   });
@@ -113,7 +113,7 @@ updateSourceDir = function(apps, callback) {
         return updateSourceDir(apps, callback);
       }
     } else {
-      log.info(name + " : Already moved");
+      log.info(name + ": Already moved");
       return updateSourceDir(apps, callback);
     }
   } else {

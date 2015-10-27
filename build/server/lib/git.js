@@ -82,23 +82,30 @@ module.exports.init = function(app, callback) {
           commands = [];
           branch = app.repository.branch || "master";
           if ((gitVersion == null) || compareVersions("1.7.10", gitVersion[1]) === 1) {
-            commands.push(("git clone " + url + " " + app.name + " && ") + ("cd " + app.dir + " && ") + ("git branch " + branch + " origin/" + branch + " && ") + ("git checkout " + branch + " && ") + "git submodule update --init --recursive");
+            commands = ["git clone " + url + " " + app.name, "cd " + app.dir];
+            if (branch !== 'master') {
+              commands.push("git branch " + branch + " origin/" + branch);
+              commands.push("git checkout " + branch);
+            }
           } else {
-            commands.push(("git clone " + url + " --depth 1 ") + ("--branch " + branch + " ") + ("--single-branch " + app.name + " && ") + ("cd " + app.dir + " && ") + "git submodule update --init --recursive");
+            commands = ["git clone " + url + " --depth 1 --branch " + branch + " --single-branch " + app.name, "cd " + app.dir];
           }
+          commands.push("git submodule update --init --recursive");
           config = {
-            cwd: conf('dir_source'),
+            cwd: conf('dir_app_bin'),
             user: app.user
           };
-          return executeUntilEmpty(commands, config, function(err) {
-            if (err != null) {
-              log.error(err);
-              log.info('Retry to init repository');
-              return executeUntilEmpty(commands, config, callback);
-            } else {
-              return callback();
-            }
-          });
+          return executeUntilEmpty(commands, config, (function(_this) {
+            return function(err) {
+              if (err != null) {
+                log.error(err);
+                log.info('Retry to init repository');
+                return executeUntilEmpty(commands, config, callback);
+              } else {
+                return callback();
+              }
+            };
+          })(this));
         }
       });
     });
@@ -117,6 +124,23 @@ module.exports.update = function(app, callback) {
   var branch, commands, config;
   branch = app.repository.branch || app.branch || "master";
   commands = ["git reset --hard ", "git pull origin " + branch, "git submodule update --recursive"];
+  config = {
+    cwd: app.dir,
+    env: {
+      "USER": app.user
+    }
+  };
+  return executeUntilEmpty(commands, config, callback);
+};
+
+
+/*
+    Change branch of <app>
+ */
+
+module.exports.changeBranch = function(app, newBranch, callback) {
+  var commands, config;
+  commands = ["git fetch origin " + newBranch + ":" + newBranch, "git checkout " + newBranch];
   config = {
     cwd: app.dir,
     env: {

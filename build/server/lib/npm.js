@@ -52,7 +52,7 @@ module.exports.install = function(connection, target, callback) {
     return function(code) {
       var err;
       if (code !== 0) {
-        log.error("npm:install:err: NPM Install failed : " + stderr);
+        log.error("npm:install:err: NPM Install failed: " + stderr);
         err = new Error('NPM Install failed');
         return callback(stderr);
       } else {

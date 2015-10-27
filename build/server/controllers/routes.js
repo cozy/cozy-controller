@@ -19,6 +19,9 @@ module.exports = {
   'apps/:name/install': {
     post: [token.check, applications.install]
   },
+  "apps/:name/change-branch/:branch": {
+    post: [token.check, applications.changeBranch]
+  },
   'drones/:name/start': {
     post: [token.check, applications.install]
   },

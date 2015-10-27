@@ -204,8 +204,7 @@ module.exports.removeRunningApp = function(name) {
 
 module.exports.install = function(connection, manifest, callback) {
   var app;
-  app = new App(manifest);
-  app = app.app;
+  app = new App(manifest).app;
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
@@ -263,8 +262,7 @@ module.exports.install = function(connection, manifest, callback) {
 
 module.exports.start = function(manifest, callback) {
   var app, err;
-  app = new App(manifest);
-  app = app.app;
+  app = new App(manifest).app;
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
     drones[app.name] = app;
     return startApp(app, function(err, result) {
@@ -278,6 +276,38 @@ module.exports.start = function(manifest, callback) {
     err = new Error('Cannot start an application not installed');
     return callback(err);
   }
+};
+
+
+/*
+    Change aplication branch
+        * Git checkout
+        * Install dependencies
+ */
+
+module.exports.changeBranch = function(connection, manifest, newBranch, callback) {
+  var app;
+  app = new App(manifest).app;
+  log.info(app.name + ":git checkout");
+  return type['git'].changeBranch(app, newBranch, function(err) {
+    if (err != null) {
+      if (err.code == null) {
+        err.code = 2;
+      }
+      err.code = 20 + err.code;
+      return callback(err);
+    } else {
+      log.info(app.name + ":npm install");
+      return installDependencies(connection, app, 2, function(err) {
+        if (err != null) {
+          err.code = 3;
+          return callback(err);
+        } else {
+          return callback();
+        }
+      });
+    }
+  });
 };
 
 
@@ -317,8 +347,11 @@ module.exports.stopAll = function(callback) {
         * Delete application from drones (and running if necessary)
  */
 
-module.exports.uninstall = function(name, callback) {
+module.exports.uninstall = function(name, purge, callback) {
   var app, err, userDir;
+  if (purge == null) {
+    purge = false;
+  }
   if (drones[name] != null) {
     if (running[name] != null) {
       log.info(name + ":stop application");
@@ -332,8 +365,16 @@ module.exports.uninstall = function(name, callback) {
       });
     }
     app = drones[name];
-    return repo["delete"](app, function(err) {
+    if (purge) {
       log.info(name + ":delete directory");
+      directory.remove(app, function(err) {
+        if (err != null) {
+          return log.error(err);
+        }
+      });
+    }
+    return repo["delete"](app, function(err) {
+      log.info(name + ":delete source");
       if (drones[name] != null) {
         delete drones[name];
       }
@@ -344,17 +385,25 @@ module.exports.uninstall = function(name, callback) {
       }
     });
   } else {
-    userDir = path.join(config('dir_source'), name);
+    userDir = path.join(config('dir_app_bin'), name);
     if (fs.existsSync(userDir)) {
       app = {
         name: name,
         dir: userDir,
-        logFile: config('dir_log') + name + ".log",
-        errFile: config('dir_log') + name + "-err.log",
-        backup: config('dir_log') + name + ".log-backup"
+        logFile: config('dir_app_log') + name + ".log",
+        errFile: config('dir_app_log') + name + "-err.log",
+        backup: config('dir_app_log') + name + ".log-backup"
       };
-      return repo["delete"](app, function(err) {
+      if (purge) {
         log.info(name + ":delete directory");
+        directory.remove(app, function(err) {
+          if (err != null) {
+            return log.error(err);
+          }
+        });
+      }
+      return repo["delete"](app, function(err) {
+        log.info(name + ":delete source");
         if (drones[name] != null) {
           delete drones[name];
         }
@@ -385,8 +434,7 @@ module.exports.update = function(connection, manifest, callback) {
   if (indexOf.call(stackApps, manifest) >= 0) {
     manifest = drones[manifest];
   }
-  app = new App(manifest);
-  app = app.app;
+  app = new App(manifest).app;
   if (drones[app.name] != null) {
     if (running[app.name] != null) {
       log.info(app.name + ":stop application");

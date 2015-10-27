@@ -56,7 +56,7 @@ couchDBStarted = function(test, callback) {
 };
 
 isCorrect = function(app) {
-  return (app.git != null) && (app.name != null) && (app.state != null) && fs.existsSync(path.join(config('dir_source'), app.name)) && fs.existsSync(path.join(config('dir_source'), app.name, "package.json"));
+  return (app.git != null) && (app.name != null) && (app.state != null) && fs.existsSync(path.join(config('dir_app_bin'), app.name)) && fs.existsSync(path.join(config('dir_app_bin'), app.name, "package.json"));
 };
 
 
@@ -191,7 +191,7 @@ checkStart = function(port, callback) {
     var ref;
     if (res != null) {
       if ((ref = res.statusCode) !== 200 && ref !== 401 && ref !== 402 && ref !== 302) {
-        log.warn("Warning : receives error " + res.statusCode);
+        log.warn("Warning: receives error " + res.statusCode);
       }
       return callback();
     } else {
@@ -268,7 +268,7 @@ startStack = function(stackManifest, app, callback) {
 
 
 /*
-    Autostart :
+    Autostart:
         * Stack application are declared in file stack
             /usr/local/cozy/stack.json by default
         *  Other applications are declared in couchDB

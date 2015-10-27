@@ -14,7 +14,7 @@ module.exports.init = function(current_token) {
 
 
 /*
-    Check if request in authenticated :
+    Check if request in authenticated:
         * Return 401 as error code if request hasn't a token
         * return 403 as error code if token is bad
         * Continue if token is correct

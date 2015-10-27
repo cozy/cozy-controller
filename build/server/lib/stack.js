@@ -43,8 +43,8 @@ addDatabase = function(attempt, app) {
 
 /*
     addInDatase:
-        * app : application to add to database
-    Add <app> in database :
+        * app: application to add to database
+    Add <app> in database:
         * Check if application isn't alread store in database
         * If it the case, update it (keep lastVersion added by home)
         * If not, add new document for this application
@@ -131,7 +131,7 @@ module.exports.addApp = function(app, callback) {
       return fs.write(fd, data, 0, length, 0, callback);
     });
   });
-  manifest = path.join(config('dir_source'), app.name, 'package.json');
+  manifest = path.join(config('dir_app_bin'), app.name, 'package.json');
   return fs.readFile(manifest, function(err, data) {
     var appli, controller, controllerPath;
     if (err) {

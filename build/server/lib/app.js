@@ -16,8 +16,8 @@ exports.App = (function() {
   function App(app) {
     var homeDir, logDir, manifest, match, ref, ref1, start;
     this.app = app;
-    homeDir = config('dir_source');
-    logDir = config('dir_log');
+    homeDir = config('dir_app_bin');
+    logDir = config('dir_app_log');
     this.app.dir = path.join(homeDir, this.app.name);
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
