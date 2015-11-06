@@ -9,13 +9,15 @@ class exports.App
 
     constructor: (@app) ->
         homeDir = config('dir_app_bin')
-        logDir = config('dir_app_log')
+        logDir  = config('dir_app_log')
+        dataDir = config('dir_app_data')
 
         @app.dir = path.join(homeDir, @app.name)
         @app.user = 'cozy-' + @app.name
         match = @app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
         @app.logFile = path.join(logDir, "/#{@app.name}.log")
         @app.errFile = path.join(logDir, "/#{@app.name}-err.log")
+        @app.dataDir = path.join(dataDir, @app.name)
 
         ## Find server
         # Priority:
