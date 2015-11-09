@@ -1,7 +1,8 @@
 fs = require 'fs'
 path = require 'path'
 Client = require('request-json-light').JsonClient
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:stack'
 
 config = require('./conf').get
 permission = require '../middlewares/token'

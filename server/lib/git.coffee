@@ -4,7 +4,8 @@ compareVersions = require 'mozilla-version-comparator'
 exec = require('child_process').exec
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
 conf = require('./conf').get
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:git'
 
 ###
     Clean up current modification if the Git URL is wrong

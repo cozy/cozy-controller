@@ -2,7 +2,6 @@ fs = require 'fs'
 path = require 'path'
 async = require 'async'
 log = require('printit')()
-
 permission = require './middlewares/token'
 App = require('./lib/app').App
 directory = require './lib/directory'
