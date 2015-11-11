@@ -115,7 +115,7 @@ module.exports.info = (req, res, next) ->
         return data or defaultData
 
     getCouchStoragePlace (err, dir) ->
-        exec "df -H #{dir}", (err, resp) ->
+        exec "df -h #{dir}", (err, resp) ->
             if err
                 res.send 500, err
             else
