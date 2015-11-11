@@ -34,6 +34,12 @@ class exports.App
                 @app.server = start[start.length - 1]
             else if fs.existsSync path.join(@app.dir, 'build', 'server.js')
                 @app.server = 'build/server.js'
-            else
+            else if fs.existsSync path.join(@app.dir, 'server.js')
+                @app.server = 'server.js'
+            else if fs.existsSync path.join(@app.dir, 'server.coffee')
                 @app.server = 'server.coffee'
-        @app.startScript = path.join(@app.dir, @app.server)
+            else
+                log.error "Unable to find a start script"
+
+        if @app.server?
+            @app.startScript = path.join(@app.dir, @app.server)
