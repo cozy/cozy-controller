@@ -120,7 +120,7 @@ module.exports.info = function(req, res, next) {
     return data || defaultData;
   };
   return getCouchStoragePlace(function(err, dir) {
-    return exec("df -H " + dir, function(err, resp) {
+    return exec("df -h " + dir, function(err, resp) {
       var data;
       if (err) {
         return res.send(500, err);

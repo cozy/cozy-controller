@@ -14,15 +14,17 @@ fs = require('fs');
 
 exports.App = (function() {
   function App(app) {
-    var homeDir, logDir, manifest, match, ref, ref1, start;
+    var folderDir, homeDir, logDir, manifest, match, ref, ref1, start;
     this.app = app;
     homeDir = config('dir_app_bin');
     logDir = config('dir_app_log');
+    folderDir = config('dir_app_data');
     this.app.dir = path.join(homeDir, this.app.name);
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
     this.app.logFile = path.join(logDir, "/" + this.app.name + ".log");
     this.app.errFile = path.join(logDir, "/" + this.app.name + "-err.log");
+    this.app.folder = path.join(folderDir, this.app.name);
     if (((ref = this.app.scripts) != null ? ref.start : void 0) != null) {
       this.app.server = this.app.scripts.start;
     } else {
@@ -32,11 +34,17 @@ exports.App = (function() {
         this.app.server = start[start.length - 1];
       } else if (fs.existsSync(path.join(this.app.dir, 'build', 'server.js'))) {
         this.app.server = 'build/server.js';
-      } else {
+      } else if (fs.existsSync(path.join(this.app.dir, 'server.js'))) {
+        this.app.server = 'server.js';
+      } else if (fs.existsSync(path.join(this.app.dir, 'server.coffee'))) {
         this.app.server = 'server.coffee';
+      } else {
+        log.error("Unable to find a start script");
       }
     }
-    this.app.startScript = path.join(this.app.dir, this.app.server);
+    if (this.app.server != null) {
+      this.app.startScript = path.join(this.app.dir, this.app.server);
+    }
   }
 
   return App;
