@@ -194,6 +194,7 @@ module.exports.start = (app, callback) ->
         onStderr = (err) ->
             err = err.toString()
             fs.appendFile app.logFile, err, (err) ->
+                console.log err if err?
                 fs.appendFile app.errFile, err, (err) ->
                     console.log err if err?
 
