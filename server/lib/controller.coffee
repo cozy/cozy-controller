@@ -6,7 +6,8 @@ directory = require './directory'
 user = require './user'
 stack = require './stack'
 config = require('./conf').get
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:controller'
 type = []
 type['git'] = require './git'
 App = require('./app').App
