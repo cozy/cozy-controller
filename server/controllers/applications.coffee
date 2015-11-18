@@ -81,12 +81,12 @@ module.exports.install = (req, res, next) ->
         else
             # send path to home if it's a static app
             if result.type is 'static'
-                res.send 200, {"drone": {
+                res.send 200, drone:
                     "type": result.type
                     "path": result.dir
-                }}
             else
-                res.send 200, {"drone": {"port": result.port}}
+                res.send 200, drone:
+                    "port": result.port
 
 ###
     Change application branch.
