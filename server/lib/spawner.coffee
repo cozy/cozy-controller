@@ -189,10 +189,15 @@ module.exports.start = (app, callback) ->
                 appliProcess.removeListener 'message', onPort
                 clearTimeout timeout
 
+        # When an error occured, information is both append to the log file
+        # (debugging purpose) and to the error file (to see easily if an error
+        # occured).
         onStderr = (err) ->
             err = err.toString()
-            fs.appendFile app.errFile, err, (err) ->
+            fs.appendFile app.logFile, err, (err) ->
                 console.log err if err?
+                fs.appendFile app.errFile, err, (err) ->
+                    console.log err if err?
 
 
         # Start application process
