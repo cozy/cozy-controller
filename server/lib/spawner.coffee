@@ -103,9 +103,12 @@ module.exports.start = (app, callback) ->
             foreverOptions.options.concat(['--bind_ip', \
                config('bind_ip_proxy')])
 
-        #foreverOptions.command = 'coffee'
+    #foreverOptions.command = 'coffee'
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
-        data = JSON.parse(data)
+        try
+            data = JSON.parse(data)
+        catch
+            return callback new Error "Package.json isn't in a correct format."
         server = app.server
         if data.scripts?.start?
             start = data.scripts.start.split(' ')
