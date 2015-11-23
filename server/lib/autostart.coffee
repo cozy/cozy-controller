@@ -88,7 +88,7 @@ start = (appli, callback) ->
 
                     if err?
                         log.error "#{app.name}: error"
-                        log.error err
+                        log.error err.toString()
                         errors[app.name] =
                             new Error "Application didn't start"
                         # Add application if drones list
