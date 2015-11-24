@@ -168,9 +168,17 @@ module.exports.start = (app, callback) ->
                 pid: monitor.childData.pid
                 pkg: app
                 fd: fd
+            log.info "#{app.name}: start with pid #{result.pid}"
 
-        onRestart = ->
-            log.info "#{app.name}:restart"
+        onRestart = (monitor, data) ->
+            result =
+                monitor: appliProcess
+                process: monitor.child
+                data: data
+                pid: monitor.childData.pid
+                pkg: app
+                fd: fd
+            log.info "#{app.name}: restart with pid #{result.pid}"
 
         onTimeout = ->
             appliProcess.removeListener 'exit', onExit
