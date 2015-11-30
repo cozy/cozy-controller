@@ -98,7 +98,11 @@ module.exports.start = function(app, callback) {
   }
   return fs.readFile(app.dir + "/package.json", 'utf8', function(err, data) {
     var appliProcess, carapaceBin, onError, onExit, onPort, onRestart, onStart, onStderr, onTimeout, ref5, responded, server, start, timeout;
-    data = JSON.parse(data);
+    try {
+      data = JSON.parse(data);
+    } catch (_error) {
+      return callback(new Error("Package.json isn't in a correct format."));
+    }
     server = app.server;
     if (((ref5 = data.scripts) != null ? ref5.start : void 0) != null) {
       start = data.scripts.start.split(' ');
@@ -147,7 +151,7 @@ module.exports.start = function(app, callback) {
       }
     };
     onStart = function(monitor, data) {
-      return result = {
+      result = {
         monitor: appliProcess,
         process: monitor.child,
         data: data,
@@ -155,9 +159,18 @@ module.exports.start = function(app, callback) {
         pkg: app,
         fd: fd
       };
+      return log.info(app.name + ": start with pid " + result.pid);
     };
-    onRestart = function() {
-      return log.info(app.name + ":restart");
+    onRestart = function(monitor, data) {
+      result = {
+        monitor: appliProcess,
+        process: monitor.child,
+        data: data,
+        pid: monitor.childData.pid,
+        pkg: app,
+        fd: fd
+      };
+      return log.info(app.name + ": restart with pid " + result.pid);
     };
     onTimeout = function() {
       appliProcess.removeListener('exit', onExit);
@@ -180,10 +193,15 @@ module.exports.start = function(app, callback) {
     };
     onStderr = function(err) {
       err = err.toString();
-      return fs.appendFile(app.errFile, err, function(err) {
+      return fs.appendFile(app.logFile, err, function(err) {
         if (err != null) {
-          return console.log(err);
+          console.log(err);
         }
+        return fs.appendFile(app.errFile, err, function(err) {
+          if (err != null) {
+            return console.log(err);
+          }
+        });
       });
     };
     appliProcess.start();

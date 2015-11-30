@@ -262,7 +262,11 @@ module.exports.install = function(connection, manifest, callback) {
 
 module.exports.start = function(manifest, callback) {
   var app, err;
-  app = new App(manifest).app;
+  try {
+    app = new App(manifest).app;
+  } catch (_error) {
+    return callback(new Error("Can't retrieve application manifest, package.json should be JSON format"));
+  }
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
     drones[app.name] = app;
     return startApp(app, function(err, result) {

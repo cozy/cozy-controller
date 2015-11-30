@@ -123,7 +123,7 @@ start = function(appli, callback) {
             var clientDS, requestPath;
             if (err != null) {
               log.error(app.name + ": error");
-              log.error(err);
+              log.error(err.toString());
               errors[app.name] = new Error("Application didn't start");
               return controller.addDrone(app, callback);
             } else {
