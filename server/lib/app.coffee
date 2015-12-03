@@ -1,6 +1,8 @@
 path = require "path"
 config = require('./conf').get
 fs = require 'fs'
+log = require('printit')
+    date: true
 
 ###
     Usefull to translate application stored in database in manifest
@@ -28,8 +30,14 @@ class exports.App
         if @app.scripts?.start?
             @app.server = @app.scripts.start
         else
-            manifest = require path.join(@app.dir, "package.json")
-            if manifest.scripts?.start?
+            try
+                manifest = require path.join(@app.dir, "package.json")
+            catch
+                if @app?.name?
+                    log.error "#{@app.name}: Unable to read application manifest"
+                else
+                    log.error "Unable to read application manifest"
+            if manifest?.scripts?.start?
                 start = manifest.scripts.start.split(' ')
                 @app.server = start[start.length - 1]
             else if fs.existsSync path.join(@app.dir, 'build', 'server.js')
