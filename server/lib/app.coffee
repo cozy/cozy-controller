@@ -33,7 +33,7 @@ class exports.App
             try
                 manifest = require path.join(@app.dir, "package.json")
             catch
-                if @app?.name?
+                if @app.name?
                     log.error "#{@app.name}: Unable to read application manifest"
                 else
                     log.error "Unable to read application manifest"
