@@ -46,8 +46,11 @@ updateMonitor = (callback) ->
     else
         log.info "monitor: update"
         exec "npm -g update cozy-monitor", (err, stdout, stderr) ->
-            if err or stderr
+            if err
                 callback "Error during monitor update: #{stderr}"
+            else if stderr
+                log.warn stderr
+                callback()
             else
                 callback()
 
