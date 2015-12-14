@@ -61,8 +61,11 @@ updateMonitor = function(callback) {
   } else {
     log.info("monitor: update");
     return exec("npm -g update cozy-monitor", function(err, stdout, stderr) {
-      if (err || stderr) {
+      if (err) {
         return callback("Error during monitor update: " + stderr);
+      } else if (stderr) {
+        log.warn(stderr);
+        return callback();
       } else {
         return callback();
       }
