@@ -46,7 +46,7 @@ class exports.App
                 @app.server = 'server.js'
             else if fs.existsSync path.join(@app.dir, 'server.coffee')
                 @app.server = 'server.coffee'
-            else
+            else if manifest['cozy-type'] is not 'static'
                 log.error "Unable to find a start script"
 
         if @app.server?
