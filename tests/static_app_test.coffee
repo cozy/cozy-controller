@@ -31,7 +31,7 @@ describe "Install static app", ->
                     repository:
                         url: "https://github.com/lemelon/cozy-front.git"
                         type: "git"
-                        type: "static"
+                    type: "static"
                 client.post 'apps/front/install', app, (err, res, body) =>
                     @res = res
                     @body = body

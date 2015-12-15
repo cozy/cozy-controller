@@ -99,7 +99,6 @@ module.exports.changeBranch = (req, res, next) ->
     name = req.params.name
     newBranch = req.params.branch
     started = true
-
     # Stop app if it started
     controller.stop name, (err, result) ->
         if err? and err.toString() is 'Error: Cannot stop an application not started'
@@ -156,13 +155,16 @@ module.exports.start = (req, res, next) ->
 ###
 module.exports.stop = (req, res, next) ->
     name = req.params.name
-    controller.stop name, (err, result) ->
-        if err?
-            log.error err.toString()
-            err = new Error err.toString()
-            sendError res, err, 400
-        else
-            res.send 200, app: result
+    if req.body.stop.type is 'static'
+        res.send 200
+    else
+        controller.stop name, (err, result) ->
+            if err?
+                log.error err.toString()
+                err = new Error err.toString()
+                sendError res, err, 400
+            else
+                res.send 200, app: result
 
 ###
     Uninstall application
