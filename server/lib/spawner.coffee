@@ -14,7 +14,7 @@ config = require('../lib/conf').get
 module.exports.start = (app, callback) ->
     result = {}
     @appliProcess.stop() if @appliProcess
-
+    
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
         pwd = token.get()
@@ -34,7 +34,7 @@ module.exports.start = (app, callback) ->
     if process.env.DB_NAME?
         env.DB_NAME = process.env.DB_NAME
 
-    # Add specific environment varialbe for this application
+    # Add specific environment variable for this application
     # Declared in file configuration
     if config("env")?[app.name]
         environment = config("env")[app.name]
@@ -68,6 +68,7 @@ module.exports.start = (app, callback) ->
     if fs.existsSync(app.logFile)
         # If a logFile exists, create a backup
         app.backup = app.logFile + "-backup"
+
         # delete previous backup
         if fs.existsSync(app.backup)
             fs.unlinkSync app.backup
@@ -124,10 +125,10 @@ module.exports.start = (app, callback) ->
             foreverOptions.options =
                 foreverOptions.options.concat(['--plugin', 'coffee'])
 
-
         # Check if startScript exists
         fs.stat app.startScript, (err, stats) ->
             if err?
+                console.log err
                 callback err
         # Initialize application process
         foreverOptions.options.push app.startScript
@@ -137,7 +138,6 @@ module.exports.start = (app, callback) ->
         responded = false
 
         ## Manage events of application process
-
         onExit = ->
             app.backup = app.logFile + "-backup"
             app.backupErr = app.errFile + "-backup"
