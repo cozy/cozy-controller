@@ -128,7 +128,6 @@ module.exports.start = (app, callback) ->
         # Check if startScript exists
         fs.stat app.startScript, (err, stats) ->
             if err?
-                console.log err
                 callback err
         # Initialize application process
         foreverOptions.options.push app.startScript
