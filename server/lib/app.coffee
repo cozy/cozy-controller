@@ -3,6 +3,7 @@ config = require('./conf').get
 fs = require 'fs'
 log = require('printit')
     date: true
+    prefix: 'lib:app'
 
 ###
     Usefull to translate application stored in database in manifest
