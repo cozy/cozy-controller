@@ -95,16 +95,20 @@ restartController = function(callback) {
 
 module.exports.install = function(req, res, next) {
   var err, manifest;
+  console.log('install static app');
   if (req.body.start == null) {
     err = new Error("Manifest should be declared in body.start");
     return sendError(res, err, 400);
   }
   manifest = req.body.start;
+  console.log(manifest);
   return controller.install(req.connection, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
       return sendError(res, err, 400);
     } else {
+      console.log('result install');
+      console.log(result);
       if (result.type === 'static') {
         return res.send(200, {
           drone: {

@@ -27,9 +27,9 @@ describe "Install static app", ->
 
             it "When I try to install application", (done) ->
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/cozy-frontpermission.git"
+                        url: "https://github.com/lemelon/cozy-front.git"
                         type: "git"
                     type: "static"
                 client.post 'apps/front/install', app, (err, res, body) =>
@@ -48,9 +48,9 @@ describe "Install static app", ->
 
             it "When I try to install application", (done) ->
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/cozy-frontpermission"
+                        url: "https://github.com/lemelon/cozy-front"
                         type: "git"
                     type: "static"
                 client.post 'apps/front/install', app, (err, res, body) =>
@@ -70,13 +70,14 @@ describe "Install static app", ->
             it "When I install static app", (done) ->
                 @timeout 500000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/cozy-frontpermission.git"
+                        url: "https://github.com/lemelon/cozy-front.git"
                         type: "git"
                     type: "static"
-                client.post 'apps/frontpermission/install', "start":app, (err, res, body) =>
+                client.post 'apps/front/install', "start":app, (err, res, body) =>
                     @res = res
+                    console.log body.drone
                     @type = body.drone.type
                     dsPort = @port
                     done()
@@ -93,12 +94,12 @@ describe "Install static app", ->
                 exist = stack.indexOf 'front'
                 exist.should.equal -1
 
-            it "And file log should not be created (/usr/local/var/log/cozy/frontpermission.log)", ->
-                fs.existsSync('/usr/local/var/log/cozy/frontpermission.log').should.not.be.ok
+            it "And file log should not be created (/usr/local/var/log/cozy/front.log)", ->
+                fs.existsSync('/usr/local/var/log/cozy/front.log').should.not.be.ok
 
-            it "And front source should be imported (in /usr/local/cozy/apps/frontpermission", ->
-                fs.existsSync("#{config('dir_app_bin')}/frontpermission").should.be.ok
-                fs.existsSync("#{config('dir_app_bin')}/frontpermission/package.json").should.be.ok
+            it "And front source should be imported (in /usr/local/cozy/apps/front", ->
+                fs.existsSync("#{config('dir_app_bin')}/front").should.be.ok
+                fs.existsSync("#{config('dir_app_bin')}/front/package.json").should.be.ok
 
             it "And front should not be started with port", (done) ->
                 clientDS = new Client "http://localhost:#{@port}/"
@@ -113,9 +114,9 @@ describe "Install static app", ->
             it "When I try to stop application", (done) ->
                 @timeout 100000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     type: "static"
-                client.post 'apps/frontpermission/stop', stop: app, (err, res, body) =>
+                client.post 'apps/front/stop', stop: app, (err, res, body) =>
                     @res = res
                     @body = body
                     done()
@@ -128,9 +129,9 @@ describe "Install static app", ->
             it "When I stop front", (done) ->
                 @timeout 100000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     type: "static"
-                client.post 'apps/frontpermission/stop', stop:app, (err, res, body) =>
+                client.post 'apps/front/stop', stop:app, (err, res, body) =>
                     @res = res
                     done()
 
@@ -151,12 +152,12 @@ describe "Install static app", ->
             it "When I restart front", (done) ->
                 @timeout 100000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/cozy-frontpermission.git"
+                        url: "https://github.com/lemelon/cozy-front.git"
                         type: "git"
                     type: "static"
-                client.post 'apps/frontpermission/start', "start":app, (err, res, body) =>
+                client.post 'apps/front/start', "start":app, (err, res, body) =>
                     @res = res
                     @port = body.drone.port
                     dsPort = @port
@@ -178,12 +179,12 @@ describe "Install static app", ->
             it "When I update front", (done) ->
                 @timeout 100000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/frontpermission.git"
+                        url: "https://github.com/lemelon/front.git"
                         type: "git"
                     type: "static"
-                client.post 'apps/frontpermission/update', update: app, (err, res, body) =>
+                client.post 'apps/front/update', update: app, (err, res, body) =>
                     @res = res
                     done()
 
@@ -209,7 +210,7 @@ describe "Install static app", ->
 
         it "And front is in list", ->
             should.exist @body.app
-            should.exist @body.app['frontpermission']
+            should.exist @body.app['front']
 
     describe "Uninstall application", ->
 
@@ -218,12 +219,12 @@ describe "Install static app", ->
             it "When I uninstall front", (done) ->
                 @timeout 100000
                 app =
-                    name: "frontpermission"
+                    name: "front"
                     repository:
-                        url: "https://github.com/lemelon/cozy-frontpermission.git"
+                        url: "https://github.com/lemelon/cozy-front.git"
                         type: "git"
                     type: "static"
-                client.post 'apps/frontpermission/uninstall', app, (err, res, body) =>
+                client.post 'apps/front/uninstall', app, (err, res, body) =>
                     @res = res
                     done()
 
@@ -239,13 +240,13 @@ describe "Install static app", ->
                     , 1000
 
             it "And logs file should be removed", ->
-                fs.existsSync('/var/log/cozy/frontpermission.log').should.not.be.ok
+                fs.existsSync('/var/log/cozy/front.log').should.not.be.ok
 
             it "And front repo should be removed", ->
-                fs.existsSync('/usr/local/cozy/apps/frontpermission').should.not.be.ok
+                fs.existsSync('/usr/local/cozy/apps/front').should.not.be.ok
 
             it "And front has been removed from stack.json", ->
                 fs.existsSync(config('file_stack')).should.be.ok
                 stack = fs.readFileSync(config('file_stack'), 'utf8')
-                exist = stack.indexOf 'frontpermission'
+                exist = stack.indexOf 'front'
                 exist.should.equal -1

@@ -19,7 +19,7 @@ log = require('printit')({
 
 exports.App = (function() {
   function App(app) {
-    var error, folderDir, homeDir, logDir, manifest, match, ref, ref1, start;
+    var folderDir, homeDir, logDir, manifest, match, ref, ref1, start;
     this.app = app;
     homeDir = config('dir_app_bin');
     logDir = config('dir_app_log');
@@ -32,17 +32,9 @@ exports.App = (function() {
     this.app.folder = path.join(folderDir, this.app.name);
     if (((ref = this.app.scripts) != null ? ref.start : void 0) != null) {
       this.app.server = this.app.scripts.start;
-    } else {
-      try {
-        manifest = require(path.join(this.app.dir, "package.json"));
-      } catch (error) {
-        if (this.app.name != null) {
-          log.error(this.app.name + ": Unable to read application manifest");
-        } else {
-          log.error("Unable to read application manifest");
-        }
-      }
-      if ((manifest != null ? (ref1 = manifest.scripts) != null ? ref1.start : void 0 : void 0) != null) {
+    } else if (fs.existsSync(path.join(this.app.dir, "package.json"))) {
+      manifest = require(path.join(this.app.dir, "package.json"));
+      if (((ref1 = manifest.scripts) != null ? ref1.start : void 0) != null) {
         start = manifest.scripts.start.split(' ');
         this.app.server = start[start.length - 1];
       } else if (fs.existsSync(path.join(this.app.dir, 'build', 'server.js'))) {
