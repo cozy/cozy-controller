@@ -57,10 +57,8 @@ startApp = (app, callback) ->
                     # If app is an stack application,
                     # we store this manifest in stack.json
                     if app.name in stackApps
-                        stack.addApp app, (err) ->
-                            callback null, result
-                    else
-                        callback null, result
+                        stack.addApp app
+                    callback null, result
 
 ###
     Stop all applications in tab <apps>

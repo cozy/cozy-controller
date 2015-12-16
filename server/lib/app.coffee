@@ -32,8 +32,14 @@ class exports.App
             @app.server = @app.scripts.start
 
         else if fs.existsSync path.join(@app.dir, "package.json")
-            manifest = require path.join(@app.dir, "package.json")
-            if manifest.scripts?.start?
+            try
+                manifest = require path.join(@app.dir, "package.json")
+            catch
+                if @app?.name?
+                    log.error "#{@app.name}: Unable to read application manifest"
+                else
+                    log.error "Unable to read application manifest"
+            if manifest?.scripts?.start?
                 start = manifest.scripts.start.split(' ')
                 @app.server = start[start.length - 1]
             else if fs.existsSync path.join(@app.dir, 'build', 'server.js')
