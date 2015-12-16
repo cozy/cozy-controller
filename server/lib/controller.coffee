@@ -56,7 +56,7 @@ startApp = (app, callback) ->
                     running[app.name] = result
                     # If app is an stack application,
                     # we store this manifest in stack.json
-                    if app.name in stackAp,ps
+                    if app.name in stackApps
                         stack.addApp app, (err) ->
                             callback null, result
                     else
