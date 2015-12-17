@@ -2,7 +2,8 @@ path = require "path"
 fs = require 'fs'
 spawn = require('child_process').spawn
 exec = require('child_process').exec
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:patch'
 rimraf = require 'rimraf'
 
 pathRoot = "/usr/local/cozy/apps/"

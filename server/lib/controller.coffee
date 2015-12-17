@@ -6,7 +6,8 @@ directory = require './directory'
 user = require './user'
 stack = require './stack'
 config = require('./conf').get
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:controller'
 type = []
 type['git'] = require './git'
 App = require('./app').App
@@ -38,22 +39,26 @@ startApp = (app, callback) ->
         err = new Error 'Application already exists'
         callback err
     else
-        # Start application (with spawner)
-        spawner.start app, (err, result) ->
-            if err?
-                callback err
-            else if not result?
-                err = new Error 'Unknown error from Spawner.'
-                callback err
-            else
-                # Add application in drones and running variables
-                drones[app.name] = result.pkg
-                running[app.name] = result
-                # If app is an stack application,
-                # we store this manifest in stack.json
-                if app.name in stackApps
-                    stack.addApp app
-                callback null, result
+        # Avoid starting if app is static
+        if app.type is 'static'
+            callback null, app
+        else
+            # Start application (with spawner)
+            spawner.start app, (err, result) ->
+                if err?
+                    callback err
+                else if not result?
+                    err = new Error 'Unknown error from Spawner.'
+                    callback err
+                else
+                    # Add application in drones and running variables
+                    drones[app.name] = result.pkg
+                    running[app.name] = result
+                    # If app is an stack application,
+                    # we store this manifest in stack.json
+                    if app.name in stackApps
+                        stack.addApp app
+                    callback null, result
 
 ###
     Stop all applications in tab <apps>
@@ -207,6 +212,9 @@ module.exports.install = (connection, manifest, callback) ->
                                         # Error on dependencies : code 3
                                         err.code = 3
                                         callback err
+                                    # don't need to start if app is static
+                                    else if manifest.type is 'static'
+                                        callback err, manifest
                                     else
                                         log.info "#{app.name}:start application"
                                         # Start application

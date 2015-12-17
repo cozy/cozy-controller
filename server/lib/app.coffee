@@ -3,6 +3,7 @@ config = require('./conf').get
 fs = require 'fs'
 log = require('printit')
     date: true
+    prefix: 'lib:app'
 
 ###
     Usefull to translate application stored in database in manifest
@@ -29,15 +30,10 @@ class exports.App
         #  * server.coffee
         if @app.scripts?.start?
             @app.server = @app.scripts.start
-        else
-            try
-                manifest = require path.join(@app.dir, "package.json")
-            catch
-                if @app.name?
-                    log.error "#{@app.name}: Unable to read application manifest"
-                else
-                    log.error "Unable to read application manifest"
-            if manifest?.scripts?.start?
+
+        else if fs.existsSync path.join(@app.dir, "package.json")
+            manifest = require path.join(@app.dir, "package.json")
+            if manifest.scripts?.start?
                 start = manifest.scripts.start.split(' ')
                 @app.server = start[start.length - 1]
             else if fs.existsSync path.join(@app.dir, 'build', 'server.js')
@@ -46,7 +42,7 @@ class exports.App
                 @app.server = 'server.js'
             else if fs.existsSync path.join(@app.dir, 'server.coffee')
                 @app.server = 'server.coffee'
-            else
+            else if manifest['cozy-type'] is not 'static'
                 log.error "Unable to find a start script"
 
         if @app.server?

@@ -5,7 +5,8 @@ permission = require '../middlewares/token'
 path = require 'path'
 App = require('./app').App
 config = require('./conf').get
-log = require('printit')()
+log = require('printit')
+    prefix: 'lib:autostart'
 async = require 'async'
 
 dsHost = process.env.DATASYSTEM_HOST or 'localhost'
