@@ -95,9 +95,8 @@ module.exports.addApp = (app, callback) ->
             data = {}
         data[app.name] = app
         fs.open config('file_stack'), 'w', (err, fd) ->
-            length = data.length
-            data = JSON.stringify(data, null, 2)
-            fs.write fd, data, 0, length, 0, callback
+            data = JSON.stringify data, null, 2
+            fs.writeFile config('file_stack'), data, callback
 
     ## Store in database
     # Recover application information

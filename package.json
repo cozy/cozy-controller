@@ -44,7 +44,6 @@
     "should": "3.1.2",
     "chai": "1.9.0",
     "mocha": "1.17.1",
-    "request": "2.33.0",
     "coffee-script": "latest",
     "coffee-coverage": "0.4.2"
   },
