@@ -85,7 +85,7 @@ module.exports.info = (req, res, next) ->
         for line in lines
             line = line.replace /[\s]+/g, ' '
             lineData = line.split(' ')
-            if lineData.length > 5 and (lineData[5] is '/' or dir.indexOf(lineData[5]) isnt -1)
+            if lineData.length > 5 and (lineData[5] is '/' or (dir.indexOf(lineData[5]) isnt -1) or (lineData[5].indexOf(dir) isnt -1))
                 totalSpace = lineData[1].substring(0, lineData[1].length - 1)
                 usedSpace = lineData[2].substring(0, lineData[2].length - 1)
                 freeSpace = lineData[3].substring(0, lineData[3].length - 1)
@@ -103,12 +103,14 @@ module.exports.info = (req, res, next) ->
                     defaultData.dir = '/usr/local/var/lib/couchdb'
                     defaultData.mount = '/'
 
-                else if dir.indexOf(lineData[5]) is 0
+                else if ((dir.indexOf(lineData[5]) is 0) or (lineData[5].indexOf(dir) is 0))
                     data = {}
                     data.totalDiskSpace = totalSpace
                     data.freeDiskSpace = freeSpace
                     data.usedDiskSpace = usedSpace
-                    data.unit = unit
+                    data.totalUnit = totalUnit
+                    data.usedUnit = usedUnit
+                    data.freeUnit = freeUnit
                     data.dir = dir
                     data.mount = lineData[5]
 
@@ -122,4 +124,3 @@ module.exports.info = (req, res, next) ->
                 data = extractDataFromDfResult dir, resp
                 log.info "Disk usage information: #{JSON.stringify(data)}"
                 res.send 200, data
-
