@@ -6,7 +6,7 @@ node_js:
     - "5"
 env:
     global:
-        - NODE_ENV=dev
+        - NODE_ENV=test
 services:
     - couchdb
 
@@ -17,7 +17,6 @@ before_install:
     - sudo sed -i -e 's/^Defaults\tsecure_path.*$//' /etc/sudoers
     - env | grep PATH
     - sudo env | grep PATH
-    - npm cache clean
 
 script:
     - sudo npm run test
