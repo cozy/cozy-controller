@@ -3,10 +3,9 @@ node_js:
     - "0.10"
     - "0.12"
     - "4"
-    - "5"
 env:
     global:
-        - NODE_ENV=test
+        - NODE_ENV=dev
 services:
     - couchdb
 
