@@ -141,6 +141,7 @@ installDependencies = (connection, app, test, callback) ->
     test = test - 1
     npm.install connection, app, (err) ->
         if err? and test is 0
+            console.log err
             callback err
         else if err?
             log.info 'TRY AGAIN ...'
