@@ -345,7 +345,7 @@ module.exports.stop = function(name, callback) {
 
 /*
     Stop all started applications
-        Usefull when controller is stopped
+        Useful when controller is stopped
  */
 
 module.exports.stopAll = function(callback) {
@@ -480,7 +480,7 @@ module.exports.update = function(connection, manifest, callback) {
 
 /*
     Add application <app> in drone
-        Usefull for autostart
+        Useful for autostart
  */
 
 module.exports.addDrone = function(app, callback) {

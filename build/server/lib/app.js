@@ -14,7 +14,7 @@ log = require('printit')({
 
 
 /*
-    Usefull to translate application stored in database in manifest
+    Useful to translate application stored in database in manifest
  */
 
 exports.App = (function() {

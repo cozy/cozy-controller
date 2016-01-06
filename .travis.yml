@@ -3,9 +3,14 @@ node_js:
     - "0.10"
     - "0.12"
     - "4"
+    - "5"
+matrix:
+    fast_finish: true
+    allow_failures:
+        - node_js: "5"
 env:
     global:
-        - NODE_ENV=dev
+        - NODE_ENV=test
 services:
     - couchdb
 
