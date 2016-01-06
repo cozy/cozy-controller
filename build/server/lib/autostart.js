@@ -120,32 +120,30 @@ start = function(appli, callback) {
       }
       if (app.state === "installed") {
         log.info(app.name + ": starting ...");
-        return controller.start(app, (function(_this) {
-          return function(err, result) {
-            var clientDS, requestPath;
-            if (err != null) {
-              log.error(app.name + ": error");
-              log.error(err.toString());
-              errors[app.name] = new Error("Application didn't start");
-              return controller.addDrone(app, callback);
-            } else {
-              appli = appli.value;
-              appli.port = result.port;
-              if (!appli.permissions) {
-                password = appli.password;
-                delete appli.password;
-              }
-              clientDS = new Client("http://" + dsHost + ":" + dsPort);
-              clientDS.setBasicAuth('home', permission.get());
-              requestPath = "data/merge/" + appli._id + "/";
-              return clientDS.put(requestPath, appli, function(err, res, body) {
-                appli.password = password;
-                log.info(app.name + ": started");
-                return callback();
-              });
+        return controller.start(app, function(err, result) {
+          var clientDS, requestPath;
+          if (err != null) {
+            log.error(app.name + ": error");
+            log.error(err.toString());
+            errors[app.name] = new Error("Application didn't start");
+            return controller.addDrone(app, callback);
+          } else {
+            appli = appli.value;
+            appli.port = result.port;
+            if (!appli.permissions) {
+              password = appli.password;
+              delete appli.password;
             }
-          };
-        })(this));
+            clientDS = new Client("http://" + dsHost + ":" + dsPort);
+            clientDS.setBasicAuth('home', permission.get());
+            requestPath = "data/merge/" + appli._id + "/";
+            return clientDS.put(requestPath, appli, function(err, res, body) {
+              appli.password = password;
+              log.info(app.name + ": started");
+              return callback();
+            });
+          }
+        });
       } else {
         app = new App(app);
         return controller.addDrone(app.app, callback);

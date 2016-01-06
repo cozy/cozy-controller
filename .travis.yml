@@ -6,16 +6,18 @@ node_js:
     - "5"
 env:
     global:
-        - NODE_ENV=test
+        - NODE_ENV=dev
 services:
     - couchdb
 
 before_install:
     # make sudoer use same PATH than default user (includes npm & node)
-    - npm install -g npm@latest-2 coffee-script
+    - npm install -g npm@latest-2
+    - npm install -g coffee-script
     - sudo sed -i -e 's/^Defaults\tsecure_path.*$//' /etc/sudoers
     - env | grep PATH
     - sudo env | grep PATH
+    - npm cache clean
 
 script:
     - sudo npm run test

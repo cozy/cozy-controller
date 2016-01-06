@@ -14,7 +14,7 @@ module.exports.install = (connection, target, callback) ->
       'npm',
       '--production',
       '--loglevel',
-      'http'
+      'info'
       '--unsafe-perm',
       'true',
       '--user',
@@ -31,20 +31,20 @@ module.exports.install = (connection, target, callback) ->
         cwd: target.dir
     child = spawn 'sudo', args, options
 
-    # Kill NPM if this takes more than 5 minutes
+    # Kill NPM if this takes more than 10 minutes
     setTimeout(child.kill.bind(child, 'SIGKILL'), 10 * 60 * 1000)
 
     stderr = ''
     child.stderr.setEncoding 'utf8'
-    child.stderr.on 'data', (data) =>
+    child.stderr.on 'data', (data) ->
         stderr += data
 
     child.stdout.setEncoding 'utf8'
-    child.stdout.on 'data', (data)=>
+    child.stdout.on 'data', (data) ->
         stderr += data
         connection.setTimeout 3 * 60 * 1000
 
-    child.on 'close', (code) =>
+    child.on 'close', (code) ->
         if code isnt 0
             log.error "npm:install:err: NPM Install failed: #{stderr}"
             err = new Error('NPM Install failed')

@@ -1,10 +1,9 @@
-
 {
-"indentation" : {
-"value" : 4,
-"level" : "error"
-},
-"no_empty_param_list": {
-"level": "warn"
-}
+    "indentation" : {
+        "value" : 4,
+        "level" : "error"
+    },
+    "max_line_length": {
+        "level": "warn"
+    }
 }

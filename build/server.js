@@ -12,7 +12,7 @@ controller = require('./server/lib/controller');
 log = require('printit')();
 
 application = module.exports = function(callback) {
-  var currentUser, displayError, err, exitProcess, options, ref, stopProcess;
+  var base, currentUser, displayError, err, exitProcess, options, ref, stopProcess;
   if ((typeof process !== "undefined" && process !== null) && process.getuid() !== 0) {
     if (((ref = process.env) != null ? ref.USER : void 0) != null) {
       currentUser = ", current user is " + process.env.USER;
@@ -21,9 +21,7 @@ application = module.exports = function(callback) {
     }
     err = "cozy-controller should be run as root" + currentUser;
     log.error(err);
-    if (callback != null) {
-      return callback(err);
-    }
+    return typeof callback === "function" ? callback(err) : void 0;
   } else {
     options = {
       name: 'controller',
@@ -31,50 +29,42 @@ application = module.exports = function(callback) {
       host: process.env.HOST || "127.0.0.1",
       root: __dirname
     };
-    if (process.env.NODE_ENV == null) {
-      process.env.NODE_ENV = "development";
+    if ((base = process.env).NODE_ENV == null) {
+      base.NODE_ENV = "development";
     }
-    init.init((function(_this) {
-      return function(err) {
-        if (err != null) {
-          log.error("Error during configuration initialization : ");
-          log.raw(err);
-          if (callback != null) {
-            callback(err);
-          }
+    init.init(function(err) {
+      if (err != null) {
+        log.error("Error during configuration initialization: ");
+        log.raw(err);
+        if (typeof callback === "function") {
+          callback(err);
         }
-        return autostart.start(function(err) {
-          if (err == null) {
-            log.info("### Start Cozy Controller ###");
-            return americano.start(options, function(app, server) {
-              server.timeout = 10 * 60 * 1000;
-              server.once('close', function(code) {
-                log.info("Server close with code " + code + ".");
-                return controller.stopAll((function(_this) {
-                  return function() {
-                    process.removeListener('uncaughtException', displayError);
-                    process.removeListener('exit', exitProcess);
-                    process.removeListener('SIGTERM', stopProcess);
-                    return log.info("All applications are stopped");
-                  };
-                })(this));
+      }
+      return autostart.start(function(err) {
+        if (err == null) {
+          log.info("### Start Cozy Controller ###");
+          return americano.start(options, function(err, app, server) {
+            server.timeout = 10 * 60 * 1000;
+            server.once('close', function(code) {
+              log.info("Server close with code " + code + ".");
+              return controller.stopAll(function() {
+                process.removeListener('uncaughtException', displayError);
+                process.removeListener('exit', exitProcess);
+                process.removeListener('SIGTERM', stopProcess);
+                return log.info("All applications are stopped");
               });
-              if (callback != null) {
-                return callback(app, server);
-              }
             });
-          } else {
-            log.error("Error during autostart : ");
-            log.raw(err);
-            if (callback != null) {
-              return callback(err);
-            }
-          }
-        });
-      };
-    })(this));
+            return callback(err, app, server);
+          });
+        } else {
+          log.error("Error during autostart: ");
+          log.raw(err);
+          return typeof callback === "function" ? callback(err) : void 0;
+        }
+      });
+    });
     displayError = function(err) {
-      log.warn("WARNING : ");
+      log.warn("WARNING: ");
       log.raw(err);
       return log.raw(err.stack);
     };

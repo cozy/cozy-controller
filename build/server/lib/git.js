@@ -90,24 +90,22 @@ module.exports.init = function(app, callback) {
               commands.push("git checkout " + branch);
             }
           } else {
-            commands = ["git clone " + url + " --depth 1 --branch " + branch + " --single-branch " + app.name, "cd " + app.dir];
+            commands = ["git clone " + url + " --depth 1 -b " + branch + " --single-branch " + app.name, "cd " + app.dir];
           }
           commands.push("git submodule update --init --recursive");
           config = {
             cwd: conf('dir_app_bin'),
             user: app.user
           };
-          return executeUntilEmpty(commands, config, (function(_this) {
-            return function(err) {
-              if (err != null) {
-                log.error(err);
-                log.info('Retry to init repository');
-                return executeUntilEmpty(commands, config, callback);
-              } else {
-                return callback();
-              }
-            };
-          })(this));
+          return executeUntilEmpty(commands, config, function(err) {
+            if (err != null) {
+              log.error(err);
+              log.info('Retry to init repository');
+              return executeUntilEmpty(commands, config, callback);
+            } else {
+              return callback();
+            }
+          });
         }
       });
     });

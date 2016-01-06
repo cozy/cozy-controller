@@ -44,6 +44,7 @@
     "chai": "1.9.0",
     "coffee-script": "latest",
     "coffee-coverage": "0.4.2",
+    "coffeelint": "1.14.2",
     "mocha": "1.17.1",
     "should": "3.1.2"
   },
@@ -51,7 +52,7 @@
     "cozy-controller": "./bin/cozy-controller"
   },
   "scripts": {
-    "test": "cake --use-js tests",
+    "test": "cake --use-js -e dev tests",
     "build": "cake build",
     "prepublish": "npm run build"
   }

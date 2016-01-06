@@ -186,7 +186,8 @@ module.exports.removeApp = function(name, callback) {
     }
     delete data[name];
     return fs.open(config('file_stack'), 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
+      data = JSON.stringify(data, null, 2);
+      return fs.writeFile(config('file_stack'), data, callback);
     });
   });
 };

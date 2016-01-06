@@ -312,7 +312,7 @@ module.exports.uninstall = (name, purge=false, callback) ->
         if name in stackApps
             log.info "#{name}:remove from stack.json"
             stack.removeApp name, (err) ->
-                log.error err
+                log.error err if err?
         # Remove repo and log files
         app = drones[name]
         if purge

@@ -66,7 +66,7 @@ module.exports.init = (app, callback) ->
                     # 1.7.10 is the version where --single-branch became
                     # available.
                     if not gitVersion? or \
-                       compareVersions("1.7.10", gitVersion[1]) is 1
+                           compareVersions("1.7.10", gitVersion[1]) is 1
                         commands = [
                             "git clone #{url} #{app.name}"
                             "cd #{app.dir}"
@@ -77,7 +77,7 @@ module.exports.init = (app, callback) ->
 
                     else
                         commands = [
-                            "git clone #{url} --depth 1 --branch #{branch} --single-branch #{app.name}"
+                            "git clone #{url} --depth 1 -b #{branch} --single-branch #{app.name}"
                             "cd #{app.dir}"
                         ]
 
@@ -86,7 +86,7 @@ module.exports.init = (app, callback) ->
                     config =
                         cwd: conf('dir_app_bin')
                         user: app.user
-                    executeUntilEmpty commands, config, (err) =>
+                    executeUntilEmpty commands, config, (err) ->
                         if err?
                             log.error err
                             log.info 'Retry to init repository'

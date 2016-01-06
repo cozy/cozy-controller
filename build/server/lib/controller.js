@@ -376,7 +376,9 @@ module.exports.uninstall = function(name, purge, callback) {
     if (indexOf.call(stackApps, name) >= 0) {
       log.info(name + ":remove from stack.json");
       stack.removeApp(name, function(err) {
-        return log.error(err);
+        if (err != null) {
+          return log.error(err);
+        }
       });
     }
     app = drones[name];
