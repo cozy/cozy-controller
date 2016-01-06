@@ -112,10 +112,11 @@ describe "Log File", ->
             setTimeout ->
                 fs.existsSync('/usr/local/var/log/cozy/data-system-err.log').should.be.ok
                 data = fs.readFileSync '/usr/local/var/log/cozy/data-system-err.log', 'utf8'
-                console.log data
                 index = data.indexOf("TypeError: Property 'test' of object #<Object> is not a function")
                 if index is -1
                     index = data.indexOf("TypeError: string is not a function")
+                if index is -1
+                    index = data.indexOf("TypeError: data.test is not a function")
                 index.should.not.equal -1
                 done()
             , 6 * 1000
