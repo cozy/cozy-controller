@@ -64,9 +64,12 @@ startApp = function(app, callback) {
           drones[app.name] = result.pkg;
           running[app.name] = result;
           if (ref = app.name, indexOf.call(stackApps, ref) >= 0) {
-            stack.addApp(app);
+            return stack.addApp(app, function(err) {
+              return callback(null, result);
+            });
+          } else {
+            return callback(null, result);
           }
-          return callback(null, result);
         }
       });
     }
@@ -210,9 +213,7 @@ module.exports.removeRunningApp = function(name) {
 
 module.exports.install = function(connection, manifest, callback) {
   var app;
-  console.log('install controller');
   app = new App(manifest).app;
-  console.log(app);
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
@@ -239,9 +240,6 @@ module.exports.install = function(connection, manifest, callback) {
               } else {
                 log.info(app.name + ":npm install");
                 return installDependencies(connection, app, 2, function(err) {
-                  console.log('install dependencies');
-                  console.log(app);
-                  console.log(manifest);
                   if (err != null) {
                     err.code = 3;
                     return callback(err);
