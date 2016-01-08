@@ -64,9 +64,12 @@ startApp = function(app, callback) {
           drones[app.name] = result.pkg;
           running[app.name] = result;
           if (ref = app.name, indexOf.call(stackApps, ref) >= 0) {
-            stack.addApp(app);
+            return stack.addApp(app, function(err) {
+              return callback(null, result);
+            });
+          } else {
+            return callback(null, result);
           }
-          return callback(null, result);
         }
       });
     }
@@ -210,9 +213,7 @@ module.exports.removeRunningApp = function(name) {
 
 module.exports.install = function(connection, manifest, callback) {
   var app;
-  console.log('install controller');
   app = new App(manifest).app;
-  console.log(app);
   if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
@@ -239,9 +240,6 @@ module.exports.install = function(connection, manifest, callback) {
               } else {
                 log.info(app.name + ":npm install");
                 return installDependencies(connection, app, 2, function(err) {
-                  console.log('install dependencies');
-                  console.log(app);
-                  console.log(manifest);
                   if (err != null) {
                     err.code = 3;
                     return callback(err);
@@ -347,7 +345,7 @@ module.exports.stop = function(name, callback) {
 
 /*
     Stop all started applications
-        Usefull when controller is stopped
+        Useful when controller is stopped
  */
 
 module.exports.stopAll = function(callback) {
@@ -378,7 +376,9 @@ module.exports.uninstall = function(name, purge, callback) {
     if (indexOf.call(stackApps, name) >= 0) {
       log.info(name + ":remove from stack.json");
       stack.removeApp(name, function(err) {
-        return log.error(err);
+        if (err != null) {
+          return log.error(err);
+        }
       });
     }
     app = drones[name];
@@ -480,7 +480,7 @@ module.exports.update = function(connection, manifest, callback) {
 
 /*
     Add application <app> in drone
-        Usefull for autostart
+        Useful for autostart
  */
 
 module.exports.addDrone = function(app, callback) {

@@ -19,7 +19,7 @@ sendError = (res, err, code=500) ->
     console.log "Sending error to client: "
     console.log err.stack
 
-    res.send code,
+    res.status(code).send
         error: err.message
         success: false
         message: err.message
@@ -81,11 +81,11 @@ module.exports.install = (req, res, next) ->
         else
             # send path to home if it's a static app
             if result.type is 'static'
-                res.send 200, drone:
+                res.status(200).send drone:
                     "type": result.type
                     "path": result.dir
             else
-                res.send 200, drone:
+                res.status(200).send drone:
                     "port": result.port
 
 ###
@@ -118,7 +118,7 @@ module.exports.changeBranch = (req, res, next) ->
                     sendError res, err, 400
                 else
                     unless started
-                        res.send 200, {}
+                        res.status(200).send {}
 
                     # Restart app if necessary
                     else
@@ -127,7 +127,8 @@ module.exports.changeBranch = (req, res, next) ->
                                 log.error err.toString()
                                 sendError res, err, 400
                             else
-                                res.send 200, {"drone": {"port": result.port}}
+                                res.status(200).send drone:
+                                    "port": result.port
 
 ###
     Start application
@@ -146,7 +147,8 @@ module.exports.start = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, {"drone": {"port": result.port}}
+            res.status(200).send drone:
+                "port": result.port
 
 ###
     Stop application
@@ -156,7 +158,7 @@ module.exports.start = (req, res, next) ->
 module.exports.stop = (req, res, next) ->
     name = req.params.name
     if req.body.stop.type is 'static'
-        res.send 200
+        res.status(200).send {}
     else
         controller.stop name, (err, result) ->
             if err?
@@ -164,7 +166,7 @@ module.exports.stop = (req, res, next) ->
                 err = new Error err.toString()
                 sendError res, err, 400
             else
-                res.send 200, app: result
+                res.status(200).send app: result
 
 ###
     Uninstall application
@@ -180,7 +182,7 @@ module.exports.uninstall = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, app: result
+            res.status(200).send app: result
 
 ###
     Update application
@@ -195,7 +197,8 @@ module.exports.update = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, {"drone": {"port": result.port}}
+            res.status(200).send drone:
+                "port": result.port
 
 ###
     Update application
@@ -231,7 +234,7 @@ module.exports.updateStack = (req, res, next) ->
                                 err = new Error "Cannot update stack: #{err.toString()}"
                                 sendError res, err, 400
                             else
-                                res.send 200
+                                res.status(200).send {}
 
 ###
     Reboot controller
@@ -243,7 +246,7 @@ module.exports.restartController = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, {}
+            res.status(200).send {}
 
 ###
     Return a list with all applications
@@ -255,7 +258,7 @@ module.exports.all = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, app: result
+            res.status(200).send app: result
 
 ###
     Return a list with all started applications
@@ -267,6 +270,6 @@ module.exports.running = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.send 200, app: result
+            res.status(200).send app: result
 
 

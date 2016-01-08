@@ -107,12 +107,16 @@ describe "Log File", ->
         it "Then statusCode should be 200", ->
             @res.statusCode.should.equal 200
 
-        it "And exception should logged after 5 seconds", (done) ->
+        it "And exception should be logged after 5 seconds", (done) ->
             @timeout 7 * 1000
-            setTimeout () =>
+            setTimeout ->
                 fs.existsSync('/usr/local/var/log/cozy/data-system-err.log').should.be.ok
                 data = fs.readFileSync '/usr/local/var/log/cozy/data-system-err.log', 'utf8'
                 index = data.indexOf("TypeError: Property 'test' of object #<Object> is not a function")
+                if index is -1
+                    index = data.indexOf("TypeError: string is not a function")
+                if index is -1
+                    index = data.indexOf("TypeError: data.test is not a function")
                 index.should.not.equal -1
                 done()
             , 6 * 1000

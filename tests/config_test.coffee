@@ -1,4 +1,4 @@
-# This test will be usefull when user could change controller configuration.
+# This test will be useful when user could change controller configuration.
 # This feature is not available for the moment.
 
 helpers = require "./helpers"

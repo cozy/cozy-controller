@@ -31,7 +31,7 @@ sendError = function(res, err, code) {
   }
   console.log("Sending error to client: ");
   console.log(err.stack);
-  return res.send(code, {
+  return res.status(code).send({
     error: err.message,
     success: false,
     message: err.message,
@@ -95,29 +95,25 @@ restartController = function(callback) {
 
 module.exports.install = function(req, res, next) {
   var err, manifest;
-  console.log('install static app');
   if (req.body.start == null) {
     err = new Error("Manifest should be declared in body.start");
     return sendError(res, err, 400);
   }
   manifest = req.body.start;
-  console.log(manifest);
   return controller.install(req.connection, manifest, function(err, result) {
     if (err != null) {
       log.error(err.toString());
       return sendError(res, err, 400);
     } else {
-      console.log('result install');
-      console.log(result);
       if (result.type === 'static') {
-        return res.send(200, {
+        return res.status(200).send({
           drone: {
             "type": result.type,
             "path": result.dir
           }
         });
       } else {
-        return res.send(200, {
+        return res.status(200).send({
           drone: {
             "port": result.port
           }
@@ -156,15 +152,15 @@ module.exports.changeBranch = function(req, res, next) {
           return sendError(res, err, 400);
         } else {
           if (!started) {
-            return res.send(200, {});
+            return res.status(200).send({});
           } else {
             return controller.start(manifest, function(err, result) {
               if (err != null) {
                 log.error(err.toString());
                 return sendError(res, err, 400);
               } else {
-                return res.send(200, {
-                  "drone": {
+                return res.status(200).send({
+                  drone: {
                     "port": result.port
                   }
                 });
@@ -198,8 +194,8 @@ module.exports.start = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {
-        "drone": {
+      return res.status(200).send({
+        drone: {
           "port": result.port
         }
       });
@@ -218,7 +214,7 @@ module.exports.stop = function(req, res, next) {
   var name;
   name = req.params.name;
   if (req.body.stop.type === 'static') {
-    return res.send(200);
+    return res.status(200).send({});
   } else {
     return controller.stop(name, function(err, result) {
       if (err != null) {
@@ -226,7 +222,7 @@ module.exports.stop = function(req, res, next) {
         err = new Error(err.toString());
         return sendError(res, err, 400);
       } else {
-        return res.send(200, {
+        return res.status(200).send({
           app: result
         });
       }
@@ -251,7 +247,7 @@ module.exports.uninstall = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {
+      return res.status(200).send({
         app: result
       });
     }
@@ -274,8 +270,8 @@ module.exports.update = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {
-        "drone": {
+      return res.status(200).send({
+        drone: {
           "port": result.port
         }
       });
@@ -326,7 +322,7 @@ module.exports.updateStack = function(req, res, next) {
                 err = new Error("Cannot update stack: " + (err.toString()));
                 return sendError(res, err, 400);
               } else {
-                return res.send(200);
+                return res.status(200).send({});
               }
             });
           }
@@ -348,7 +344,7 @@ module.exports.restartController = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {});
+      return res.status(200).send({});
     }
   });
 };
@@ -365,7 +361,7 @@ module.exports.all = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {
+      return res.status(200).send({
         app: result
       });
     }
@@ -384,7 +380,7 @@ module.exports.running = function(req, res, next) {
       err = new Error(err.toString());
       return sendError(res, err, 400);
     } else {
-      return res.send(200, {
+      return res.status(200).send({
         app: result
       });
     }

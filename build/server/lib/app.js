@@ -14,12 +14,12 @@ log = require('printit')({
 
 
 /*
-    Usefull to translate application stored in database in manifest
+    Useful to translate application stored in database in manifest
  */
 
 exports.App = (function() {
   function App(app) {
-    var folderDir, homeDir, logDir, manifest, match, ref, ref1, start;
+    var error, folderDir, homeDir, logDir, manifest, match, ref, ref1, ref2, start;
     this.app = app;
     homeDir = config('dir_app_bin');
     logDir = config('dir_app_log');
@@ -33,8 +33,16 @@ exports.App = (function() {
     if (((ref = this.app.scripts) != null ? ref.start : void 0) != null) {
       this.app.server = this.app.scripts.start;
     } else if (fs.existsSync(path.join(this.app.dir, "package.json"))) {
-      manifest = require(path.join(this.app.dir, "package.json"));
-      if (((ref1 = manifest.scripts) != null ? ref1.start : void 0) != null) {
+      try {
+        manifest = require(path.join(this.app.dir, "package.json"));
+      } catch (error) {
+        if (((ref1 = this.app) != null ? ref1.name : void 0) != null) {
+          log.error(this.app.name + ": Unable to read application manifest");
+        } else {
+          log.error("Unable to read application manifest");
+        }
+      }
+      if ((manifest != null ? (ref2 = manifest.scripts) != null ? ref2.start : void 0 : void 0) != null) {
         start = manifest.scripts.start.split(' ');
         this.app.server = start[start.length - 1];
       } else if (fs.existsSync(path.join(this.app.dir, 'build', 'server.js'))) {

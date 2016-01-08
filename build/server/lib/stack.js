@@ -128,10 +128,8 @@ module.exports.addApp = function(app, callback) {
     }
     data[app.name] = app;
     return fs.open(config('file_stack'), 'w', function(err, fd) {
-      var length;
-      length = data.length;
       data = JSON.stringify(data, null, 2);
-      return fs.write(fd, data, 0, length, 0, callback);
+      return fs.writeFile(config('file_stack'), data, callback);
     });
   });
   manifest = path.join(config('dir_app_bin'), app.name, 'package.json');
@@ -188,7 +186,8 @@ module.exports.removeApp = function(name, callback) {
     }
     delete data[name];
     return fs.open(config('file_stack'), 'w', function(err, fd) {
-      return fs.write(fd, JSON.stringify(data), 0, data.length, 0, callback);
+      data = JSON.stringify(data, null, 2);
+      return fs.writeFile(config('file_stack'), data, callback);
     });
   });
 };
