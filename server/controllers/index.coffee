@@ -3,6 +3,9 @@
 module.exports =
 
     index: (req, res, next) ->
-        manifest = require '../../../package.json'
+        try
+            manifest = require '../../../package.json'
+        catch
+            manifest = require '../../package.json'
         res.send "Cozy Controller version #{manifest.version}"
 
