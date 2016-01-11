@@ -2,14 +2,14 @@
   "name": "cozy-controller",
   "version": "2.0.38",
   "description": "Module used to install, update and remove applications in the Cozy Platform.",
-  "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
+  "author": "Cozy Cloud <contact@cozycloud.cc> (https://cozy.io)",
   "license": "AGPL-3.0",
   "engines": {
     "node": ">= 0.8.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mycozycloud/cozy-controller.git"
+    "url": "https://github.com/cozy/cozy-controller.git"
   },
   "keywords": [
     "cloud computing",
@@ -25,29 +25,29 @@
     "personal"
   ],
   "dependencies": {
-    "americano": "0.3.10",
-    "americano-cozy": "0.2.8",
-    "forever-monitor": "1.3.0",
-    "cozy-controller-carapace": "0.8.0",
-    "mkdirp": "0.5.0",
+    "americano": "0.4.2",
+    "americano-cozy": "0.2.11",
+    "async": "1.5.1",
+    "cozy-controller-carapace": "0.9.0",
+    "forever-monitor": "1.7.0",
     "latest": "0.2.0",
-    "npm": "1.4.28",
-    "request": "2.53.0",
-    "request-json-light": "0.5.22",
-    "tar": "0.1.17",
-    "printit": "0.1.6",
-    "rimraf": "2.2.8",
+    "mkdirp": "0.5.1",
     "mozilla-version-comparator": "1.0.2",
-    "async": "0.9.0"
+    "npm": "2.14.14",
+    "printit": "0.1.15",
+    "request": "2.67.0",
+    "request-json-light": "0.5.22",
+    "rimraf": "2.5.0",
+    "tar": "2.2.1"
   },
   "devDependencies": {
-    "should": "3.1.2",
     "chai": "1.9.0",
-    "mocha": "1.17.1",
     "coffee-script": "latest",
-    "coffee-coverage": "0.4.2"
+    "coffee-coverage": "0.4.2",
+    "coffeelint": "1.14.2",
+    "mocha": "1.17.1",
+    "should": "3.1.2"
   },
-  "main": "./lib/haibu",
   "bin": {
     "cozy-controller": "./bin/cozy-controller"
   },

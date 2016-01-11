@@ -123,11 +123,11 @@ module.exports.info = function(req, res, next) {
     return exec("df -h " + dir, function(err, resp) {
       var data;
       if (err) {
-        return res.send(500, err);
+        return res.status(500).send(err);
       } else {
         data = extractDataFromDfResult(dir, resp);
         log.info("Disk usage information: " + (JSON.stringify(data)));
-        return res.send(200, data);
+        return res.status(200).send(data);
       }
     });
   });

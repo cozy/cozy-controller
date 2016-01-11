@@ -17,17 +17,17 @@ module.exports.check = (req, res, next) ->
         auth = req.headers['x-auth-token']
         if auth isnt "undefined" and auth?
             if auth isnt token
-                res.send 401, "Token is not correct"
+                res.status(401).send "Token is not correct"
             else
                 next()
         else
-            res.send 401,  "Application is not authenticated"
+            res.status(401).send "Application is not authenticated"
     else
         next()
 
 ###
     Return token
-        Usefull in spawner to transmit token to stack application
+        Useful in spawner to transmit token to stack application
 ###
 module.exports.get = ->
     return token

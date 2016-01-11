@@ -94,9 +94,9 @@ module.exports.start = function(app, callback) {
   fd = [];
   fd[0] = fs.openSync(app.logFile, 'w');
   fd[1] = fs.openSync(app.errFile, 'w');
-  foreverOptions.options = ['--plugin', 'net', '--plugin', 'setgid', '--setgid', app.user, '--plugin', 'setgroups', '--setgroups', app.user, '--plugin', 'setuid', '--setuid', app.user];
+  foreverOptions.args = ['--plugin', 'net', '--plugin', 'setgid', '--setgid', app.user, '--plugin', 'setgroups', '--setgroups', app.user, '--plugin', 'setuid', '--setuid', app.user];
   if (app.name === "proxy") {
-    foreverOptions.options = foreverOptions.options.concat(['--bind_ip', config('bind_ip_proxy')]);
+    foreverOptions.args = foreverOptions.args.concat(['--bind_ip', config('bind_ip_proxy')]);
   }
   return fs.readFile(app.dir + "/package.json", 'utf8', function(err, data) {
     var appliProcess, carapaceBin, error, onError, onExit, onPort, onRestart, onStart, onStderr, onTimeout, ref5, responded, server, start, timeout;
@@ -110,18 +110,18 @@ module.exports.start = function(app, callback) {
       start = data.scripts.start.split(' ');
       app.startScript = path.join(app.dir, start[1]);
       if (start[0] === "coffee") {
-        foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
+        foreverOptions.args = foreverOptions.args.concat(['--plugin', 'coffee']);
       }
     }
     if ((start == null) && server.slice(server.lastIndexOf("."), server.length) === ".coffee") {
-      foreverOptions.options = foreverOptions.options.concat(['--plugin', 'coffee']);
+      foreverOptions.args = foreverOptions.args.concat(['--plugin', 'coffee']);
     }
     fs.stat(app.startScript, function(err, stats) {
       if (err != null) {
         return callback(err);
       }
     });
-    foreverOptions.options.push(app.startScript);
+    foreverOptions.args.push(app.startScript);
     carapaceBin = path.join(require.resolve('cozy-controller-carapace'), '..', '..', 'bin', 'carapace');
     appliProcess = new forever.Monitor(carapaceBin, foreverOptions);
     responded = false;

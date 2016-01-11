@@ -138,7 +138,7 @@ removeOldDir = (callback) ->
             callback(err)
 
 
-#update Files -> usefull for patch
+#update Files -> useful for patch
 module.exports.apply = (callback) ->
     log.info "APPLY patch ..."
     # Update source path

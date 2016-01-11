@@ -16,7 +16,7 @@ application = module.exports = (callback) ->
             currentUser = ""
         err = "cozy-controller should be run as root#{currentUser}"
         log.error err
-        callback(err) if callback?
+        callback? err
 
     else
         options =
@@ -25,41 +25,40 @@ application = module.exports = (callback) ->
             host: process.env.HOST or "127.0.0.1"
             root: __dirname
 
-        unless process.env.NODE_ENV?
-            process.env.NODE_ENV = "development"
+        process.env.NODE_ENV ?= "development"
 
-        init.init (err) =>
+        init.init (err) ->
 
             if err?
-                log.error "Error during configuration initialization : "
+                log.error "Error during configuration initialization: "
                 log.raw err
-                callback err if callback?
+                callback? err
 
-            autostart.start (err) =>
+            autostart.start (err) ->
 
                 if not err?
                     log.info "### Start Cozy Controller ###"
-                    americano.start options, (app, server) =>
+                    americano.start options, (err, app, server) ->
 
                         server.timeout = 10 * 60 * 1000
 
                         server.once 'close', (code) ->
                             log.info "Server close with code #{code}."
 
-                            controller.stopAll () =>
+                            controller.stopAll ->
                                 process.removeListener 'uncaughtException', displayError
                                 process.removeListener 'exit', exitProcess
                                 process.removeListener 'SIGTERM', stopProcess
                                 log.info "All applications are stopped"
 
-                        callback app, server if callback?
+                        callback err, app, server
                 else
-                    log.error "Error during autostart : "
+                    log.error "Error during autostart: "
                     log.raw err
-                    callback err  if callback?
+                    callback? err
 
         displayError = (err) ->
-            log.warn "WARNING : "
+            log.warn "WARNING: "
             log.raw err
             log.raw err.stack
 
@@ -70,7 +69,7 @@ application = module.exports = (callback) ->
                 process.removeListener 'SIGTERM', stopProcess
                 process.exit code
 
-        stopProcess = () ->
+        stopProcess = ->
             log.info "Process is stopped"
             controller.stopAll ->
                 process.exit()

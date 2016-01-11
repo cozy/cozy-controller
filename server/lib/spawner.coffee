@@ -14,7 +14,7 @@ config = require('../lib/conf').get
 module.exports.start = (app, callback) ->
     result = {}
     @appliProcess.stop() if @appliProcess
-    
+
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
         pwd = token.get()
@@ -85,7 +85,7 @@ module.exports.start = (app, callback) ->
     fd[1] = fs.openSync app.errFile, 'w'
 
     # Initialize forever options
-    foreverOptions.options = [
+    foreverOptions.args = [
         '--plugin',
         'net',
         '--plugin',
@@ -101,9 +101,8 @@ module.exports.start = (app, callback) ->
         '--setuid'
         app.user]
     if app.name is "proxy"
-        foreverOptions.options =
-            foreverOptions.options.concat(['--bind_ip', \
-               config('bind_ip_proxy')])
+        foreverOptions.args =
+            foreverOptions.args.concat(['--bind_ip', config('bind_ip_proxy')])
 
     #foreverOptions.command = 'coffee'
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
@@ -118,19 +117,19 @@ module.exports.start = (app, callback) ->
 
             # Check if server is in coffeescript
             if start[0] is "coffee"
-                foreverOptions.options =
-                    foreverOptions.options.concat(['--plugin', 'coffee'])
+                foreverOptions.args =
+                    foreverOptions.args.concat(['--plugin', 'coffee'])
         if not start? and
                 server.slice(server.lastIndexOf("."),server.length) is ".coffee"
-            foreverOptions.options =
-                foreverOptions.options.concat(['--plugin', 'coffee'])
+            foreverOptions.args =
+                foreverOptions.args.concat(['--plugin', 'coffee'])
 
         # Check if startScript exists
         fs.stat app.startScript, (err, stats) ->
             if err?
                 callback err
         # Initialize application process
-        foreverOptions.options.push app.startScript
+        foreverOptions.args.push app.startScript
         carapaceBin = path.join(require.resolve('cozy-controller-carapace'), \
             '..', '..', 'bin', 'carapace')
         appliProcess = new forever.Monitor(carapaceBin, foreverOptions)

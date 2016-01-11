@@ -117,9 +117,8 @@ module.exports.info = (req, res, next) ->
     getCouchStoragePlace (err, dir) ->
         exec "df -h #{dir}", (err, resp) ->
             if err
-                res.send 500, err
+                res.status(500).send err
             else
                 data = extractDataFromDfResult dir, resp
                 log.info "Disk usage information: #{JSON.stringify(data)}"
-                res.send 200, data
-
+                res.status(200).send data

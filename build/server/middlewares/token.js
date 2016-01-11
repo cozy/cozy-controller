@@ -26,12 +26,12 @@ module.exports.check = function(req, res, next) {
     auth = req.headers['x-auth-token'];
     if (auth !== "undefined" && (auth != null)) {
       if (auth !== token) {
-        return res.send(401, "Token is not correct");
+        return res.status(401).send("Token is not correct");
       } else {
         return next();
       }
     } else {
-      return res.send(401, "Application is not authenticated");
+      return res.status(401).send("Application is not authenticated");
     }
   } else {
     return next();
@@ -41,7 +41,7 @@ module.exports.check = function(req, res, next) {
 
 /*
     Return token
-        Usefull in spawner to transmit token to stack application
+        Useful in spawner to transmit token to stack application
  */
 
 module.exports.get = function() {

@@ -287,7 +287,7 @@ module.exports.stop = (name, callback) ->
 
 ###
     Stop all started applications
-        Usefull when controller is stopped
+        Useful when controller is stopped
 ###
 module.exports.stopAll = (callback) ->
     stopApps Object.keys(running), callback
@@ -312,7 +312,7 @@ module.exports.uninstall = (name, purge=false, callback) ->
         if name in stackApps
             log.info "#{name}:remove from stack.json"
             stack.removeApp name, (err) ->
-                log.error err
+                log.error err if err?
         # Remove repo and log files
         app = drones[name]
         if purge
@@ -386,7 +386,7 @@ module.exports.update = (connection, manifest, callback) ->
 
 ###
     Add application <app> in drone
-        Usefull for autostart
+        Useful for autostart
 ###
 module.exports.addDrone = (app, callback) ->
     drones[app.name] = app

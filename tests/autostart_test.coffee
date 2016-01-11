@@ -193,17 +193,16 @@ describe "Autostart", ->
 
         before (done) ->
             @timeout 100000
-            helpers.stopCouchDB () =>
-                helpers.startApp () =>
+            helpers.stopCouchDB ->
+                helpers.startApp ->
                     client = helpers.getClient()
                     done()
 
         after (done) ->
-            helpers.startCouchDB () =>
-                done()
+            helpers.startCouchDB done
 
         it "Then controller server doesn't start", (done) ->
             @timeout 10000
-            client.get 'drones/running', (err, res, body) =>
+            client.get 'drones/running', (err, res, body) ->
                 should.not.exist res
                 done()

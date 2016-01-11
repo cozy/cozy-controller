@@ -10,7 +10,7 @@ config = require('./lib/conf').get
 mkdirp = require 'mkdirp'
 patch = require './lib/patch'
 
-# Usefull to create stack token
+# Useful to create stack token
 randomString = (length=32) ->
     string = ""
     string += Math.random().toString(36).substr(2) while string.length < length

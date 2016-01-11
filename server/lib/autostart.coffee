@@ -85,7 +85,7 @@ start = (appli, callback) ->
             if app.state is "installed"
                 # Start application
                 log.info "#{app.name}: starting ..."
-                controller.start app, (err, result) =>
+                controller.start app, (err, result) ->
 
                     if err?
                         log.error "#{app.name}: error"

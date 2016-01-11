@@ -46,22 +46,21 @@ helpers.getClient = (url = null) ->
         client.setToken(token)
         return client
 
-initializeApplication = (callback) =>
+initializeApplication = (callback) ->
     src = path.join(path.dirname(fs.realpathSync(__filename)), '..', 'lib')
     require(path.join(src, "#{helpers.prefix}server"))(callback)
 
 helpers.startApp = (callback) ->
-    initializeApplication (app, server) =>
-        @app = app
+    initializeApplication (err, app, server) =>
+        console.log err if err?
+        @app = app or {}
         @app.server = server
         callback app
 
 helpers.stopApp = (done) ->
     setTimeout =>
-        @app.server.close () =>
-            setTimeout =>
-                done()
-            , 6000
+        @app.server.close ->
+            setTimeout done, 6000
     , 250
 
 helpers.stopCouchDB = (done) ->
@@ -80,14 +79,14 @@ helpers.clearDB = (db) -> (done) ->
     db.destroy (err) ->
         logger.info "\t-> Database destroyed!"
         if err and err.error isnt 'not_found'
-            logger.info "db.destroy err : ", err
+            logger.info "db.destroy err: ", err
             return done err
 
         setTimeout ->
             logger.info "Waiting a bit..."
             db.create (err) ->
                 logger.info "\t-> Database created"
-                logger.info "db.create err : ", err if err
+                logger.info "db.create err: ", err if err
                 done err
         , 1000
 
