@@ -39,6 +39,7 @@ application = module.exports = (callback) ->
                 if not err?
                     log.info "### Start Cozy Controller ###"
                     americano.start options, (err, app, server) ->
+                        log.error err if err
 
                         server.timeout = 10 * 60 * 1000
 
@@ -51,7 +52,7 @@ application = module.exports = (callback) ->
                                 process.removeListener 'SIGTERM', stopProcess
                                 log.info "All applications are stopped"
 
-                        callback err, app, server
+                        callback? err, app, server
                 else
                     log.error "Error during autostart: "
                     log.raw err
