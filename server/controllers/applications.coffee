@@ -1,6 +1,7 @@
 controller = require ('../lib/controller')
 async = require 'async'
 log = require('printit')
+    date: true
     prefix: 'controllers:applications'
 exec = require('child_process').exec
 latest = require 'latest'

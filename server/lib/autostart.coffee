@@ -6,6 +6,7 @@ path = require 'path'
 App = require('./app').App
 config = require('./conf').get
 log = require('printit')
+    date: true
     prefix: 'lib:autostart'
 async = require 'async'
 
