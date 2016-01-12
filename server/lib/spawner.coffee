@@ -5,6 +5,7 @@ exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
 log = require('printit')
+    date: true
     prefix: 'lib:spawner'
 config = require('../lib/conf').get
 

@@ -3,7 +3,7 @@ exec = require('child_process').exec
 
 log = require('printit')
     date: true
-    prefix: 'cozy-controller'
+    prefix: 'controllers:disk'
 
 
 # Looks for entry database_dir in the given couchdb config file.

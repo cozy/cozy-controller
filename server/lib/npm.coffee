@@ -1,6 +1,8 @@
 path = require 'path'
 spawn = require('child_process').spawn
-log = require('printit')()
+log = require('printit')
+    date: true
+    prefix: 'lib:npm'
 config = require('./conf').get
 
 ###

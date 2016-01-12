@@ -5,6 +5,7 @@ exec = require('child_process').exec
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
 conf = require('./conf').get
 log = require('printit')
+    date: true
     prefix: 'lib:git'
 
 ###
