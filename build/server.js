@@ -44,6 +44,9 @@ application = module.exports = function(callback) {
         if (err == null) {
           log.info("### Start Cozy Controller ###");
           return americano.start(options, function(err, app, server) {
+            if (err) {
+              log.error(err);
+            }
             server.timeout = 10 * 60 * 1000;
             server.once('close', function(code) {
               log.info("Server close with code " + code + ".");
@@ -54,7 +57,7 @@ application = module.exports = function(callback) {
                 return log.info("All applications are stopped");
               });
             });
-            return callback(err, app, server);
+            return typeof callback === "function" ? callback(err, app, server) : void 0;
           });
         } else {
           log.error("Error during autostart: ");
