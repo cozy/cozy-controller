@@ -19,8 +19,11 @@ before_install:
     - npm install -g npm@latest-2
     - npm install -g coffee-script
     - sudo sed -i -e 's/^Defaults\tsecure_path.*$//' /etc/sudoers
-    - env | grep PATH
-    - sudo env | grep PATH
 
 script:
-    - sudo npm run test
+    # Don't use npm run test, it adds a lot of npm_config_ env variables
+    - sudo cake --use-js tests
+
+after_failure:
+    - env | grep PATH
+    - sudo env | grep PATH
