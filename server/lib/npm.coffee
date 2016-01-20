@@ -2,7 +2,7 @@ path = require 'path'
 spawn = require('child_process').spawn
 log = require('printit')()
 config = require('./conf').get
-directory = require('./directory')
+directory = require './directory'
 
 # Hack: we force $HOME to not let node-gyp pollute another directory
 sudo = (user, dir, args, options) ->
