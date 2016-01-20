@@ -3,12 +3,7 @@ spawn = require('child_process').spawn
 log = require('printit')()
 config = require('./conf').get
 directory = require './directory'
-
-# Hack: we force $HOME to not let node-gyp pollute another directory
-sudo = (user, dir, args, options) ->
-    options = cwd: dir
-    args = ['-n', '-u', user, 'env', "HOME=#{dir}"].concat args
-    spawn 'sudo', args, options
+sudo = require '../helpers/sudo'
 
 ###
   Install dependencies

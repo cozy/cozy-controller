@@ -64,23 +64,25 @@ module.exports.init = (app, callback) ->
                     # Default Git branch is "master"
                     branch = app.repository.branch or "master"
 
+                    # Start with a fresh directory
+                    commands = [
+                        ['rm', '-rf', '.*', '*']
+                    ]
+
                     # 1.7.10 is the version where --single-branch became
                     # available.
                     if not gitVersion? or \
                            compareVersions("1.7.10", gitVersion[1]) is 1
-                        commands = [
-                            "git clone #{url} ."
-                        ]
+                        commands.push ['git', 'clone', url, '.']
                         if branch isnt 'master'
-                            commands.push "git branch #{branch} origin/#{branch}"
-                            commands.push "git checkout #{branch}"
+                            commands.push ['git', 'branch', branch, "origin/#{branch}"]
+                            commands.push ['git', 'checkout', branch]
 
                     else
-                        commands = [
-                            "git clone #{url} --depth 1 -b #{branch} --single-branch ."
-                        ]
+                        commands.push ['git', 'clone', url, '--depth', '1',
+                                       '-b', branch, '--single-branch', '.']
 
-                    commands.push "git submodule update --init --recursive"
+                    commands.push ['git', 'submodule', 'update', '--init', '--recursive']
 
                     config =
                         cwd: app.dir
@@ -113,9 +115,9 @@ module.exports.update = (app, callback) ->
 
             # Setup the git commands to be executed
             commands = [
-                "git reset --hard "
-                "git pull origin #{branch}"
-                "git submodule update --recursive"
+                ['git', 'reset', '--hard']
+                ['git', 'pull', 'origin', branch]
+                ['git', 'submodule', 'update', '--recursive']
             ]
 
             config =
@@ -136,8 +138,8 @@ module.exports.changeBranch = (app, newBranch, callback) ->
         else
             # Setup the git commands to be executed
             commands = [
-                "git fetch origin #{newBranch}:#{newBranch}"
-                "git checkout #{newBranch}"
+                ['git', 'fetch', 'origin', "#{newBranch}:#{newBranch}"]
+                ['git', 'checkout', newBranch]
             ]
 
             config =

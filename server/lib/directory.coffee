@@ -30,7 +30,7 @@ module.exports.create = (app, callback) ->
                 if err
                     callback err
                 else
-                    changeOwner app.user, dirPath, (err) ->
+                    module.exports.changeOwner app.user, dirPath, (err) ->
                         callback err
         catch error
             callback error
