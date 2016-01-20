@@ -8,13 +8,16 @@ path = require 'path'
 ###
 module.exports.create = (app, callback) ->
     env = {}
-    user = env.USER = app.user
-    env.HOME = app.dir
+    env.USER = app.user
+
+    # XXX app.dir would have been a better $HOME in theory
+    # but git can't clone in a folder with things like a `.bashrc`
+    env.HOME = config('dir_app_bin')
     env.SHELL = process.env.SHELL
     env.PATH = process.env.PATH
-    child = spawn 'bash', [ path.join(__dirname, '..', 'lib', 'adduser.sh') ], \
-        env: env
 
+    script = path.join(__dirname, '..', 'lib', 'adduser.sh')
+    child = spawn 'bash', [script], env: env
     child.on 'exit', (code) ->
         if code is 0
             callback()

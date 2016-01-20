@@ -3,6 +3,11 @@ log = require('printit')()
 
 module.exports = executeUntilEmpty = (commands, config, callback) ->
     command = commands.shift()
+
+    if command[0] is 'cd'
+        config.cwd = command[1]
+        return executeUntilEmpty commands, config, callback
+
     child = sudo config.user, config.cwd, command
 
     stderr = ''
