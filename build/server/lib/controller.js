@@ -19,6 +19,7 @@ stack = require('./stack');
 config = require('./conf').get;
 
 log = require('printit')({
+  date: true,
   prefix: 'lib:controller'
 });
 

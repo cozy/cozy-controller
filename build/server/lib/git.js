@@ -14,6 +14,7 @@ executeUntilEmpty = require('../helpers/executeUntilEmpty');
 conf = require('./conf').get;
 
 log = require('printit')({
+  date: true,
   prefix: 'lib:git'
 });
 

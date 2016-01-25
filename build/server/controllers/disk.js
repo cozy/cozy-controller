@@ -7,7 +7,7 @@ exec = require('child_process').exec;
 
 log = require('printit')({
   date: true,
-  prefix: 'cozy-controller'
+  prefix: 'controllers:disk'
 });
 
 getCouchStoragePlaceFromFile = function(file, callback) {
@@ -90,7 +90,7 @@ module.exports.info = function(req, res, next) {
       line = lines[i];
       line = line.replace(/[\s]+/g, ' ');
       lineData = line.split(' ');
-      if (lineData.length > 5 && (lineData[5] === '/' || dir.indexOf(lineData[5]) !== -1)) {
+      if (lineData.length > 5 && (lineData[5] === '/' || (dir.indexOf(lineData[5]) !== -1) || (lineData[5].indexOf(dir) !== -1))) {
         totalSpace = lineData[1].substring(0, lineData[1].length - 1);
         usedSpace = lineData[2].substring(0, lineData[2].length - 1);
         freeSpace = lineData[3].substring(0, lineData[3].length - 1);
@@ -106,12 +106,14 @@ module.exports.info = function(req, res, next) {
           defaultData.freeUnit = freeUnit;
           defaultData.dir = '/usr/local/var/lib/couchdb';
           defaultData.mount = '/';
-        } else if (dir.indexOf(lineData[5]) === 0) {
+        } else if ((dir.indexOf(lineData[5]) === 0) || (lineData[5].indexOf(dir) === 0)) {
           data = {};
           data.totalDiskSpace = totalSpace;
           data.freeDiskSpace = freeSpace;
           data.usedDiskSpace = usedSpace;
-          data.unit = unit;
+          data.totalUnit = totalUnit;
+          data.usedUnit = usedUnit;
+          data.freeUnit = freeUnit;
           data.dir = dir;
           data.mount = lineData[5];
         }

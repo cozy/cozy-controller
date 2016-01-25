@@ -6,6 +6,7 @@ controller = require('../lib/controller');
 async = require('async');
 
 log = require('printit')({
+  date: true,
   prefix: 'controllers:applications'
 });
 

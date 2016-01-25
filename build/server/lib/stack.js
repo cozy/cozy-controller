@@ -8,6 +8,7 @@ path = require('path');
 Client = require('request-json-light').JsonClient;
 
 log = require('printit')({
+  date: true,
   prefix: 'lib:stack'
 });
 

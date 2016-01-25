@@ -7,7 +7,10 @@ path = require('path');
 
 async = require('async');
 
-log = require('printit')();
+log = require('printit')({
+  date: true,
+  prefix: 'init'
+});
 
 permission = require('./middlewares/token');
 
