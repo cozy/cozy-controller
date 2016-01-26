@@ -226,7 +226,10 @@ module.exports.start = (callback) ->
                         else
                             dsPort = port
                             # Start others apps
-                            getApps (err, apps) ->
+                            opts =
+                                times: 5
+                                interval: 500
+                            async.retry opts, getApps, (err, apps) ->
                                 return callback err if err?
                                 async.eachSeries apps, start, (err) ->
                                     # Start proxy
