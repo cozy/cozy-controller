@@ -3,26 +3,26 @@ fs = require 'fs'
 should = require('chai').Should()
 Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
-client = ""
-dsPort = ""
 
 
 describe "App Stopped", ->
     describe "Application should stopped if server has stopped", ->
+        client = ""
+        dsPort = ""
         port = 0
 
-        describe "Install data-system", =>
+        describe "Install data-system", ->
 
             before helpers.cleanApp
             before (done) ->
                 @timeout 100000
-                helpers.startApp () =>
+                helpers.startApp ->
                     client = helpers.getClient()
                     done()
 
             after (done) ->
                 @timeout 20000
-                helpers.stopApp () ->
+                helpers.stopApp ->
                     done()
 
             it "When I install data-system", (done) ->
@@ -49,11 +49,11 @@ describe "App Stopped", ->
                     res.statusCode.should.equal 200
                     done()
 
-        describe "Stop server", =>
+        describe "Stop server", ->
 
             it "Then data-system is stopped", (done)->
                 @timeout 30000
-                setTimeout () =>
+                setTimeout ->
                     clientDS = new Client "http://localhost:#{port}"
                     clientDS.get '/', (err, res) ->
                         should.not.exist res
