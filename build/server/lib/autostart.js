@@ -290,11 +290,16 @@ module.exports.start = function(callback) {
           return callback();
         } else {
           return startStack(manifest, 'data-system', function(err, port) {
+            var opts;
             if (err != null) {
               return callback(err);
             } else {
               dsPort = port;
-              return getApps(function(err, apps) {
+              opts = {
+                times: 5,
+                interval: 500
+              };
+              return async.retry(opts, getApps, function(err, apps) {
                 if (err != null) {
                   return callback(err);
                 }
