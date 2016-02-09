@@ -25,17 +25,16 @@
     "personal"
   ],
   "dependencies": {
-    "americano": "0.4.2",
-    "americano-cozy": "0.2.11",
+    "americano": "0.4.3",
     "async": "1.5.1",
     "cozy-controller-carapace": "0.9.0",
     "forever-monitor": "1.7.0",
     "latest": "0.2.0",
     "mkdirp": "0.5.1",
     "mozilla-version-comparator": "1.0.2",
-    "npm": "2.14.14",
+    "npm": "2.14.17",
     "printit": "0.1.15",
-    "request": "2.67.0",
+    "request": "2.69.0",
     "request-json-light": "0.5.22",
     "rimraf": "2.5.0",
     "tar": "2.2.1"
