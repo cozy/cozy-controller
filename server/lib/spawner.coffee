@@ -51,19 +51,20 @@ module.exports.start = (app, callback) ->
 
     # Initialize forever options
     foreverOptions =
-        fork:      true
-        silent:    true
-        max:       5
-        stdio:     [ 'ipc', 'pipe', 'pipe' ]
-        cwd:       app.dir
-        logFile:   app.logFile
-        outFile:   app.logFile
-        errFile:   app.errFile
-        #hideEnv:   env
-        env:       env
-        killTree:  true
-        killTTL:   0
-        command:   'node'
+        fork:             true
+        silent:           true
+        max:              5
+        cooldownInterval: 300
+        stdio:            [ 'ipc', 'pipe', 'pipe' ]
+        cwd:              app.dir
+        logFile:          app.logFile
+        outFile:          app.logFile
+        errFile:          app.errFile
+        #hideEnv:          env
+        env:              env
+        killTree:         true
+        killTTL:          0
+        command:          'node'
 
     ## Manage logFile and errFile
     if fs.existsSync(app.logFile)
