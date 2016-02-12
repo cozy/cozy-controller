@@ -155,8 +155,21 @@ setupSyslog = (app, foreverOptions) ->
     host = process.env.SYSLOG_HOST or 'localhost'
     port = process.env.SYSLOG_PORT or 514
     logger = new Syslogger hostname: host, port: port
-    sendLog = (data) -> logger.log data.toString()
+    sendLog = (data) ->
+        data = data.toString()
+        unless data in [' ', '\n']
+            severity = switch data[0..5]
+                when 'error:' then 'err'
+                when 'warn: ' then 'warn'
+                when 'info: ' then 'info'
+                when 'debug:' then 'debug'
+                else 'notice'
+            logger.send data, severity
     start = (monitor) ->
+        logger.setMessageComposer (message, severity) ->
+            return new Buffer('<' + (this.facility * 8 + severity) + '>' +
+                this.getDate() + ' ' + app.name + '[' +
+                monitor.childData.pid + ']:' + message)
         monitor.on 'stdout', sendLog
         monitor.on 'stderr', sendLog
     close = (monitor) ->
@@ -165,8 +178,6 @@ setupSyslog = (app, foreverOptions) ->
     return {start, close}
 
 
-# https://github.com/cozy/printit/blob/master/main.js
-# https://github.com/foreverjs/forever-monitor/blob/master/lib/forever-monitor/plugins/logger.js
 setupLogging = (app, foreverOptions) ->
     if process.env.USE_SYSLOG
         setupSyslog app, foreverOptions
