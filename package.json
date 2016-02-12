@@ -25,6 +25,7 @@
     "personal"
   ],
   "dependencies": {
+    "ain2": "1.5.3",
     "americano": "0.4.2",
     "americano-cozy": "0.2.11",
     "async": "1.5.1",
