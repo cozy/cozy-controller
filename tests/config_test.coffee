@@ -49,7 +49,7 @@ describe "Configuration", ->
                     tab = data.toString().split('\n')
                     for proc in tab
                         if proc.indexOf('cozy-proxy') isnt -1
-                            proc.indexOf('localhost:9104').should.not.equal -1
+                            proc.should.contain 'localhost:9104'
 
                 lsof.on 'close', (code) ->
                     done()
@@ -85,7 +85,7 @@ describe "Configuration", ->
                     tab = data.toString().split('\n')
                     for proc in tab
                         if proc.indexOf('cozy-proxy') isnt -1
-                            proc.indexOf('*:9104').should.not.equal -1
+                            proc.should.contain '*:9104'
                 lsof.on 'close', (code) ->
                     done()
 
@@ -113,6 +113,7 @@ describe "Configuration", ->
                     scripts:
                         start: "server.coffee"
                 client.post 'apps/data-system/install', "start":app, (err, res, body) =>
+                    console.log err if err
                     @res = res
                     @port = body.drone.port
                     dsPort = @port
@@ -144,6 +145,7 @@ describe "Configuration", ->
             it "And data-system should be started", (done) ->
                 @timeout 500000
                 client.get 'drones/running', (err, res, body) =>
+                    console.log err if err
                     isRunning  = 'data-system' in Object.keys(body.app)
                     isRunning.should.equal true
                     done()

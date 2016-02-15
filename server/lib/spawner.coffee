@@ -191,7 +191,7 @@ setupLogging = (app, foreverOptions) ->
 module.exports.start = (app, callback) ->
     result = {}
     env = prepareEnv app, env
-    foreverOptions = prepareForeverOptions app
+    foreverOptions = prepareForeverOptions app, env
     logging = setupLogging app, foreverOptions
 
     findStartScript app, (err, isCoffee, foreverArgs) ->
@@ -227,7 +227,7 @@ module.exports.start = (app, callback) ->
                     respond new Error "#{app.name} CANT START"
                 else
                     log.error "#{app.name} HAS FAILED TOO MUCH"
-                    setTimeout (-> monitor.exit 1), 1
+                    setTimeout monitor.stop, 1
 
             onError = (err) ->
                 respond err.toString()
