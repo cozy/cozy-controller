@@ -120,20 +120,18 @@ findStartScript = (app, callback) ->
 
 # Delete previous backups and move logs to backups
 rotateLogFiles = (app) ->
-    if fs.existsSync(app.logFile)
+    if fs.existsSync app.logFile
         # If a logFile exists, create a backup
-        app.backup = app.logFile + "-backup"
+        app.backup = "#{app.logFile}-backup"
 
         # delete previous backup
-        if fs.existsSync(app.backup)
-            fs.unlinkSync app.backup
+        fs.unlinkSync app.backup if fs.existsSync app.backup
         fs.renameSync app.logFile, app.backup
 
-    if fs.existsSync(app.errFile)
+    if fs.existsSync app.errFile
         # If a errFile exists, create a backup
-        app.backupErr = app.errFile + "-backup"
-        if fs.existsSync(app.backupErr)
-            fs.unlinkSync app.backupErr
+        app.backupErr = "#{app.errFile}-backup"
+        fs.unlinkSync app.backupErr if fs.existsSync app.backupErr
         fs.renameSync app.errFile, app.backupErr
 
 
@@ -167,9 +165,11 @@ setupSyslog = (app, foreverOptions) ->
             logger.send data, severity
     start = (monitor) ->
         logger.setMessageComposer (message, severity) ->
-            return new Buffer('<' + (this.facility * 8 + severity) + '>' +
-                this.getDate() + ' ' + app.name + '[' +
-                monitor.childData.pid + ']:' + message)
+            priority = @facility * 8 + severity
+            date = @getDate()
+            name = app.name
+            pid = monitor.childData.pid
+            return new Buffer "<#{priority}>#{date} #{name}[#{pid}]:#{message}"
         monitor.on 'stdout', sendLog
         monitor.on 'stderr', sendLog
     close = (monitor) ->
