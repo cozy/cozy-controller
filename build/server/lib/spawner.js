@@ -68,6 +68,7 @@ module.exports.start = function(app, callback) {
     fork: true,
     silent: true,
     max: 5,
+    cooldownInterval: 300,
     stdio: ['ipc', 'pipe', 'pipe'],
     cwd: app.dir,
     logFile: app.logFile,

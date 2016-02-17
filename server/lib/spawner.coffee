@@ -1,4 +1,4 @@
-forever = require 'forever-monitor'
+forever = require 'cozy-forever-monitor'
 fs = require 'fs'
 path = require 'path'
 exec = require('child_process').exec
@@ -53,17 +53,20 @@ prepareEnv = (app) ->
 # cozy-controller-carapace
 prepareForeverOptions = (app, env) ->
     foreverOptions =
-        fork:      true
-        silent:    true
-        max:       5
-        stdio:     [ 'ipc', 'pipe', 'pipe' ]
-        cwd:       app.dir
-        logFile:   app.logFile
-        #hideEnv:   env
-        env:       env
-        killTree:  true
-        killTTL:   0
-        command:   'node'
+        fork:             true
+        silent:           true
+        max:              5
+        cooldownInterval: 300
+        stdio:            [ 'ipc', 'pipe', 'pipe' ]
+        cwd:              app.dir
+        logFile:          app.logFile
+        outFile:          app.logFile
+        errFile:          app.errFile
+        #hideEnv:          env
+        env:              env
+        killTree:         true
+        killTTL:          0
+        command:          'node'
 
     foreverOptions.args = [
         '--plugin',
