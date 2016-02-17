@@ -61,7 +61,7 @@ initAppsFiles = (callback) ->
             log.info 'init: stack file'
             stackFile = config('file_stack')
             if not fs.existsSync stackFile
-                fs.writeFile stackFile, '', flag: 'w', callback
+                fs.writeFile stackFile, '', callback
             else
                 callback()
 
