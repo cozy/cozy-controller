@@ -1,4 +1,4 @@
-forever = require 'forever-monitor'
+forever = require 'cozy-forever-monitor'
 fs = require 'fs'
 path = require 'path'
 exec = require('child_process').exec
