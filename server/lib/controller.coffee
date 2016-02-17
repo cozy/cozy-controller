@@ -259,6 +259,7 @@ module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
             err.code = 20 + err.code
             callback err
         else
+            manifest.repository.branch = newBranch
             # NPM install
             log.info "#{app.name}:npm install"
             installDependencies connection, app, 2, (err) ->
