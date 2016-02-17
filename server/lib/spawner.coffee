@@ -9,20 +9,17 @@ log = require('printit')
     prefix: 'lib:spawner'
 config = require('../lib/conf').get
 
-###
-    Start application <app> with forever-monitor and carapace
-###
-module.exports.start = (app, callback) ->
-    result = {}
-    @appliProcess.stop() if @appliProcess
 
+# Prepare env variables for the app (token, inherited from the controller or
+# from the config)
+prepareEnv = (app) ->
     # Generate token
     if app.name in ["home", "proxy", "data-system"]
         pwd = token.get()
     else
         pwd = app.password
 
-    # Transmit application's name and token to appliProcess
+    # Transmit application's name and token to monitor
     env =
         NAME: app.name
         TOKEN: pwd
@@ -49,7 +46,12 @@ module.exports.start = (app, callback) ->
         for key in Object.keys(environment)
             env[key] = environment[key]
 
-    # Initialize forever options
+    return env
+
+
+# Prepare the options for forever-monitor and the arguments for
+# cozy-controller-carapace
+prepareForeverOptions = (app, env) ->
     foreverOptions =
         fork:             true
         silent:           true
@@ -66,27 +68,6 @@ module.exports.start = (app, callback) ->
         killTTL:          0
         command:          'node'
 
-    ## Manage logFile and errFile
-    if fs.existsSync(app.logFile)
-        # If a logFile exists, create a backup
-        app.backup = app.logFile + "-backup"
-
-        # delete previous backup
-        if fs.existsSync(app.backup)
-            fs.unlinkSync app.backup
-        fs.renameSync app.logFile, app.backup
-    if fs.existsSync(app.errFile)
-        # If a errFile exists, create a backup
-        app.backupErr = app.errFile + "-backup"
-        if fs.existsSync(app.backupErr)
-            fs.unlinkSync app.backupErr
-        fs.renameSync app.errFile, app.backupErr
-    # Create logFile and errFile
-    fd = []
-    fd[0] = fs.openSync app.logFile, 'w'
-    fd[1] = fs.openSync app.errFile, 'w'
-
-    # Initialize forever options
     foreverOptions.args = [
         '--plugin',
         'net',
@@ -106,121 +87,191 @@ module.exports.start = (app, callback) ->
         foreverOptions.args =
             foreverOptions.args.concat(['--bind_ip', config('bind_ip_proxy')])
 
-    #foreverOptions.command = 'coffee'
+    return foreverOptions
+
+
+# Find the command to run to start the app
+# The callback is called with 3 parameters:
+# - err, the error if the script has not been found
+# - startScript, the script to run (if found in package.json)
+# - args, some additional arguments to pass on the command line
+findStartScript = (app, callback) ->
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
         try
             data = JSON.parse(data)
         catch
             return callback new Error "Package.json isn't in a correct format."
-        server = app.server
+
+        isCoffee = false
+        args = []
+
         if data.scripts?.start?
             start = data.scripts.start.split(' ')
             app.startScript = path.join(app.dir, start[1])
-
             # Check if server is in coffeescript
-            if start[0] is "coffee"
-                foreverOptions.args =
-                    foreverOptions.args.concat(['--plugin', 'coffee'])
-        if not start? and
-                server.slice(server.lastIndexOf("."),server.length) is ".coffee"
-            foreverOptions.args =
-                foreverOptions.args.concat(['--plugin', 'coffee'])
+            if start[0] is 'coffee'
+                isCoffee = true
+            args = start[2..]
+
+        unless start
+            isCoffee = path.extname(app.server) is '.coffee'
 
         # Check if startScript exists
         fs.stat app.startScript, (err, stats) ->
-            if err?
-                callback err
-        # Initialize application process
-        foreverOptions.args.push app.startScript
-        carapaceBin = path.join(require.resolve('cozy-controller-carapace'), \
-            '..', '..', 'bin', 'carapace')
-        appliProcess = new forever.Monitor(carapaceBin, foreverOptions)
-        responded = false
+            callback err, isCoffee, args
 
-        ## Manage events of application process
-        onExit = ->
-            app.backup = app.logFile + "-backup"
-            app.backupErr = app.errFile + "-backup"
-            fs.rename app.logFile, app.backup
-            fs.rename app.errFile, app.backupErr
-            # Remove listeners to related events.
-            appliProcess.removeListener 'error', onError
-            clearTimeout timeout
-            log.error 'Callback on Exit'
-            if callback then callback new Error "#{app.name} CANT START"
-            else
-                log.error "#{app.name} HAS FAILLED TOO MUCH"
-                setTimeout (-> appliProcess.exit 1), 1
 
-        onError = (err) ->
-            if not responded
-                err = err.toString()
-                responded = true
-                callback err
-                appliProcess.removeListener 'exit', onExit
-                appliProcess.removeListener 'message', onPort
-                clearTimeout timeout
+# Delete previous backups and move logs to backups
+rotateLogFiles = (app) ->
+    if fs.existsSync app.logFile
+        # If a logFile exists, create a backup
+        app.backup = "#{app.logFile}-backup"
 
-        onStart = (monitor, data) ->
-            result =
-                monitor: appliProcess
-                process: monitor.child
-                data: data
-                pid: monitor.childData.pid
-                pkg: app
-                fd: fd
-            log.info "#{app.name}: start with pid #{result.pid}"
+        # delete previous backup
+        fs.unlinkSync app.backup if fs.existsSync app.backup
+        fs.renameSync app.logFile, app.backup
 
-        onRestart = (monitor, data) ->
-            result =
-                monitor: appliProcess
-                process: monitor.child
-                data: data
-                pid: monitor.childData.pid
-                pkg: app
-                fd: fd
-            log.info "#{app.name}: restart with pid #{result.pid}"
+    if fs.existsSync app.errFile
+        # If a errFile exists, create a backup
+        app.backupErr = "#{app.errFile}-backup"
+        fs.unlinkSync app.backupErr if fs.existsSync app.backupErr
+        fs.renameSync app.errFile, app.backupErr
 
-        onTimeout = ->
-            appliProcess.removeListener 'exit', onExit
-            appliProcess.stop()
-            controller.removeRunningApp(app.name)
-            err = new Error 'Error spawning application'
-            log.error 'callback timeout'
+
+setupLogFiles = (app, foreverOptions) ->
+    rotateLogFiles app
+    foreverOptions.outFile = app.logFile
+    foreverOptions.errFile = app.errFile
+    start = (monitor) ->
+        # Also send errors to the log file for debugging purpose
+        monitor.child.stderr.pipe monitor.stdout, end: false
+    close = (monitor) ->
+        monitor.child.stderr.unpipe? monitor.stdout
+        rotateLogFiles app
+    return {start, close}
+
+
+setupSyslog = (app, foreverOptions) ->
+    Syslogger = require 'ain2'
+    host = process.env.SYSLOG_HOST or 'localhost'
+    port = process.env.SYSLOG_PORT or 514
+    logger = new Syslogger hostname: host, port: port
+    sendLog = (data) ->
+        data = data.toString()
+        unless data in [' ', '\n']
+            severity = switch data[0..5]
+                when 'error:' then 'err'
+                when 'warn: ' then 'warn'
+                when 'info: ' then 'info'
+                when 'debug:' then 'debug'
+                else 'notice'
+            logger.send data, severity
+    start = (monitor) ->
+        logger.setMessageComposer (message, severity) ->
+            priority = @facility * 8 + severity
+            date = @getDate()
+            name = app.name
+            pid = monitor.childData.pid
+            return new Buffer "<#{priority}>#{date} #{name}[#{pid}]:#{message}"
+        monitor.on 'stdout', sendLog
+        monitor.on 'stderr', sendLog
+    close = (monitor) ->
+        monitor.removeListener 'stdout', sendLog
+        monitor.removeListener 'stderr', sendLog
+    return {start, close}
+
+
+setupLogging = (app, foreverOptions) ->
+    if process.env.USE_SYSLOG
+        setupSyslog app, foreverOptions
+    else
+        setupLogFiles app, foreverOptions
+
+
+###
+    Start application <app> with forever-monitor and carapace
+###
+module.exports.start = (app, callback) ->
+    result = {}
+    env = prepareEnv app, env
+    foreverOptions = prepareForeverOptions app, env
+    logging = setupLogging app, foreverOptions
+
+    findStartScript app, (err, isCoffee, foreverArgs) ->
+        if err
             callback err
+        else
+            if isCoffee
+                foreverOptions.args =
+                    foreverOptions.args.concat(['--plugin', 'coffee'])
+            foreverOptions.args.push app.startScript
+            foreverOptions.args = foreverOptions.args.concat foreverArgs
+            carapaceBin = path.join(
+                require.resolve('cozy-controller-carapace'),
+                '..', '..', 'bin', 'carapace')
+            monitor = new forever.Monitor(carapaceBin, foreverOptions)
 
-        onPort = (info) ->
-            if not responded and info?.event is 'port'
-                responded = true
-                result.port = info.data.port
-                callback null, result
+            responded = false
 
-                # Remove listeners to related events
-                appliProcess.removeListener 'exit', onExit
-                appliProcess.removeListener 'error', onError
-                appliProcess.removeListener 'message', onPort
-                clearTimeout timeout
+            ## Manage events of application process
+            respond = (err, result) ->
+                if not responded
+                    responded = true
+                    monitor.removeListener 'exit', onExit
+                    monitor.removeListener 'error', onError
+                    monitor.removeListener 'message', onPort
+                    clearTimeout timeout
+                    callback err, result
 
-        # When an error occured, information is both append to the log file
-        # (debugging purpose) and to the error file (to see easily if an error
-        # occured).
-        onStderr = (err) ->
-            err = err.toString()
-            fs.appendFile app.logFile, err, (err) ->
-                console.log err if err?
-                fs.appendFile app.errFile, err, (err) ->
-                    console.log err if err?
+            onExit = ->
+                logging.close monitor
+                log.error 'Callback on Exit'
+                if callback
+                    respond new Error "#{app.name} CANT START"
+                else
+                    log.error "#{app.name} HAS FAILED TOO MUCH"
+                    setTimeout monitor.stop, 1
 
+            onError = (err) ->
+                respond err.toString()
 
-        # Start application process
-        appliProcess.start()
+            updateResult = (monitor, data) ->
+                logging.start monitor
+                result =
+                    monitor: monitor
+                    process: monitor.child
+                    data: data
+                    pid: monitor.childData.pid
+                    pkg: app
+                    logging: logging
 
-        timeout = setTimeout onTimeout, 8000000
+            onStart = (monitor, data) ->
+                updateResult monitor, data
+                log.info "#{app.name}: start with pid #{result.pid}"
 
-        # Listen to the appropriate events and start the application process.
-        appliProcess.once 'exit', onExit
-        appliProcess.once 'error', onError
-        appliProcess.once 'start', onStart
-        appliProcess.on 'restart', onRestart
-        appliProcess.on 'message', onPort
-        appliProcess.on 'stderr', onStderr
+            onRestart = (monitor, data) ->
+                updateResult monitor, data
+                log.info "#{app.name}: restart with pid #{result.pid}"
+
+            onTimeout = ->
+                monitor.removeListener 'exit', onExit
+                monitor.stop()
+                controller.removeRunningApp(app.name)
+                log.error 'callback timeout'
+                respond new Error 'Error spawning application'
+
+            onPort = (info) ->
+                if info?.event is 'port'
+                    result.port = info.data.port
+                    respond null, result
+
+            # Start application process
+            monitor.start()
+
+            # Listen to the appropriate events and start the application process
+            monitor.once 'exit', onExit
+            monitor.once 'error', onError
+            monitor.once 'start', onStart
+            monitor.on 'restart', onRestart
+            monitor.on 'message', onPort
+            timeout = setTimeout onTimeout, 8000000

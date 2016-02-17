@@ -1,15 +1,16 @@
 fs = require 'fs'
 path = require 'path'
 async = require 'async'
+mkdirp = require 'mkdirp'
 log = require('printit')
     date: true
     prefix: 'init'
+
 permission = require './middlewares/token'
 App = require('./lib/app').App
 directory = require './lib/directory'
 conf = require './lib/conf'
 config = require('./lib/conf').get
-mkdirp = require 'mkdirp'
 patch = require './lib/patch'
 
 # Useful to create stack token
@@ -28,7 +29,8 @@ initAppsDir = (callback) ->
     async.forEach apps, (app, cb) ->
         if app is 'stack.json'
             # Create directory only for application
-            # Stack.json is a file stored in 'dir_app_bin' used for stack configuration.
+            # Stack.json is a file stored in 'dir_app_bin'
+            # used for stack configuration.
             cb()
         else
             appli =
@@ -53,13 +55,15 @@ initDir = (callback) ->
 initAppsFiles = (callback) ->
     log.info 'init: source directory'
     initDir (err) ->
-        callback err if err?
-        log.info 'init: stack file'
-        stackFile = config('file_stack')
-        if not fs.existsSync stackFile
-            fs.open stackFile,'w', callback
+        if err?
+            callback err
         else
-            callback()
+            log.info 'init: stack file'
+            stackFile = config('file_stack')
+            if not fs.existsSync stackFile
+                fs.writeFile stackFile, '', callback
+            else
+                callback()
 
 ###
     Init stack token stored in '/etc/cozy/stack.token'
@@ -71,17 +75,14 @@ initTokenFile = (callback) ->
         fs.mkdirSync '/etc/cozy'
     if fs.existsSync tokenFile
         fs.unlinkSync tokenFile
-    fs.open tokenFile, 'w', (err, fd) ->
+    token = randomString()
+    fs.writeFile tokenFile, token, flag: 'wx', mode: '0600', (err) ->
         if err
             callback "We cannot create token file. " +
-                     "Are you sure, token file configuration is a good path ?"
+                     "Are you sure token file configuration is a good path?"
         else
-            fs.chmod tokenFile, '0600', (err) ->
-                callback err if err?
-                token = randomString()
-                fs.writeFile tokenFile, token, (err) ->
-                    permission.init(token)
-                    callback(err)
+            permission.init(token)
+            callback null
 
 ###
     Initialize files:

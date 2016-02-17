@@ -95,9 +95,8 @@ module.exports.addApp = (app, callback) ->
         catch
             data = {}
         data[app.name] = app
-        fs.open config('file_stack'), 'w', (err, fd) ->
-            data = JSON.stringify data, null, 2
-            fs.writeFile config('file_stack'), data, callback
+        data = JSON.stringify data, null, 2
+        fs.writeFile config('file_stack'), data, callback
 
     ## Store in database
     # Recover application information
@@ -141,6 +140,5 @@ module.exports.removeApp = (name, callback) ->
         catch
             data = {}
         delete data[name]
-        fs.open config('file_stack'), 'w', (err, fd) ->
-            data = JSON.stringify data, null, 2
-            fs.writeFile config('file_stack'), data, callback
+        data = JSON.stringify data, null, 2
+        fs.writeFile config('file_stack'), data, callback
