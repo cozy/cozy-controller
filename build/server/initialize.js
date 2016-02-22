@@ -7,6 +7,8 @@ path = require('path');
 
 async = require('async');
 
+mkdirp = require('mkdirp');
+
 log = require('printit')({
   date: true,
   prefix: 'init'
@@ -21,8 +23,6 @@ directory = require('./lib/directory');
 conf = require('./lib/conf');
 
 config = require('./lib/conf').get;
-
-mkdirp = require('mkdirp');
 
 patch = require('./lib/patch');
 
@@ -85,14 +85,15 @@ initAppsFiles = function(callback) {
   return initDir(function(err) {
     var stackFile;
     if (err != null) {
-      callback(err);
-    }
-    log.info('init: stack file');
-    stackFile = config('file_stack');
-    if (!fs.existsSync(stackFile)) {
-      return fs.open(stackFile, 'w', callback);
+      return callback(err);
     } else {
-      return callback();
+      log.info('init: stack file');
+      stackFile = config('file_stack');
+      if (!fs.existsSync(stackFile)) {
+        return fs.writeFile(stackFile, '', callback);
+      } else {
+        return callback();
+      }
     }
   });
 };
@@ -103,7 +104,7 @@ initAppsFiles = function(callback) {
  */
 
 initTokenFile = function(callback) {
-  var tokenFile;
+  var token, tokenFile;
   log.info("init: token file");
   tokenFile = config('file_token');
   if (tokenFile === '/etc/cozy/stack.token' && !fs.existsSync('/etc/cozy')) {
@@ -112,21 +113,16 @@ initTokenFile = function(callback) {
   if (fs.existsSync(tokenFile)) {
     fs.unlinkSync(tokenFile);
   }
-  return fs.open(tokenFile, 'w', function(err, fd) {
+  token = randomString();
+  return fs.writeFile(tokenFile, token, {
+    flag: 'wx',
+    mode: '0600'
+  }, function(err) {
     if (err) {
-      return callback("We cannot create token file. " + "Are you sure, token file configuration is a good path ?");
+      return callback("We cannot create token file. " + "Are you sure token file configuration is a good path?");
     } else {
-      return fs.chmod(tokenFile, '0600', function(err) {
-        var token;
-        if (err != null) {
-          callback(err);
-        }
-        token = randomString();
-        return fs.writeFile(tokenFile, token, function(err) {
-          permission.init(token);
-          return callback(err);
-        });
-      });
+      permission.init(token);
+      return callback(null);
     }
   });
 };
