@@ -5,7 +5,7 @@ A service for Cozy is defined by these criteria:
 
 1. It's some JavaScript code
 2. That is embedded in Cozy-Proxy
-3. As express/americano middlewares
+3. As express/americano apps
 4. And exposes a REST API in JSON
 5. to offer functionalities to cozy applications.
 6. This API follows the [JSON api specification](http://jsonapi.org/)
@@ -38,7 +38,7 @@ cozy-data-system could become a service its-self (some day, in the long term).
 And most server-side code from cozy-home too. Maybe, we can even unify all of
 our nodejs code to run in the same processus (I'm dreaming).
 
-### 3. As express/americano middlewares
+### 3. As express/americano apps
 
 It's the simple way I see to make this happen.
 
