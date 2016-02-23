@@ -4,15 +4,15 @@ What is a service?
 A service for Cozy is defined by these criteria:
 
 1. It's some JavaScript code
-2. That is embedded in Cozy-Proxy
+2. That is embedded in Cozy-Data-System
 3. As express/americano apps
-4. And exposes a REST API in JSON
+4. And exposes an HTTP API (REST + JSON by default)
 5. to offer functionalities to cozy applications.
 6. This API follows the [JSON api specification](http://jsonapi.org/)
 7. And [Cozy guidelines](https://cozy.github.io/cozy-guidelines/)
 8. With URL prefixed by `/services/:service-name`.
 9. It benefits from Cozy authentication and permissions
-10. And workflows (code review, i18n).
+10. And workflows (code review, documentation, i18n).
 
 
 Rationale
@@ -24,7 +24,7 @@ JS is the lowest common denominator for all the code written at Cozy.
 Technically, a service can be written in something else (CoffeeScript or
 TypeScript) but it has to be compiled simply to JavaScript.
 
-### 2. That is embedded in Cozy-Proxy
+### 2. That is embedded in Cozy-Data-System
 
 I can think to several services than can be useful: files, notifications,
 applications management, sharing, settings, indexer/search, etc.
@@ -33,18 +33,16 @@ Running one node processus for each service will take a lot of RAM.
 possible to run a nodejs processus with code from several git repository to
 use less memory.
 
-I think to embed the services in cozy-proxy and not cozy-data-system beacuse
-cozy-data-system could become a service its-self (some day, in the long term).
-And most server-side code from cozy-home too. Maybe, we can even unify all of
-our nodejs code to run in the same processus (I'm dreaming).
-
 ### 3. As express/americano apps
 
 It's the simple way I see to make this happen.
 
-### 4. And exposes a REST API in JSON
+### 4. And exposes an HTTP API (REST + JSON by default)
 
-Idem. I don't see a reason to choose something more complicated.
+Idem. I don't see a reason to choose something more complicated for the
+default. But it can be useful to have things that are not REST + JSON
+(a service exposing a git-compatible API, so one can push-deploy to one's cozy
+for example).
 
 ### 5. to offer functionalities to cozy applications.
 
