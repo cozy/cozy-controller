@@ -114,7 +114,8 @@ findStartScript = (app, callback) ->
             args = start[2..]
 
         unless start
-            isCoffee = path.extname(app.server) is '.coffee'
+            main = data.main or app.server
+            isCoffee = path.extname(main) is '.coffee'
 
         # Check if startScript exists
         fs.stat app.startScript, (err, stats) ->
