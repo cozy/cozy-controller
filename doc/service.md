@@ -7,7 +7,7 @@ A service for Cozy is defined by these criteria:
 2. That is embedded in Cozy-Data-System
 3. As express/americano apps
 4. And exposes an HTTP API (REST + JSON by default)
-5. to offer functionalities to cozy applications.
+5. To offer functionalities to cozy applications.
 6. This API follows the [JSON api specification](http://jsonapi.org/)
 7. And [Cozy guidelines](https://cozy.github.io/cozy-guidelines/)
 8. With URL prefixed by `/services/:service-name`.
@@ -26,7 +26,7 @@ TypeScript) but it has to be compiled simply to JavaScript.
 
 ### 2. That is embedded in Cozy-Data-System
 
-I can think to several services than can be useful: files, notifications,
+I can think to many services than can be useful: files, notifications,
 applications management, sharing, settings, indexer/search, etc.
 Running one node processus for each service will take a lot of RAM.
 [Simple Cozy](https://github.com/cozy/simple-cozy) has shawn that it's
@@ -40,11 +40,12 @@ It's the simple way I see to make this happen.
 ### 4. And exposes an HTTP API (REST + JSON by default)
 
 Idem. I don't see a reason to choose something more complicated for the
-default. But it can be useful to have things that are not REST + JSON
-(a service exposing a git-compatible API, so one can push-deploy to one's cozy
-for example).
+default. But, sometimes, other standards are more suitable (a service exposing
+a git-compatible API, so one can push-deploy to one's cozy for example, or
+[caldav](https://en.wikipedia.org/wiki/CalDAV) &
+[carddav](https://en.wikipedia.org/wiki/CardDAV) & [jmap](http://jmap.io/)).
 
-### 5. to offer functionalities to cozy applications.
+### 5. To offer functionalities to cozy applications.
 
 Cozy applications can be run in the browser with cozysdk, on the server,
 but there are also cozy-mobile and cozy-desktop. All of them should be able to
@@ -53,7 +54,8 @@ use the services even if the authentication mechanisms are not the same.
 ### 6. This API follows the [JSON api specification](http://jsonapi.org/)
 
 I have nothing against [JSON-ld](http://json-ld.org/). The important is to
-take one standard and stick to it. JSON api looks good. So, go for it!
+take one standard and stick to it. JSON api looks good and it won [our poll
+on twitter](https://twitter.com/MyCozyCloud/status/702504370034835457).
 
 ### 7. And [Cozy guidelines](https://cozy.github.io/cozy-guidelines/)
 
@@ -65,7 +67,7 @@ With each service is in its own namespace, we avoid conflicts.
 
 ### 9. It benefits from Cozy authentication and permissions
 
-It's obvious that services should be benefit from the authentication
+It's obvious that services should benefit from the authentication
 mechanisms used by Cozy-Proxy. For the permissions, it's more complicated.
 Currently, they are used in cozy-data-system and are tied to the DocTypes in
 CouchDB documents. I think we should generalize permissions.
