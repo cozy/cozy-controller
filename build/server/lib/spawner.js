@@ -84,7 +84,7 @@ prepareForeverOptions = function(app, env) {
 
 findStartScript = function(app, callback) {
   return fs.readFile(app.dir + "/package.json", 'utf8', function(err, data) {
-    var args, error, isCoffee, ref, start;
+    var args, error, isCoffee, main, ref, start;
     try {
       data = JSON.parse(data);
     } catch (error) {
@@ -101,7 +101,8 @@ findStartScript = function(app, callback) {
       args = start.slice(2);
     }
     if (!start) {
-      isCoffee = path.extname(app.server) === '.coffee';
+      main = data.main || app.server;
+      isCoffee = path.extname(main) === '.coffee';
     }
     return fs.stat(app.startScript, function(err, stats) {
       return callback(err, isCoffee, args);
