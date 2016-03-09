@@ -26,7 +26,7 @@ TypeScript) but it has to be compiled simply to JavaScript.
 
 ### 2. That is embedded in Cozy-Data-System
 
-I can think to many services than can be useful: files, notifications,
+It's possible to imagine many useful services: files, notifications,
 applications management, sharing, settings, indexer/search, etc.
 Running one node processus for each service will take a lot of RAM.
 [Simple Cozy](https://github.com/cozy/simple-cozy) has shawn that it's
@@ -35,11 +35,12 @@ use less memory.
 
 ### 3. As express/americano apps
 
-It's the simple way I see to make this happen.
+It's the simple way to make this happen, considering the current state of
+cozy stack.
 
 ### 4. And exposes an HTTP API (REST + JSON by default)
 
-Idem. I don't see a reason to choose something more complicated for the
+Idem. There are no reasons to choose something more complicated for the
 default. But, sometimes, other standards are more suitable (a service exposing
 a git-compatible API, so one can push-deploy to one's cozy for example, or
 [caldav](https://en.wikipedia.org/wiki/CalDAV) &
@@ -53,7 +54,7 @@ use the services even if the authentication mechanisms are not the same.
 
 ### 6. This API follows the [JSON api specification](http://jsonapi.org/)
 
-I have nothing against [JSON-ld](http://json-ld.org/). The important is to
+We have nothing against [JSON-ld](http://json-ld.org/). The important is to
 take one standard and stick to it. JSON api looks good and it won [our poll
 on twitter](https://twitter.com/MyCozyCloud/status/702504370034835457).
 
@@ -68,10 +69,7 @@ With each service is in its own namespace, we avoid conflicts.
 ### 9. It benefits from Cozy authentication and permissions
 
 It's obvious that services should benefit from the authentication
-mechanisms used by Cozy-Proxy. For the permissions, it's more complicated.
-Currently, they are used in cozy-data-system and are tied to the DocTypes in
-CouchDB documents. I think we should generalize permissions.
-
+mechanisms used by Cozy-Proxy. It should also be the case for permissions.
 For example, a service to send an email to the owner of the cozy instance can
 be useful (think of Kresus sending you an email when your balance is too low).
 This service will not manipulate CouchDB documents. But, even in absence of
