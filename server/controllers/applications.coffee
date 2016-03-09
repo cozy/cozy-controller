@@ -1,3 +1,4 @@
+config = require('../lib/conf').get
 controller = require ('../lib/controller')
 async = require 'async'
 log = require('printit')
@@ -57,10 +58,10 @@ updateMonitor = (callback) ->
                 callback()
 
 restartController = (callback) ->
-    exec "supervisorctl restart cozy-controller", (err, stdout) ->
+    exec config('restart_cmd'), (err, stdout) ->
         if err
-            callback "This feature is available only if controller is managed" +
-                " by supervisor"
+            callback "The controller can't be restarted. You should " +
+                "configure the command in /etc/cozy/controller.json."
         else
             log.info "Controller was successfully restarted."
             callback()
