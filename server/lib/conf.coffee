@@ -34,15 +34,16 @@ module.exports.init = (callback) ->
             callback err
         else
             conf =
-                npm_registry :   data.npm_registry or false
-                npm_strict_ssl : data.npm_strict_ssl or false
-                dir_app_log :    data.dir_app_log or '/usr/local/var/log/cozy'
-                dir_app_bin :    data.dir_app_bin or '/usr/local/cozy/apps'
-                dir_app_data :   data.dir_app_data or '/usr/local/var/cozy'
-                file_token :     data.file_token or '/etc/cozy/stack.token'
-                bind_ip_proxy:   data.bind_ip_proxy or '0.0.0.0'
-                display_bind:    data.bind_ip_proxy?
-            conf.file_stack =    data.file_stack or conf.dir_app_bin + '/stack.json'
+                npm_registry:   data.npm_registry or false
+                npm_strict_ssl: data.npm_strict_ssl or false
+                dir_app_log:    data.dir_app_log or '/usr/local/var/log/cozy'
+                dir_app_bin:    data.dir_app_bin or '/usr/local/cozy/apps'
+                dir_app_data:   data.dir_app_data or '/usr/local/var/cozy'
+                file_token:     data.file_token or '/etc/cozy/stack.token'
+                bind_ip_proxy:  data.bind_ip_proxy or '0.0.0.0'
+                display_bind:   data.bind_ip_proxy?
+                restart_cmd:    data.restart_cmd or 'supervisorctl restart cozy-controller'
+            conf.file_stack =   data.file_stack or conf.dir_app_bin + '/stack.json'
             if process.env.BIND_IP_PROXY
                 conf.bind_ip_proxy = process.env.BIND_IP_PROXY
             if data.env?
