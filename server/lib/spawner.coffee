@@ -99,7 +99,7 @@ findStartScript = (app, callback) ->
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
         try
             data = JSON.parse(data)
-        catch
+        catch error
             return callback new Error "Package.json isn't in a correct format."
 
         isCoffee = false

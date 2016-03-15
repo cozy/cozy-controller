@@ -9,7 +9,7 @@ latest = require 'latest'
 try
     # Coffee
     pkg = require '../../package.json'
-catch
+catch error
     # JS
     pkg = require '../../../package.json'
 

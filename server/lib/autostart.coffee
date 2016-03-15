@@ -162,7 +162,7 @@ recoverStackApp = (callback) ->
         if data? or data is ""
             try
                 data = JSON.parse(data)
-            catch
+            catch error
                 log.info "Stack isn't installed"
                 return callback "Stack isn't installed"
             callback null, data

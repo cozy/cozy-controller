@@ -34,7 +34,7 @@ class exports.App
         else if fs.existsSync path.join(@app.dir, "package.json")
             try
                 manifest = require path.join(@app.dir, "package.json")
-            catch
+            catch error
                 if @app?.name?
                     log.error "#{@app.name}: Unable to read application manifest"
                 else

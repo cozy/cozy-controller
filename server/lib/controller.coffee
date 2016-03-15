@@ -230,8 +230,11 @@ module.exports.install = (connection, manifest, callback) ->
 module.exports.start = (manifest, callback) ->
     try
         app = new App(manifest).app
-    catch
-        return callback new Error "Can't retrieve application manifest, package.json should be JSON format"
+    catch error
+        return callback new Error """
+            Can't retrieve application manifest,
+            package.json should be JSON format #{error}
+        """
     if drones[app.name]? or fs.existsSync(app.dir)
         drones[app.name] = app
         startApp app, (err, result) ->

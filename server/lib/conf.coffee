@@ -18,7 +18,7 @@ readFile = (callback) ->
                 data = fs.readFileSync configFile, 'utf8'
                 data = JSON.parse(data)
             callback null, data
-        catch
+        catch error
             callback null, {}
     else
         callback null, {}
