@@ -15,9 +15,12 @@ class exports.App
         logDir = config('dir_app_log')
         folderDir = config('dir_app_data')
 
-        @app.dir = path.join(binDir, @app.name)
+        if @app.package?.type is 'npm'
+            @app.dir = path.join(binDir, 'node_modules', @app.package.name)
+        else
+            @app.dir = path.join(binDir, @app.name)
+
         @app.user = 'cozy-' + @app.name
-        match = @app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
         @app.logFile = path.join(logDir, "/#{@app.name}.log")
         @app.errFile = path.join(logDir, "/#{@app.name}-err.log")
         @app.folder = path.join folderDir, @app.name
