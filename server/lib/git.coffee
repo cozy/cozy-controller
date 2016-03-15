@@ -1,4 +1,3 @@
-path = require 'path'
 request = require 'request'
 compareVersions = require 'mozilla-version-comparator'
 exec = require('child_process').exec

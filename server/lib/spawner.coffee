@@ -1,7 +1,6 @@
 forever = require 'cozy-forever-monitor'
 fs = require 'fs'
 path = require 'path'
-exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
 log = require('printit')

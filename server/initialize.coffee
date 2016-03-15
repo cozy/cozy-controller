@@ -1,5 +1,4 @@
 fs = require 'fs'
-path = require 'path'
 async = require 'async'
 mkdirp = require 'mkdirp'
 log = require('printit')
@@ -7,7 +6,6 @@ log = require('printit')
     prefix: 'init'
 
 permission = require './middlewares/token'
-App = require('./lib/app').App
 directory = require './lib/directory'
 conf = require './lib/conf'
 config = require('./lib/conf').get
