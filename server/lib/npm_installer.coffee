@@ -52,12 +52,7 @@ module.exports.ensureEnvironmentSetup = (callback) ->
 
 ###
     Initialize repository of <app>
-        * Check if git URL exist
-            * URL isn't a Git URL
-            * repo doesn't exist in github
-        * Clone repo (with one depth)
-        * Change branch if necessary
-        * Init submodule
+        * Run npm install <app> in the apps dir
 ###
 module.exports.init = (app, callback) ->
     unless app.package?.name
@@ -78,29 +73,29 @@ module.exports.init = (app, callback) ->
 
 ###
     Update repository of <app>
-        * Reset current changes (due to chmod)
-        * Pull changes
-        * Update submodule
+        * Run npm install <app> in the apps dir
 ###
 module.exports.update = (app, callback) ->
-    commands = [['rm', '-rf', app.dir]]
-    opts = cwd: config('dir_app_bin'), user: app.user
+    commands = [['npm', 'install', app.fullnpmname]]
+    opts = user: app.user, cwd: config('dir_app_bin')
     executeUntilEmpty commands, opts, (err) ->
         if err
             log.error err
             log.error "failed to remove app"
         else
-            module.exports.init app, callback
+            callback()
 ###
     Change branch of <app>
+        * Run npm install <app>@<newBranch> in the apps dir
 ###
 module.exports.changeBranch = (app, newBranch, callback) ->
-    commands = [['rm', '-rf', app.dir]]
+    newFullName = "#{app.package.name}@#{app.package.version}"
+    commands = [['npm', 'install', newFullName]]
     opts = cwd: config('dir_app_bin'), user: app.user
     executeUntilEmpty commands, opts, (err) ->
         if err
             log.error err
             log.error "failed to remove app"
         else
-            app.repository.version = newBranch
-            module.exports.init app, callback
+            app.package.version = newBranch
+            callback()
