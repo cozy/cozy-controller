@@ -10,8 +10,10 @@ BASE_PACKAGE_JSON = """
     {
       "name": "cozy-controller-apps",
       "version": "1.0.0",
-      "author": "",
-      "repository": ""
+      "description": "Your cozy's Apps will be installed here",
+      "README":  "Your cozy's Apps will be installed here",
+      "license": "N/A",
+      "repository": "N/A"
     }
 """
 
