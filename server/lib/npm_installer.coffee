@@ -17,11 +17,33 @@ BASE_PACKAGE_JSON = """
     }
 """
 
+# we need to create the node_modules manually to give it root:1777
+ensureNodeModules = (callback) ->
+    folderPath = path.join config('dir_app_bin'), 'node_modules'
+    fs.exists folderPath, (exists) ->
+        if exists then callback null
+        else fs.mkdir folderPath, "1777", (err) ->
+            if err then return callback new Error """
+                Failed to create folder #{folderPath} : #{err.message}
+            """
+            # Dont know why the mode in fs.mkdir doesnt get applicated,
+            # we get 1733 instead. Force the proper 1777 mode.
+            fs.chmod folderPath, '1777', (err) ->
+                if err then return callback new Error """
+                    Failed to set folder perms #{folderPath} : #{err.message}
+                """
+
+                callback null
+
 ensureAppsPackageJSON = (callback) ->
     packagePath = path.join config('dir_app_bin'), 'package.json'
     fs.exists packagePath, (exists) ->
         if exists then callback null
-        else fs.writeFile packagePath, BASE_PACKAGE_JSON, 'utf8', callback
+        else fs.writeFile packagePath, BASE_PACKAGE_JSON, 'utf8', (err) ->
+            if err
+                err = new Error """
+                    Failed to create #{packagePath} : #{err.message}"""
+            callback err
 
 ###
     Initialize repository of <app>
@@ -49,18 +71,20 @@ module.exports.init = (app, callback) ->
     # installPath = path.join config('dir_app_bin'), 'node_modules', packageName
     # # commands.push ['mv', installPath, app.dir]
 
-    ensureAppsPackageJSON (err) ->
+    ensureNodeModules (err) ->
         return callback err if err
-        console.time "npm installing"
-        opts = user: app.user, cwd: config('dir_app_bin')
-        executeUntilEmpty commands, opts, (err) ->
-            console.timeEnd "npm installing"
-            if err?
-                log.error err
-                log.error "FAILLED TO RUN CMD", err
-                callback err
-            else
-                callback()
+        ensureAppsPackageJSON (err) ->
+            return callback err if err
+            console.time "npm installing"
+            opts = user: app.user, cwd: config('dir_app_bin')
+            executeUntilEmpty commands, opts, (err) ->
+                console.timeEnd "npm installing"
+                if err?
+                    log.error err
+                    log.error "FAILLED TO RUN CMD", err
+                    callback err
+                else
+                    callback()
 
 ###
     Update repository of <app>
