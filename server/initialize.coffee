@@ -10,6 +10,7 @@ directory = require './lib/directory'
 conf = require './lib/conf'
 config = require('./lib/conf').get
 patch = require './lib/patch'
+npmInstaller = require './lib/npm_installer'
 
 # Useful to create stack token
 randomString = (length=32) ->
@@ -115,7 +116,11 @@ module.exports.init = (callback) ->
                 callback err
             else
                 initFiles (err) ->
-                    callback err
+                    if err
+                        callback err
+                    else
+                        npmInstaller.ensureEnvironmentSetup (err) ->
+                            callback err
     if fs.existsSync '/usr/local/cozy/autostart'
         patch.apply ->
             initialize()

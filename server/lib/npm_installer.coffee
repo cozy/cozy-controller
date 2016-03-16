@@ -45,6 +45,11 @@ ensureAppsPackageJSON = (callback) ->
                     Failed to create #{packagePath} : #{err.message}"""
             callback err
 
+module.exports.ensureEnvironmentSetup = (callback) ->
+    ensureNodeModules (err) ->
+        return callback err if err
+        ensureAppsPackageJSON callback
+
 ###
     Initialize repository of <app>
         * Check if git URL exist
@@ -55,36 +60,21 @@ ensureAppsPackageJSON = (callback) ->
         * Init submodule
 ###
 module.exports.init = (app, callback) ->
-    packageName = app.package.name
-    version = app.package.version
-
-    unless packageName
+    unless app.package?.name
         return callback new Error """
-        No field package in app.repository[type=npm] :
-          #{JSON.stringify app.repository}
+            Tried to npm_installer.init a non NPM app : #{JSON.stringify app}
         """
-
-    # Setup the commands to be executed
-    fqname = packageName
-    fqname += "@#{version}" if version
-    commands = [['npm', 'install', fqname]]
-    # installPath = path.join config('dir_app_bin'), 'node_modules', packageName
-    # # commands.push ['mv', installPath, app.dir]
-
-    ensureNodeModules (err) ->
-        return callback err if err
-        ensureAppsPackageJSON (err) ->
-            return callback err if err
-            console.time "npm installing"
-            opts = user: app.user, cwd: config('dir_app_bin')
-            executeUntilEmpty commands, opts, (err) ->
-                console.timeEnd "npm installing"
-                if err?
-                    log.error err
-                    log.error "FAILLED TO RUN CMD", err
-                    callback err
-                else
-                    callback()
+    commands = [['npm', 'install', app.fullnpmname]]
+    console.time "npm installing"
+    opts = user: app.user, cwd: config('dir_app_bin')
+    executeUntilEmpty commands, opts, (err) ->
+        console.timeEnd "npm installing"
+        if err?
+            log.error err
+            log.error "FAILLED TO RUN CMD", err
+            callback err
+        else
+            callback()
 
 ###
     Update repository of <app>

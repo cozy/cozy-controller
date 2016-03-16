@@ -15,8 +15,20 @@ class exports.App
         logDir = config('dir_app_log')
         folderDir = config('dir_app_data')
 
-        if @app.package?.type is 'npm'
+        if @app.package
+
+            # short cut package: "npm-package-name"
+            if 'string' is typeof @app.package
+                @app.package =
+                    type: 'npm'
+                    name: @app.package
+                    version: 'latest'
+
             @app.dir = path.join(binDir, 'node_modules', @app.package.name)
+            @app.fullnpmname = @app.package.name
+            if @app.package.version
+                @app.fullnpmname += "@#{@app.package.version}"
+
         else
             @app.dir = path.join(binDir, @app.name)
 
