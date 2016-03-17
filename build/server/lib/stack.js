@@ -8,6 +8,7 @@ path = require('path');
 Client = require('request-json-light').JsonClient;
 
 log = require('printit')({
+  date: true,
   prefix: 'lib:stack'
 });
 
@@ -127,10 +128,8 @@ module.exports.addApp = function(app, callback) {
       data = {};
     }
     data[app.name] = app;
-    return fs.open(config('file_stack'), 'w', function(err, fd) {
-      data = JSON.stringify(data, null, 2);
-      return fs.writeFile(config('file_stack'), data, callback);
-    });
+    data = JSON.stringify(data, null, 2);
+    return fs.writeFile(config('file_stack'), data, callback);
   });
   manifest = path.join(config('dir_app_bin'), app.name, 'package.json');
   return fs.readFile(manifest, function(err, data) {
@@ -185,9 +184,7 @@ module.exports.removeApp = function(name, callback) {
       data = {};
     }
     delete data[name];
-    return fs.open(config('file_stack'), 'w', function(err, fd) {
-      data = JSON.stringify(data, null, 2);
-      return fs.writeFile(config('file_stack'), data, callback);
-    });
+    data = JSON.stringify(data, null, 2);
+    return fs.writeFile(config('file_stack'), data, callback);
   });
 };

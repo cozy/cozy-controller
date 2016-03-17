@@ -77,7 +77,6 @@ describe "Install static app", ->
                     type: "static"
                 client.post 'apps/front/install', "start":app, (err, res, body) =>
                     @res = res
-                    console.log body.drone
                     @type = body.drone.type
                     dsPort = @port
                     done()

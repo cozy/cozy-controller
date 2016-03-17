@@ -7,6 +7,7 @@ user = require './user'
 stack = require './stack'
 config = require('./conf').get
 log = require('printit')
+    date: true
     prefix: 'lib:controller'
 type = []
 type['git'] = require './git'
@@ -99,10 +100,6 @@ stopApp = (name, callback) ->
     monitor.once 'stop', onStop
     monitor.once 'exit', onStop
     monitor.once 'error', onErr
-    try
-        # Close fd for logs files
-        fs.closeSync running[name].fd[0]
-        fs.closeSync running[name].fd[1]
     try
         delete running[name]
         #callback null, name
@@ -262,6 +259,7 @@ module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
             err.code = 20 + err.code
             callback err
         else
+            manifest.repository.branch = newBranch
             # NPM install
             log.info "#{app.name}:npm install"
             installDependencies connection, app, 2, (err) ->

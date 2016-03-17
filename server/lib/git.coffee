@@ -3,8 +3,10 @@ request = require 'request'
 compareVersions = require 'mozilla-version-comparator'
 exec = require('child_process').exec
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
+directory = require './directory'
 conf = require('./conf').get
 log = require('printit')
+    date: true
     prefix: 'lib:git'
 
 ###
@@ -67,21 +69,18 @@ module.exports.init = (app, callback) ->
                     # available.
                     if not gitVersion? or \
                            compareVersions("1.7.10", gitVersion[1]) is 1
-                        commands = [
-                            "git clone #{url} #{app.name}"
-                            "cd #{app.dir}"
-                        ]
+                        commands.push ['git', 'clone', url, app.name]
+                        commands.push ['cd', app.dir]
                         if branch isnt 'master'
-                            commands.push "git branch #{branch} origin/#{branch}"
-                            commands.push "git checkout #{branch}"
+                            commands.push ['git', 'branch', branch, "origin/#{branch}"]
+                            commands.push ['git', 'checkout', branch]
 
                     else
-                        commands = [
-                            "git clone #{url} --depth 1 -b #{branch} --single-branch #{app.name}"
-                            "cd #{app.dir}"
-                        ]
+                        commands.push ['git', 'clone', url, '--depth', '1',
+                                       '-b', branch, '--single-branch', app.name]
+                        commands.push ['cd', app.dir]
 
-                    commands.push "git submodule update --init --recursive"
+                    commands.push ['git', 'submodule', 'update', '--init', '--recursive']
 
                     config =
                         cwd: conf('dir_app_bin')
@@ -101,37 +100,48 @@ module.exports.init = (app, callback) ->
         * Update submodule
 ###
 module.exports.update = (app, callback) ->
+    directory.changeOwner app.user, app.dir, (err) ->
+        if err
+            log.error err
+            callback err
 
-    # Default branch is master
-    # branch can store in app.repository (controller manifest) or app.branch (database)
-    branch = app.repository.branch or app.branch or "master"
+        else
+            # Default branch is master
+            # branch can be stored in app.repository (controller manifest)
+            # or app.branch (database)
+            branch = app.repository.branch or app.branch or "master"
 
-    # Setup the git commands to be executed
-    commands = [
-        "git reset --hard "
-        "git pull origin #{branch}"
-        "git submodule update --recursive"
-    ]
+            # Setup the git commands to be executed
+            commands = [
+                ['git', 'reset', '--hard']
+                ['git', 'pull', 'origin', branch]
+                ['git', 'submodule', 'update', '--recursive']
+            ]
 
-    config =
-        cwd: app.dir # runs all the command in the app's directory
-        env: "USER": app.user
+            config =
+                cwd: app.dir # runs all the command in the app's directory
+                user: app.user
 
-    executeUntilEmpty commands, config, callback
+            executeUntilEmpty commands, config, callback
 
 ###
     Change branch of <app>
 ###
 module.exports.changeBranch = (app, newBranch, callback) ->
+    directory.changeOwner app.user, app.dir, (err) ->
+        if err
+            log.error err
+            callback err
 
-    # Setup the git commands to be executed
-    commands = [
-        "git fetch origin #{newBranch}:#{newBranch}"
-        "git checkout #{newBranch}"
-    ]
+        else
+            # Setup the git commands to be executed
+            commands = [
+                ['git', 'fetch', 'origin', "#{newBranch}:#{newBranch}"]
+                ['git', 'checkout', newBranch]
+            ]
 
-    config =
-        cwd: app.dir # runs all the command in the app's directory
-        env: "USER": app.user
+            config =
+                cwd: app.dir # runs all the command in the app's directory
+                user: app.user
 
-    executeUntilEmpty commands, config, callback
+            executeUntilEmpty commands, config, callback

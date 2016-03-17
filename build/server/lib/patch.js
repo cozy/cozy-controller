@@ -10,6 +10,7 @@ spawn = require('child_process').spawn;
 exec = require('child_process').exec;
 
 log = require('printit')({
+  date: true,
   prefix: 'lib:patch'
 });
 

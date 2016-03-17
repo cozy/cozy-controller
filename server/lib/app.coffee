@@ -11,11 +11,11 @@ log = require('printit')
 class exports.App
 
     constructor: (@app) ->
-        homeDir = config('dir_app_bin')
+        binDir = config('dir_app_bin')
         logDir = config('dir_app_log')
         folderDir = config('dir_app_data')
 
-        @app.dir = path.join(homeDir, @app.name)
+        @app.dir = path.join(binDir, @app.name)
         @app.user = 'cozy-' + @app.name
         match = @app.repository.url.match(/\/([\w\-_\.]+)\.git$/)
         @app.logFile = path.join(logDir, "/#{@app.name}.log")

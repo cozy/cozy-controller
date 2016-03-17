@@ -2,8 +2,9 @@ americano = require 'americano'
 init = require './server/initialize'
 autostart = require './server/lib/autostart'
 controller = require './server/lib/controller'
-log = require('printit')()
-
+log = require('printit')
+    date: true
+    prefix: "server"
 
 application = module.exports = (callback) ->
 

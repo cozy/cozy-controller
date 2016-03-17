@@ -19,12 +19,12 @@ log = require('printit')({
 
 exports.App = (function() {
   function App(app) {
-    var error, folderDir, homeDir, logDir, manifest, match, ref, ref1, ref2, start;
+    var binDir, error, folderDir, logDir, manifest, match, ref, ref1, ref2, start;
     this.app = app;
-    homeDir = config('dir_app_bin');
+    binDir = config('dir_app_bin');
     logDir = config('dir_app_log');
     folderDir = config('dir_app_data');
-    this.app.dir = path.join(homeDir, this.app.name);
+    this.app.dir = path.join(binDir, this.app.name);
     this.app.user = 'cozy-' + this.app.name;
     match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
     this.app.logFile = path.join(logDir, "/" + this.app.name + ".log");

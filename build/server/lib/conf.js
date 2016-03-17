@@ -53,7 +53,8 @@ module.exports.init = function(callback) {
         dir_app_data: data.dir_app_data || '/usr/local/var/cozy',
         file_token: data.file_token || '/etc/cozy/stack.token',
         bind_ip_proxy: data.bind_ip_proxy || '0.0.0.0',
-        display_bind: data.bind_ip_proxy != null
+        display_bind: data.bind_ip_proxy != null,
+        restart_cmd: data.restart_cmd || 'supervisorctl restart cozy-controller'
       };
       conf.file_stack = data.file_stack || conf.dir_app_bin + '/stack.json';
       if (process.env.BIND_IP_PROXY) {

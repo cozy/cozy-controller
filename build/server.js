@@ -9,7 +9,10 @@ autostart = require('./server/lib/autostart');
 
 controller = require('./server/lib/controller');
 
-log = require('printit')();
+log = require('printit')({
+  date: true,
+  prefix: "server"
+});
 
 application = module.exports = function(callback) {
   var base, currentUser, displayError, err, exitProcess, options, ref, stopProcess;

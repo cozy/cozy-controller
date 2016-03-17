@@ -8,8 +8,8 @@ config = require('./conf').get
 ###
     Change owner for folder path
 ###
-changeOwner = (user, path, callback) ->
-    child = spawn 'chown', ['-R', "#{user}:#{user}", path]
+module.exports.changeOwner = (user, path, callback) ->
+    child = spawn 'chown', ['--preserve-root', '-R', "#{user}:#{user}", path]
     child.on 'exit', (code) ->
         if code isnt 0
             callback new Error('Unable to change permissions')
@@ -30,7 +30,7 @@ module.exports.create = (app, callback) ->
                 if err
                     callback err
                 else
-                    changeOwner app.user, dirPath, (err) ->
+                    module.exports.changeOwner app.user, dirPath, (err) ->
                         callback err
         catch error
             callback error
