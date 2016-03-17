@@ -119,6 +119,8 @@ gitInstall = (app, connection, callback) ->
             # Error on source retrieval : code 2-
             err.code ?= 2
             err.code = 20 + err.code
+            callback err
+
         else
             log.info "#{app.name}:npm install dependencies"
             installDependencies connection, app, 2, (err) ->
@@ -227,9 +229,6 @@ module.exports.install = (connection, manifest, callback) ->
 
         ], (err) ->
             return callback err if err
-            # don't need to start if app is static
-            if manifest.type is 'static'
-                return callback null, manifest
 
             log.info "#{app.name}:start application"
             startApp app, (err, result)->
@@ -431,5 +430,3 @@ module.exports.running = (callback) ->
     for key in Object.keys(running)
         apps[key] = drones[key]
     callback null, apps
-
-
