@@ -75,7 +75,6 @@ describe "Install static app", ->
                     type: "static"
                 client.post 'apps/front/install', "start":app, (err, res, body) =>
                     @res = res
-                    console.log  body.drone.type
                     should.not.exist body.drone.port
                     done()
 
@@ -144,7 +143,6 @@ describe "Install static app", ->
                     type: "static"
                 client.post 'apps/front/start', "start":app, (err, res, body) =>
                     @res = res
-                    console.log body
                     body.drone.type.should.equal "static"
                     should.not.exist body.drone.port
                     done()
