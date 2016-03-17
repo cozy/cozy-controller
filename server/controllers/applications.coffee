@@ -149,7 +149,10 @@ module.exports.start = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.status(200).send drone: result
+            res.status(200).send drone:
+                port: result.port
+                type: result.type
+                path: result.path
 
 ###
     Stop application
@@ -272,5 +275,3 @@ module.exports.running = (req, res, next) ->
             sendError res, err, 400
         else
             res.status(200).send app: result
-
-
