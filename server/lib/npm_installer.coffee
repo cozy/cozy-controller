@@ -1,5 +1,6 @@
 path = require 'path'
 fs = require 'fs'
+directory = require './directory'
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
 config = require('./conf').get
 log = require('printit')
@@ -8,47 +9,31 @@ log = require('printit')
 
 BASE_PACKAGE_JSON = """
     {
-      "name": "cozy-controller-apps",
+      "name": "cozy-controller-fake-package.json",
       "version": "1.0.0",
-      "description": "Your cozy's Apps will be installed here",
-      "README":  "Your cozy's Apps will be installed here",
+      "description": "This file is here to please NPM",
+      "README":  "This file is here to please NPM",
       "license": "N/A",
       "repository": "N/A"
     }
 """
 
-# we need to create the node_modules manually to give it root:1777
-ensureNodeModules = (callback) ->
-    folderPath = path.join config('dir_app_bin'), 'node_modules'
-    fs.exists folderPath, (exists) ->
-        if exists then callback null
-        else fs.mkdir folderPath, "1777", (err) ->
+createAppFolder = (app, callback) ->
+    dirPath = path.join config('dir_app_bin'), app.name
+    packagePath = path.join dirPath, 'package.json'
+    fs.mkdir dirPath, "0700", (err) ->
+        if err then return callback new Error """
+            Failed to create folder #{dirPath} : #{err.message}
+        """
+        fs.writeFile packagePath, BASE_PACKAGE_JSON, 'utf8', (err) ->
             if err then return callback new Error """
-                Failed to create folder #{folderPath} : #{err.message}
+                Failed to create package.json #{packagePath} : #{err.message}
             """
-            # Dont know why the mode in fs.mkdir doesnt get applicated,
-            # we get 1733 instead. Force the proper 1777 mode.
-            fs.chmod folderPath, '1777', (err) ->
+            directory.changeOwner app.user, dirPath, (err) ->
                 if err then return callback new Error """
-                    Failed to set folder perms #{folderPath} : #{err.message}
+                    Failed to changeOwner #{dirPath} : #{err.message}
                 """
-
-                callback null
-
-ensureAppsPackageJSON = (callback) ->
-    packagePath = path.join config('dir_app_bin'), 'package.json'
-    fs.exists packagePath, (exists) ->
-        if exists then callback null
-        else fs.writeFile packagePath, BASE_PACKAGE_JSON, 'utf8', (err) ->
-            if err
-                err = new Error """
-                    Failed to create #{packagePath} : #{err.message}"""
-            callback err
-
-module.exports.ensureEnvironmentSetup = (callback) ->
-    ensureNodeModules (err) ->
-        return callback err if err
-        ensureAppsPackageJSON callback
+                callback null, dirPath
 
 ###
     Initialize repository of <app>
@@ -59,17 +44,20 @@ module.exports.init = (app, callback) ->
         return callback new Error """
             Tried to npm_installer.init a non NPM app : #{JSON.stringify app}
         """
-    commands = [['npm', 'install', app.fullnpmname]]
+
     console.time "npm installing"
-    opts = user: app.user, cwd: config('dir_app_bin')
-    executeUntilEmpty commands, opts, (err) ->
-        console.timeEnd "npm installing"
-        if err?
-            log.error err
-            log.error "FAILLED TO RUN CMD", err
-            callback err
-        else
-            callback()
+    createAppFolder app, (err, appFolder) ->
+        return callback err if err
+        commands = [['npm', 'install', app.fullnpmname]]
+        opts = user: app.user, cwd: appFolder
+        executeUntilEmpty commands, opts, (err) ->
+            console.timeEnd "npm installing"
+            if err?
+                log.error err
+                log.error "FAILLED TO RUN CMD", err
+                callback err
+            else
+                callback()
 
 ###
     Update repository of <app>

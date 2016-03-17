@@ -119,8 +119,7 @@ module.exports.init = (callback) ->
                     if err
                         callback err
                     else
-                        npmInstaller.ensureEnvironmentSetup (err) ->
-                            callback err
+                        callback null
     if fs.existsSync '/usr/local/cozy/autostart'
         patch.apply ->
             initialize()
