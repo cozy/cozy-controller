@@ -40,8 +40,11 @@ helpers.getClient = (url = null) ->
     if url?
         return new Client url
     else
-        token = fs.readFileSync "/etc/cozy/stack.token", 'utf8'
-        client.setToken(token)
+        try
+            token = fs.readFileSync "/etc/cozy/stack.token", 'utf8'
+            client.setToken(token)
+        catch error
+
         return client
 
 initializeApplication = (callback) ->

@@ -5,7 +5,6 @@ module.exports =
     index: (req, res, next) ->
         try
             manifest = require '../../../package.json' # node build/server.js
-        catch
+        catch error
             manifest = require '../../package.json' # coffee server.coffee
         res.send "Cozy Controller version #{manifest.version}"
-

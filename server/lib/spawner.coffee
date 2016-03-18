@@ -1,7 +1,6 @@
 forever = require 'cozy-forever-monitor'
 fs = require 'fs'
 path = require 'path'
-exec = require('child_process').exec
 token = require '../middlewares/token'
 controller = require '../lib/controller'
 log = require('printit')
@@ -99,7 +98,7 @@ findStartScript = (app, callback) ->
     fs.readFile "#{app.dir}/package.json", 'utf8', (err, data) ->
         try
             data = JSON.parse(data)
-        catch
+        catch error
             return callback new Error "Package.json isn't in a correct format."
 
         isCoffee = false

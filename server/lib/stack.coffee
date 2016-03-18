@@ -92,7 +92,7 @@ module.exports.addApp = (app, callback) ->
     fs.readFile config('file_stack'), 'utf8', (err, data) ->
         try
             data = JSON.parse data
-        catch
+        catch error
             data = {}
         data[app.name] = app
         data = JSON.stringify data, null, 2
@@ -137,7 +137,7 @@ module.exports.removeApp = (name, callback) ->
     fs.readFile config('file_stack'), 'utf8', (err, data) ->
         try
             data = JSON.parse data
-        catch
+        catch error
             data = {}
         delete data[name]
         data = JSON.stringify data, null, 2

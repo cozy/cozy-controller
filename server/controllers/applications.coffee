@@ -9,7 +9,7 @@ latest = require 'latest'
 try
     # Coffee
     pkg = require '../../package.json'
-catch
+catch error
     # JS
     pkg = require '../../../package.json'
 
@@ -150,7 +150,9 @@ module.exports.start = (req, res, next) ->
             sendError res, err, 400
         else
             res.status(200).send drone:
-                "port": result.port
+                port: result.port
+                type: result.type
+                path: result.path
 
 ###
     Stop application
@@ -273,5 +275,3 @@ module.exports.running = (req, res, next) ->
             sendError res, err, 400
         else
             res.status(200).send app: result
-
-

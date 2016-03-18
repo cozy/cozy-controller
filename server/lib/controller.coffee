@@ -11,8 +11,10 @@ log = require('printit')
     prefix: 'lib:controller'
 type = []
 type['git'] = require './git'
+type['npm'] = require './npm_installer'
 App = require('./app').App
 path = require 'path'
+async = require 'async'
 
 
 ########################### Global variables ###################################
@@ -110,6 +112,30 @@ stopApp = (name, callback) ->
         #callback err, name
         onErr err
 
+gitInstall = (app, connection, callback) ->
+    log.info "#{app.name}:git clone"
+    type[app.repository.type].init app, (err) ->
+        if err?
+            # Error on source retrieval : code 2-
+            err.code ?= 2
+            err.code = 20 + err.code
+            callback err
+
+        else
+            log.info "#{app.name}:npm install dependencies"
+            installDependencies connection, app, 2, (err) ->
+                # Error on dependencies : code 3
+                err?.code = 3
+                callback err
+
+
+npmInstall = (app, connection, callback) ->
+    log.info "#{app.name}:npm install"
+    type['npm'].init app, (err) ->
+        err?.code= 3
+        callback err
+
+
 ###
     Update application <name>
         * Recover drone
@@ -183,44 +209,29 @@ module.exports.install = (connection, manifest, callback) ->
         startApp app, callback
     else
         drones[app.name] = app
-        # Create user if necessary
-        user.create app, (err) ->
-            if err?
-                # Error on user creation: code 1
-                err.code = 1
-                callback err
+
+        async.series [
+            # Create user if necessary
+            (cb) -> user.create app, (err) ->
+                err?.code = 1
+                cb err
+
+             # Create repository for application
+            (cb) -> directory.create app, cb
+
+            if app.package
+                (cb) -> npmInstall app, connection, cb
             else
-                # Create repository for application
-                directory.create app, (err) ->
-                    if err?
-                        callback err
-                    else
-                        # Git clone
-                        log.info "#{app.name}:git clone"
-                        type[app.repository.type].init app, (err) ->
-                            if err?
-                                # Error on source retrieval : code 2-
-                                err.code ?= 2
-                                err.code = 20 + err.code
-                                callback err
-                            else
-                                # NPM install
-                                log.info "#{app.name}:npm install"
-                                installDependencies connection, app, 2, (err) ->
-                                    if err?
-                                        # Error on dependencies : code 3
-                                        err.code = 3
-                                        callback err
-                                    # don't need to start if app is static
-                                    else if manifest.type is 'static'
-                                        callback err, manifest
-                                    else
-                                        log.info "#{app.name}:start application"
-                                        # Start application
-                                        startApp app, (err, result)->
-                                            # Error application.starting: code 4
-                                            err.code = 4 if err?
-                                            callback err, result
+                (cb) -> gitInstall app, connection, cb
+
+        ], (err) ->
+            return callback err if err
+
+            log.info "#{app.name}:start application"
+            startApp app, (err, result)->
+                # Error application.starting: code 4
+                err.code = 4 if err?
+                callback err, result
 
 ###
     Start aplication defined by <manifest>
@@ -230,8 +241,11 @@ module.exports.install = (connection, manifest, callback) ->
 module.exports.start = (manifest, callback) ->
     try
         app = new App(manifest).app
-    catch
-        return callback new Error "Can't retrieve application manifest, package.json should be JSON format"
+    catch error
+        return callback new Error """
+            Can't retrieve application manifest,
+            package.json should be JSON format #{error}
+        """
     if drones[app.name]? or fs.existsSync(app.dir)
         drones[app.name] = app
         startApp app, (err, result) ->
@@ -299,6 +313,7 @@ module.exports.stopAll = (callback) ->
         * Delete application from drones (and running if necessary)
 ###
 module.exports.uninstall = (name, purge=false, callback) ->
+
     if drones[name]?
         # Stop application
         if running[name]?
@@ -407,5 +422,3 @@ module.exports.running = (callback) ->
     for key in Object.keys(running)
         apps[key] = drones[key]
     callback null, apps
-
-

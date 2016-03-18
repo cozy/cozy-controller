@@ -42,8 +42,9 @@
   },
   "devDependencies": {
     "chai": "1.9.0",
-    "coffee-script": "latest",
     "coffee-coverage": "0.4.2",
+    "coffee-jshint": "^0.2.3",
+    "coffee-script": "latest",
     "coffeelint": "1.14.2",
     "mocha": "1.17.1"
   },
@@ -53,6 +54,8 @@
   "scripts": {
     "test": "cake --use-js tests",
     "build": "cake build",
+    "lint1": "coffeelint -f coffeelint.json ./server",
+    "lint2": "coffee-jshint --config .jshintrc ./server/{,**/}*.coffee",
     "prepublish": "npm run build"
   }
 }

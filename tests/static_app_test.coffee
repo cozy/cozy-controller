@@ -4,8 +4,6 @@ should = require('chai').Should()
 Client = require('request-json-light').JsonClient
 config = require('../server/lib/conf').get
 client = ""
-dsPort = ""
-
 
 describe "Install static app", ->
 
@@ -77,8 +75,7 @@ describe "Install static app", ->
                     type: "static"
                 client.post 'apps/front/install', "start":app, (err, res, body) =>
                     @res = res
-                    @type = body.drone.type
-                    dsPort = @port
+                    should.not.exist body.drone.port
                     done()
 
             it "Then statusCode should be 200", ->
@@ -100,11 +97,6 @@ describe "Install static app", ->
                 fs.existsSync("#{config('dir_app_bin')}/front").should.be.ok
                 fs.existsSync("#{config('dir_app_bin')}/front/package.json").should.be.ok
 
-            it "And front should not be started with port", (done) ->
-                clientDS = new Client "http://localhost:#{@port}/"
-                clientDS.get '/', (err, res) ->
-                    should.not.exist res
-                    done()
 
     describe "Stop application", ->
 
@@ -137,13 +129,6 @@ describe "Install static app", ->
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
 
-            it "And front should not be stopped with port", (done) ->
-                clientDS = new Client "http://localhost:#{dsPort}"
-                clientDS.get '/', (err, res) ->
-                    should.not.exist res
-                    done()
-
-
     describe "Restart application", ->
 
         describe "Restart front", ->
@@ -158,18 +143,12 @@ describe "Install static app", ->
                     type: "static"
                 client.post 'apps/front/start', "start":app, (err, res, body) =>
                     @res = res
-                    @port = body.drone.port
-                    dsPort = @port
+                    body.drone.type.should.equal "static"
+                    should.not.exist body.drone.port
                     done()
 
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
-
-            it "And front should not be started with port", (done) ->
-                clientDS = new Client "http://localhost:#{@port}"
-                clientDS.get '/', (err, res) ->
-                    should.not.exist res
-                    done()
 
     describe "Update application", ->
 
@@ -189,12 +168,6 @@ describe "Install static app", ->
 
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
-
-            it "And front should not start with port", (done) ->
-                clientDS = new Client "http://localhost:#{dsPort}"
-                clientDS.get '/', (err, res) ->
-                    should.not.exist res
-                    done()
 
     describe "Recover all application", ->
 
@@ -229,14 +202,6 @@ describe "Install static app", ->
 
             it "Then statusCode should be 200", ->
                 @res.statusCode.should.equal 200
-
-            it "And front should be stopped but without a port", (done) ->
-                clientDS = new Client "http://localhost:#{dsPort}"
-                clientDS.get '/', (err, res) ->
-                    setTimeout () ->
-                        should.not.exist res
-                        done()
-                    , 1000
 
             it "And logs file should be removed", ->
                 fs.existsSync('/var/log/cozy/front.log').should.not.be.ok
