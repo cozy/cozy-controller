@@ -121,10 +121,11 @@ addInDatabase = function(app, callback) {
 module.exports.addApp = function(app, callback) {
   var manifest;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
-    var error;
+    var error, error1;
     try {
       data = JSON.parse(data);
-    } catch (error) {
+    } catch (error1) {
+      error = error1;
       data = {};
     }
     data[app.name] = app;
@@ -177,10 +178,11 @@ module.exports.addApp = function(app, callback) {
 
 module.exports.removeApp = function(name, callback) {
   return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
-    var error;
+    var error, error1;
     try {
       data = JSON.parse(data);
-    } catch (error) {
+    } catch (error1) {
+      error = error1;
       data = {};
     }
     delete data[name];

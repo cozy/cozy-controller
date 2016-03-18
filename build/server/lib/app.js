@@ -19,14 +19,28 @@ log = require('printit')({
 
 exports.App = (function() {
   function App(app) {
-    var binDir, error, folderDir, logDir, manifest, match, ref, ref1, ref2, start;
+    var binDir, error, error1, folderDir, logDir, manifest, ref, ref1, ref2, start;
     this.app = app;
     binDir = config('dir_app_bin');
     logDir = config('dir_app_log');
     folderDir = config('dir_app_data');
-    this.app.dir = path.join(binDir, this.app.name);
+    if (this.app["package"]) {
+      if ('string' === typeof this.app["package"]) {
+        this.app["package"] = {
+          type: 'npm',
+          name: this.app["package"],
+          version: 'latest'
+        };
+      }
+      this.app.dir = path.join(binDir, this.app.name, 'node_modules', this.app["package"].name);
+      this.app.fullnpmname = this.app["package"].name;
+      if (this.app["package"].version) {
+        this.app.fullnpmname += "@" + this.app["package"].version;
+      }
+    } else {
+      this.app.dir = path.join(binDir, this.app.name);
+    }
     this.app.user = 'cozy-' + this.app.name;
-    match = this.app.repository.url.match(/\/([\w\-_\.]+)\.git$/);
     this.app.logFile = path.join(logDir, "/" + this.app.name + ".log");
     this.app.errFile = path.join(logDir, "/" + this.app.name + "-err.log");
     this.app.folder = path.join(folderDir, this.app.name);
@@ -35,7 +49,8 @@ exports.App = (function() {
     } else if (fs.existsSync(path.join(this.app.dir, "package.json"))) {
       try {
         manifest = require(path.join(this.app.dir, "package.json"));
-      } catch (error) {
+      } catch (error1) {
+        error = error1;
         if (((ref1 = this.app) != null ? ref1.name : void 0) != null) {
           log.error(this.app.name + ": Unable to read application manifest");
         } else {

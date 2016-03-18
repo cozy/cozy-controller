@@ -213,11 +213,12 @@ checkStart = function(port, callback) {
 
 recoverStackApp = function(callback) {
   return fs.readFile(config('file_stack'), 'utf8', function(err, data) {
-    var error;
+    var error, error1;
     if ((data != null) || data === "") {
       try {
         data = JSON.parse(data);
-      } catch (error) {
+      } catch (error1) {
+        error = error1;
         log.info("Stack isn't installed");
         return callback("Stack isn't installed");
       }
