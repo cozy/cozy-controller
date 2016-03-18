@@ -1,5 +1,6 @@
 path = require 'path'
 fs = require 'fs'
+mkdirp = require 'mkdirp'
 directory = require './directory'
 executeUntilEmpty = require '../helpers/executeUntilEmpty'
 config = require('./conf').get
@@ -21,7 +22,7 @@ BASE_PACKAGE_JSON = """
 createAppFolder = (app, callback) ->
     dirPath = path.join config('dir_app_bin'), app.name
     packagePath = path.join dirPath, 'package.json'
-    fs.mkdir dirPath, "0711", (err) ->
+    mkdirp dirPath, "0711", (err) ->
         if err then return callback new Error """
             Failed to create folder #{dirPath} : #{err.message}
         """
