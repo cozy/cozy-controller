@@ -109,7 +109,8 @@ module.exports.addApp = (app, callback) ->
             appli =
                 name: app.name
                 version: data.version
-                git: app.repository.url
+                git: app.repository?.url
+                package: app.package
                 docType: "StackApplication"
             # Add in database
             addDatabase 5, appli
