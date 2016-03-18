@@ -125,16 +125,14 @@ gitInstall = (app, connection, callback) ->
             log.info "#{app.name}:npm install dependencies"
             installDependencies connection, app, 2, (err) ->
                 # Error on dependencies : code 3
-                err?.code  = 3
+                err?.code = 3
                 callback err
 
 
 npmInstall = (app, connection, callback) ->
     log.info "#{app.name}:npm install"
     type['npm'].init app, (err) ->
-        if err?
-            err.code = 3
-
+        err?.code= 3
         callback err
 
 
