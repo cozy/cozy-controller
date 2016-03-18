@@ -124,9 +124,8 @@ gitInstall = (app, connection, callback) ->
         else
             log.info "#{app.name}:npm install dependencies"
             installDependencies connection, app, 2, (err) ->
-                if err?
-                    # Error on dependencies : code 3
-                    err.code = 3
+                # Error on dependencies : code 3
+                err?.code  = 3
                 callback err
 
 
@@ -316,11 +315,6 @@ module.exports.stopAll = (callback) ->
         * Delete application from drones (and running if necessary)
 ###
 module.exports.uninstall = (name, purge=false, callback) ->
-
-    appsDir = config('dir_app_bin')
-    gitAppDir = path.join(appsDir, name)
-    npmAppDir = path.join(appsDir, 'node_modules', name)
-
 
     if drones[name]?
         # Stop application

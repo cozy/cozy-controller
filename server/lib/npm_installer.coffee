@@ -45,13 +45,11 @@ module.exports.init = (app, callback) ->
             Tried to npm_installer.init a non NPM app : #{JSON.stringify app}
         """
 
-    console.time "npm installing"
     createAppFolder app, (err, appFolder) ->
         return callback err if err
         commands = [['npm', 'install', app.fullnpmname]]
         opts = user: app.user, cwd: appFolder
         executeUntilEmpty commands, opts, (err) ->
-            console.timeEnd "npm installing"
             if err?
                 log.error err
                 log.error "FAILLED TO RUN CMD", err

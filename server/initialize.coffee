@@ -104,7 +104,7 @@ initFiles = (callback) ->
 
 ###
     Initialize files:
-        * Initialize configuration
+        * Initialize configuratione
         * Initialize files
         * Rewrite file configuration
 ###
@@ -116,10 +116,8 @@ module.exports.init = (callback) ->
                 callback err
             else
                 initFiles (err) ->
-                    if err
-                        callback err
-                    else
-                        callback null
+                    callback err
+
     if fs.existsSync '/usr/local/cozy/autostart'
         patch.apply ->
             initialize()
