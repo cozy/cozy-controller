@@ -21,7 +21,7 @@ BASE_PACKAGE_JSON = """
 createAppFolder = (app, callback) ->
     dirPath = path.join config('dir_app_bin'), app.name
     packagePath = path.join dirPath, 'package.json'
-    fs.mkdir dirPath, "0700", (err) ->
+    fs.mkdir dirPath, "0711", (err) ->
         if err then return callback new Error """
             Failed to create folder #{dirPath} : #{err.message}
         """
