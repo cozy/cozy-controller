@@ -134,7 +134,7 @@ module.exports.addApp = function(app, callback) {
   });
   manifest = path.join(config('dir_app_bin'), app.name, 'package.json');
   return fs.readFile(manifest, function(err, data) {
-    var appli, controller, controllerPath;
+    var appli, controller, controllerPath, ref;
     if (err) {
       return log.warn('Error when read package.json');
     } else {
@@ -142,7 +142,8 @@ module.exports.addApp = function(app, callback) {
       appli = {
         name: app.name,
         version: data.version,
-        git: app.repository.url,
+        git: (ref = app.repository) != null ? ref.url : void 0,
+        "package": app["package"],
         docType: "StackApplication"
       };
       addDatabase(5, appli);
