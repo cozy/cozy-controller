@@ -5,16 +5,17 @@ permission = require '../middlewares/token'
 path = require 'path'
 App = require('./app').App
 config = require('./conf').get
+urlHelper = require 'cozy-url-sdk'
 log = require('printit')
     date: true
     prefix: 'lib:autostart'
 async = require 'async'
 
-dsHost = process.env.DATASYSTEM_HOST or 'localhost'
-dsPort = process.env.DATASYSTEM_PORT or 9101
-couchdbHost = process.env.COUCH_HOST or 'localhost'
-couchdbPort = process.env.COUCH_PORT or '5984'
-couchDBClient = new Client "http://#{couchdbHost}:#{couchdbPort}"
+dsSchema = urlHelper.dataSystem.schema()
+dsHost = urlHelper.dataSystem.host()
+dsPort = urlHelper.dataSystem.port()
+
+couchDBClient = new Client urlHelper.couch.url()
 
 ###
     Check if couchDB is started
@@ -54,7 +55,7 @@ getManifest = (app) ->
 errors = {}
 
 retrievePassword = (app, cb) ->
-    clientDS = new Client "http://#{dsHost}:#{dsPort}"
+    clientDS = new Client "#{dsSchema}://#{dsHost}:#{dsPort}"
     clientDS.setBasicAuth 'home', permission.get()
     clientDS.post 'request/access/byApp/', key:app._id, (err, res, access) ->
         if not err? and access?[0]?
@@ -102,7 +103,8 @@ start = (appli, callback) ->
                         if not appli.permissions
                             password = appli.password
                             delete appli.password
-                        clientDS = new Client "http://#{dsHost}:#{dsPort}"
+                        dsUrl = "#{dsSchema}://#{dsHost}:#{dsPort}"
+                        clientDS = new Client dsUrl
                         clientDS.setBasicAuth 'home', permission.get()
                         requestPath = "data/merge/#{appli._id}/"
                         clientDS.put requestPath, appli, (err, res, body) ->
@@ -122,7 +124,7 @@ start = (appli, callback) ->
         callback error and applications list
 ###
 getApps = (callback) ->
-    clientDS = new Client "http://#{dsHost}:#{dsPort}"
+    clientDS = new Client "#{dsSchema}://#{dsHost}:#{dsPort}"
     clientDS.setBasicAuth 'home', permission.get()
     requestPath = '/request/application/all/'
     clientDS.post requestPath, {}, (err, res, body) ->
