@@ -19,6 +19,19 @@ BASE_PACKAGE_JSON = """
     }
 """
 
+COMMANDS_PROXY = (trueCommmandsFile) -> """
+    {spawn} = require 'child_process'
+    {dirname} = require 'path'
+    {readDirSync} = require 'fs'
+
+    trueCommmandsFile = "#{trueCommmandsFile}"
+
+    args = [trueCommmandsFile].concat process.argv[2..]
+    spawn 'coffee', args,
+         stdio: 'inherit'
+         cwd: dirname trueCommmandsFile
+"""
+
 createAppFolder = (app, callback) ->
     dirPath = path.join config('dir_app_bin'), app.name
     packagePath = path.join dirPath, 'package.json'
@@ -35,6 +48,17 @@ createAppFolder = (app, callback) ->
                     Failed to changeOwner #{dirPath} : #{err.message}
                 """
                 callback null, dirPath
+
+patchCommandsCoffe = (app, callback) ->
+    pname = app.package?.name or app.package
+    dirPath = path.join config('dir_app_bin'), app.name
+    expectedPath = path.join dirPath, 'commands.coffee'
+    truePath = path.resolve dirPath, 'node_modules', pname, 'commands.coffee'
+    fs.writeFile expectedPath, COMMANDS_PROXY(truePath), 'utf8', (err) ->
+        return callback err if err
+        directory.changeOwner app.user, expectedPath, (err) ->
+            return callback err if err
+            callback null
 
 ###
     Initialize repository of <app>
@@ -56,7 +80,7 @@ module.exports.init = (app, callback) ->
                 log.error "FAILLED TO RUN CMD", err
                 callback err
             else
-                callback()
+                patchCommandsCoffe app, callback
 
 ###
     Update repository of <app>
