@@ -202,9 +202,14 @@ module.exports.removeRunningApp = (name) ->
 module.exports.install = (connection, manifest, callback) ->
     app = new App(manifest).app
     # Check if app exists
-    if drones[app.name]? or fs.existsSync(app.dir)
+    if drones[app.name]?
         log.info "#{app.name}:already installed"
         log.info "#{app.name}:start application"
+        startApp drones[app.name], callback
+
+    else if fs.existsSync(app.dir)
+        log.info "#{app.name}:already installed"
+        log.info "#{app.name}:start application from dir"
         # Start application
         startApp app, callback
     else
