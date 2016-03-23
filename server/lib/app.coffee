@@ -24,7 +24,8 @@ class exports.App
                     name: @app.package
                     version: 'latest'
 
-            @app.dir = path.join binDir, @app.name, 'node_modules', @app.package.name
+            dir = path.join binDir, @app.name, 'node_modules', @app.package.name
+            @app.dir ?= dir
             @app.fullnpmname = @app.package.name
             if @app.package.version
                 @app.fullnpmname += "@#{@app.package.version}"
