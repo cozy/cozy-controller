@@ -19,14 +19,11 @@ BASE_PACKAGE_JSON = """
     }
 """
 
+# Generate a file which proxy its args to trueCommmandsFile
 COMMANDS_PROXY = (trueCommmandsFile) -> """
     {spawn} = require 'child_process'
     {dirname} = require 'path'
-    {readDirSync} = require 'fs'
-
-    trueCommmandsFile = "#{trueCommmandsFile}"
-
-    args = [trueCommmandsFile].concat process.argv[2..]
+    args = ["#{trueCommmandsFile}"].concat process.argv[2..]
     spawn 'coffee', args,
          stdio: 'inherit'
          cwd: dirname trueCommmandsFile
@@ -48,7 +45,17 @@ createAppFolder = (app, callback) ->
                     Failed to changeOwner #{dirPath} : #{err.message}
                 """
                 callback null, dirPath
-
+###
+HACK
+A lot of our infra code depends on the /usr/local/cozy/apps/home/commands.coffee
+file. This function create a commands.cofee file at the expected location
+which proxies its calls to the actual commands.coffee in
+/usr/local/cozy/apps/home/node_modules/cozy-home/commands.coffee.
+@TODO
+- Move all of the commands.coffee commands to the cozy_management
+- Use the cozy_management in infra scripts
+- Remove this function
+###
 patchCommandsCoffe = (app, callback) ->
     pname = app.package?.name or app.package
     dirPath = path.join config('dir_app_bin'), app.name
