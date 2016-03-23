@@ -20,7 +20,7 @@ BASE_PACKAGE_JSON = """
 """
 
 # Generate a file which proxy its args to trueCommmandsFile
-COMMANDS_PROXY = (trueCommmandsFile) -> """
+makeCommandsProxy = (trueCommmandsFile) -> """
     {spawn} = require 'child_process'
     {dirname} = require 'path'
     args = ["#{trueCommmandsFile}"].concat process.argv[2..]
@@ -61,7 +61,7 @@ patchCommandsCoffe = (app, callback) ->
     dirPath = path.join config('dir_app_bin'), app.name
     expectedPath = path.join dirPath, 'commands.coffee'
     truePath = path.resolve dirPath, 'node_modules', pname, 'commands.coffee'
-    fs.writeFile expectedPath, COMMANDS_PROXY(truePath), 'utf8', (err) ->
+    fs.writeFile expectedPath, makeCommandsProxy(truePath), 'utf8', (err) ->
         return callback err if err
         directory.changeOwner app.user, expectedPath, (err) ->
             return callback err if err
