@@ -2,6 +2,7 @@ americano = require 'americano'
 init = require './server/initialize'
 autostart = require './server/lib/autostart'
 controller = require './server/lib/controller'
+urlHelper = require 'cozy-url-sdk'
 log = require('printit')
     date: true
     prefix: "server"
@@ -22,8 +23,8 @@ application = module.exports = (callback) ->
     else
         options =
             name: 'controller'
-            port: process.env.PORT or 9002
-            host: process.env.HOST or "127.0.0.1"
+            port: process.env.PORT or urlHelper.controller.port()
+            host: process.env.HOST or urlHelper.controller.host()
             root: __dirname
 
         process.env.NODE_ENV ?= "development"

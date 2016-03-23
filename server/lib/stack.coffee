@@ -1,6 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 Client = require('request-json-light').JsonClient
+urlHelper = require 'cozy-url-sdk'
 log = require('printit')
     date: true
     prefix: 'lib:stack'
@@ -9,9 +10,6 @@ config = require('./conf').get
 permission = require '../middlewares/token'
 
 controllerAdded = false
-
-dsHost = process.env.DATASYSTEM_HOST or 'localhost'
-dsPort = process.env.DATASYSTEM_PORT or 9101
 
 ###
     addDatabse:
@@ -37,7 +35,7 @@ addDatabase = (attempt, app) ->
         * If not, add new document for this application
 ###
 addInDatabase = (app, callback) ->
-    clientDS = new Client "http://#{dsHost}:#{dsPort}"
+    clientDS = new Client urlHelper.dataSystem.url()
     clientDS.setBasicAuth 'home', permission.get()
     # Check if app already exists
     clientDS.post '/request/stackapplication/all/', {}, (err, res, body) ->
