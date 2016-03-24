@@ -24,7 +24,10 @@ drones = {}
 # running contains all started application
 running = {}
 
-stackApps = ['home', 'data-system', 'proxy']
+stackApps = [
+    'home', 'data-system', 'proxy',
+    'cozy-home', 'cozy-data-system', 'cozy-proxy'
+]
 
 
 ############################### Helpers ########################################
