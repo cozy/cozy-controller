@@ -39,7 +39,7 @@ drones = {};
 
 running = {};
 
-stackApps = ['home', 'data-system', 'proxy'];
+stackApps = ['home', 'data-system', 'proxy', 'cozy-home', 'cozy-data-system', 'cozy-proxy'];
 
 
 /*
