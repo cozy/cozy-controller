@@ -392,7 +392,7 @@ module.exports.update = (connection, manifest, callback) ->
     if manifest in stackApps
         manifest = drones[manifest]
         manifest.repository ?= {}
-        manifest.repository.type ?= 'npm'
+        manifest.repository.type = 'npm'
 
     app = new App(manifest).app
     if drones[app.name]?
