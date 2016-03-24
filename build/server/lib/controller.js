@@ -471,15 +471,13 @@ module.exports.uninstall = function(name, purge, callback) {
  */
 
 module.exports.update = function(connection, manifest, callback) {
-  var app, base, err;
+  var app, err;
   if (indexOf.call(stackApps, manifest) >= 0) {
     manifest = drones[manifest];
     if (manifest.repository == null) {
       manifest.repository = {};
     }
-    if ((base = manifest.repository).type == null) {
-      base.type = 'npm';
-    }
+    manifest.repository.type = 'npm';
   }
   app = new App(manifest).app;
   if (drones[app.name] != null) {
