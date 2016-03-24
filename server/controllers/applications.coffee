@@ -57,6 +57,7 @@ updateMonitor = (callback) ->
             else
                 callback()
 
+
 restartController = (callback) ->
     exec config('restart_cmd'), (err, stdout) ->
         if err
@@ -65,6 +66,7 @@ restartController = (callback) ->
         else
             log.info "Controller was successfully restarted."
             callback()
+
 
 ###
     Install application.
@@ -89,6 +91,7 @@ module.exports.install = (req, res, next) ->
             else
                 res.status(200).send drone:
                     "port": result.port
+
 
 ###
     Change application branch.
@@ -132,6 +135,7 @@ module.exports.changeBranch = (req, res, next) ->
                                 res.status(200).send drone:
                                     "port": result.port
 
+
 ###
     Start application
         * Check if application is declared in body.start
@@ -172,6 +176,7 @@ module.exports.stop = (req, res, next) ->
             else
                 res.status(200).send app: result
 
+
 ###
     Uninstall application
         * Check if application is installed
@@ -188,6 +193,7 @@ module.exports.uninstall = (req, res, next) ->
         else
             res.status(200).send app: result
 
+
 ###
     Update application
         * Check if application is installed
@@ -201,8 +207,10 @@ module.exports.update = (req, res, next) ->
             err = new Error err.toString()
             sendError res, err, 400
         else
-            res.status(200).send drone:
-                "port": result.port
+            res.status(200).send
+                drone:
+                    port: result.port
+
 
 ###
     Update application
@@ -235,10 +243,12 @@ module.exports.updateStack = (req, res, next) ->
                         restartController (err) ->
                             if err?
                                 log.error err.toString()
-                                err = new Error "Cannot update stack: #{err.toString()}"
+                                err = new Error \
+                                    "Cannot update stack: #{err.toString()}"
                                 sendError res, err, 400
                             else
                                 res.status(200).send {}
+
 
 ###
     Reboot controller
@@ -252,6 +262,7 @@ module.exports.restartController = (req, res, next) ->
         else
             res.status(200).send {}
 
+
 ###
     Return a list with all applications
 ###
@@ -264,6 +275,7 @@ module.exports.all = (req, res, next) ->
         else
             res.status(200).send app: result
 
+
 ###
     Return a list with all started applications
 ###
@@ -275,3 +287,4 @@ module.exports.running = (req, res, next) ->
             sendError res, err, 400
         else
             res.status(200).send app: result
+

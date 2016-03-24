@@ -114,6 +114,7 @@ stopApp = (name, callback) ->
         #callback err, name
         onErr err
 
+
 gitInstall = (app, connection, callback) ->
     log.info "#{app.name}:git clone"
     type[app.repository.type].init app, (err) ->
@@ -390,6 +391,9 @@ module.exports.uninstall = (name, purge=false, callback) ->
 module.exports.update = (connection, manifest, callback) ->
     if manifest in stackApps
         manifest = drones[manifest]
+        manifest.repository ?= {}
+        manifest.repository.type ?= 'npm'
+
     app = new App(manifest).app
     if drones[app.name]?
         if running[app.name]?
