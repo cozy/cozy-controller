@@ -65,6 +65,7 @@ startApp = (app, callback) ->
                     else
                         callback null, result
 
+
 ###
     Stop all applications in tab <apps>
 ###
@@ -77,6 +78,7 @@ stopApps = (apps, callback) ->
     else
         drones = []
         callback()
+
 
 ###
     Stop application <name>
@@ -166,7 +168,7 @@ installDependencies = (connection, app, test, callback) ->
         if err? and test is 0
             callback err
         else if err?
-            log.info 'TRY AGAIN ...'
+            log.info 'Try again to install NPM dependencies...'
             installDependencies connection, app, test, callback
         else
             callback()
@@ -238,6 +240,7 @@ module.exports.install = (connection, manifest, callback) ->
                 err.code = 4 if err?
                 callback err, result
 
+
 ###
     Start aplication defined by <manifest>
         * Check if application is installed
@@ -261,6 +264,7 @@ module.exports.start = (manifest, callback) ->
     else
         err = new Error 'Cannot start an application not installed'
         callback err
+
 
 ###
     Change aplication branch
@@ -302,12 +306,14 @@ module.exports.stop = (name, callback) ->
         err = new Error 'Cannot stop an application not started'
         callback err
 
+
 ###
     Stop all started applications
         Useful when controller is stopped
 ###
 module.exports.stopAll = (callback) ->
     stopApps Object.keys(running), callback
+
 
 ###
     Uninstall application <name>
@@ -373,6 +379,7 @@ module.exports.uninstall = (name, purge=false, callback) ->
             err = new Error 'Cannot uninstall an application not installed'
             callback err
 
+
 ###
     Update an application <name>
         * Check if application is installed
@@ -402,6 +409,7 @@ module.exports.update = (connection, manifest, callback) ->
         log.error err
         callback err
 
+
 ###
     Add application <app> in drone
         Useful for autostart
@@ -409,6 +417,7 @@ module.exports.update = (connection, manifest, callback) ->
 module.exports.addDrone = (app, callback) ->
     drones[app.name] = app
     callback()
+
 
 ###
     Return all applications (started or stopped)
@@ -419,6 +428,7 @@ module.exports.all = (callback) ->
         apps[key] = drones[key]
     callback null, apps
 
+
 ###
     Return all started applications
 ###
@@ -427,3 +437,4 @@ module.exports.running = (callback) ->
     for key in Object.keys(running)
         apps[key] = drones[key]
     callback null, apps
+
