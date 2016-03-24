@@ -20,13 +20,13 @@ BASE_PACKAGE_JSON = """
 """
 
 # Generate a file which proxy its args to trueCommmandsFile
-makeCommandsProxy = (trueCommmandsFile) -> """
+makeCommandsProxy = (trueCommandsFile) -> """
     {spawn} = require 'child_process'
     {dirname} = require 'path'
-    args = ["#{trueCommmandsFile}"].concat process.argv[2..]
+    args = ["#{trueCommandsFile}"].concat process.argv[2..]
     spawn 'coffee', args,
          stdio: 'inherit'
-         cwd: dirname trueCommmandsFile
+         cwd: dirname #{trueCommmandsFile}
 """
 
 createAppFolder = (app, callback) ->
