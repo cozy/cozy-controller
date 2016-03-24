@@ -205,7 +205,7 @@ installDependencies = function(connection, app, test, callback) {
     if ((err != null) && test === 0) {
       return callback(err);
     } else if (err != null) {
-      log.info('TRY AGAIN ...');
+      log.info('Try again to install NPM dependencies...');
       return installDependencies(connection, app, test, callback);
     } else {
       return callback();
@@ -246,9 +246,13 @@ module.exports.removeRunningApp = function(name) {
 module.exports.install = function(connection, manifest, callback) {
   var app;
   app = new App(manifest).app;
-  if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
+  if (drones[app.name] != null) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
+    return startApp(drones[app.name], callback);
+  } else if (fs.existsSync(app.dir)) {
+    log.info(app.name + ":already installed");
+    log.info(app.name + ":start application from dir");
     return startApp(app, callback);
   } else {
     drones[app.name] = app;
@@ -467,9 +471,15 @@ module.exports.uninstall = function(name, purge, callback) {
  */
 
 module.exports.update = function(connection, manifest, callback) {
-  var app, err;
+  var app, base, err;
   if (indexOf.call(stackApps, manifest) >= 0) {
     manifest = drones[manifest];
+    if (manifest.repository == null) {
+      manifest.repository = {};
+    }
+    if ((base = manifest.repository).type == null) {
+      base.type = 'npm';
+    }
   }
   app = new App(manifest).app;
   if (drones[app.name] != null) {

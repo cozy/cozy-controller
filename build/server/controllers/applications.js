@@ -278,7 +278,7 @@ module.exports.update = function(req, res, next) {
     } else {
       return res.status(200).send({
         drone: {
-          "port": result.port
+          port: result.port
         }
       });
     }

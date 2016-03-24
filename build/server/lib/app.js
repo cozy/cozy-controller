@@ -19,7 +19,7 @@ log = require('printit')({
 
 exports.App = (function() {
   function App(app) {
-    var binDir, error, error1, folderDir, logDir, manifest, ref, ref1, ref2, start;
+    var base, binDir, dir, error, error1, folderDir, logDir, manifest, ref, ref1, ref2, start;
     this.app = app;
     binDir = config('dir_app_bin');
     logDir = config('dir_app_log');
@@ -32,7 +32,10 @@ exports.App = (function() {
           version: 'latest'
         };
       }
-      this.app.dir = path.join(binDir, this.app.name, 'node_modules', this.app["package"].name);
+      dir = path.join(binDir, this.app.name, 'node_modules', this.app["package"].name);
+      if ((base = this.app).dir == null) {
+        base.dir = dir;
+      }
       this.app.fullnpmname = this.app["package"].name;
       if (this.app["package"].version) {
         this.app.fullnpmname += "@" + this.app["package"].version;
