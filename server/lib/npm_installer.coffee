@@ -19,6 +19,7 @@ BASE_PACKAGE_JSON = """
     }
 """
 
+
 # Generate a file which proxy its args to trueCommmandsFile
 makeCommandsProxy = (trueCommandsFile='') ->
     """
@@ -30,6 +31,7 @@ makeCommandsProxy = (trueCommandsFile='') ->
          cwd: dirname #{trueCommandsFile}
 
 """
+
 
 createAppFolder = (app, callback) ->
     dirPath = path.join config('dir_app_bin'), app.name
@@ -47,6 +49,8 @@ createAppFolder = (app, callback) ->
                     Failed to changeOwner #{dirPath} : #{err.message}
                 """
                 callback null, dirPath
+
+
 ###
 HACK
 A lot of our infra code depends on the /usr/local/cozy/apps/home/commands.coffee
@@ -68,6 +72,7 @@ patchCommandsCoffe = (app, callback) ->
         directory.changeOwner app.user, expectedPath, (err) ->
             return callback err if err
             callback null
+
 
 ###
     Initialize repository of <app>
@@ -91,19 +96,27 @@ module.exports.init = (app, callback) ->
             else
                 patchCommandsCoffe app, callback
 
+
 ###
     Update repository of <app>
         * Run npm install <app> in the apps dir
 ###
 module.exports.update = (app, callback) ->
     commands = [['npm', 'install', app.fullnpmname]]
-    opts = user: app.user, cwd: config('dir_app_bin')
+    appDir = path.join config('dir_app_bin'), app.name
+
+    opts =
+        user: app.user
+        cwd: appDir
+
     executeUntilEmpty commands, opts, (err) ->
         if err
             log.error err
             log.error "failed to remove app"
         else
             callback()
+
+
 ###
     Change branch of <app>
         * Run npm install <app>@<newBranch> in the apps dir
@@ -119,3 +132,4 @@ module.exports.changeBranch = (app, newBranch, callback) ->
         else
             app.package.version = newBranch
             callback()
+

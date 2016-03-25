@@ -150,7 +150,13 @@ npmInstall = (app, connection, callback) ->
 ###
 updateApp = (connection, app, callback) ->
     log.info "#{app.name}:update application"
-    type[app.repository.type].update app, (err) ->
+
+    if app.package?
+        packageType = 'npm'
+    else
+        packageType = 'git'
+
+    type[packageType].update app, (err) ->
         if err?
             callback err
         else
@@ -207,6 +213,7 @@ module.exports.removeRunningApp = (name) ->
 ###
 module.exports.install = (connection, manifest, callback) ->
     app = new App(manifest).app
+
     # Check if app exists
     if drones[app.name]?
         log.info "#{app.name}:already installed"
@@ -392,10 +399,9 @@ module.exports.uninstall = (name, purge=false, callback) ->
         * Restart application if it was started
 ###
 module.exports.update = (connection, manifest, callback) ->
+
     if manifest in stackApps
         manifest = drones[manifest]
-        manifest.repository ?= {}
-        manifest.repository.type = 'npm'
 
     app = new App(manifest).app
     if drones[app.name]?
