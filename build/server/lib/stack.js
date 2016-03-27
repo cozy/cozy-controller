@@ -119,7 +119,7 @@ addInDatabase = function(app, callback) {
  */
 
 module.exports.addApp = function(app, callback) {
-  var manifest;
+  var baseDir, manifestPath;
   fs.readFile(config('file_stack'), 'utf8', function(err, data) {
     var error, error1;
     try {
@@ -132,8 +132,12 @@ module.exports.addApp = function(app, callback) {
     data = JSON.stringify(data, null, 2);
     return fs.writeFile(config('file_stack'), data, callback);
   });
-  manifest = path.join(config('dir_app_bin'), app.name, 'package.json');
-  return fs.readFile(manifest, function(err, data) {
+  baseDir = path.join(config('dir_app_bin'), app.name);
+  manifestPath = path.join(baseDir, 'node_modules', "cozy-" + app.name, 'package.json');
+  if (!fs.existsSync(manifestPath)) {
+    manifestPath = path.join(baseDir, 'package.json');
+  }
+  return fs.readFile(manifestPath, function(err, data) {
     var appli, controller, controllerPath, ref;
     if (err) {
       return log.warn('Error when read package.json');

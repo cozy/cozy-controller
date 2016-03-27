@@ -247,9 +247,9 @@ module.exports.start = function(app, callback) {
         logging.close(monitor);
         log.error('Callback on Exit');
         if (callback) {
-          return respond(new Error(app.name + " CANT START"));
+          return respond(new Error(app.name + " can't start"));
         } else {
-          log.error(app.name + " HAS FAILED TOO MUCH");
+          log.error(app.name + " starting failed too much time.");
           return setTimeout(monitor.stop, 1);
         }
       };

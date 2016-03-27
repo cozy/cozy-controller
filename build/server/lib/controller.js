@@ -39,7 +39,7 @@ drones = {};
 
 running = {};
 
-stackApps = ['home', 'data-system', 'proxy'];
+stackApps = ['home', 'data-system', 'proxy', 'cozy-home', 'cozy-data-system', 'cozy-proxy'];
 
 
 /*
@@ -51,6 +51,7 @@ stackApps = ['home', 'data-system', 'proxy'];
 
 startApp = function(app, callback) {
   var err;
+  log.info("Starting " + app.name + "...");
   if (running[app.name] != null) {
     err = new Error('Application already exists');
     return callback(err);
@@ -66,6 +67,7 @@ startApp = function(app, callback) {
           err = new Error('Unknown error from Spawner.');
           return callback(err);
         } else {
+          log.info(app.name + " successfully started!");
           drones[app.name] = result.pkg;
           running[app.name] = result;
           if (ref = app.name, indexOf.call(stackApps, ref) >= 0) {
@@ -176,8 +178,14 @@ npmInstall = function(app, connection, callback) {
  */
 
 updateApp = function(connection, app, callback) {
+  var packageType;
   log.info(app.name + ":update application");
-  return type[app.repository.type].update(app, function(err) {
+  if (app["package"] != null) {
+    packageType = 'npm';
+  } else {
+    packageType = 'git';
+  }
+  return type[packageType].update(app, function(err) {
     if (err != null) {
       return callback(err);
     } else {
@@ -205,7 +213,7 @@ installDependencies = function(connection, app, test, callback) {
     if ((err != null) && test === 0) {
       return callback(err);
     } else if (err != null) {
-      log.info('TRY AGAIN ...');
+      log.info('Try again to install NPM dependencies...');
       return installDependencies(connection, app, test, callback);
     } else {
       return callback();
@@ -225,7 +233,7 @@ module.exports.removeRunningApp = function(name) {
 
 
 /*
-    Install applicaton defineed by <manifest>
+    Install applicaton defined by <manifest>
         * Check if application isn't already installed
         * Create user cozy-<name> if necessary
         * Create application repo for source code
@@ -246,9 +254,15 @@ module.exports.removeRunningApp = function(name) {
 module.exports.install = function(connection, manifest, callback) {
   var app;
   app = new App(manifest).app;
-  if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
+  log.info("Installing " + app.name + " in " + app.dir + "...");
+  if (drones[app.name] != null) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
+    return startApp(drones[app.name], callback);
+  } else if (fs.existsSync(app.dir)) {
+    log.info(app.dir);
+    log.info(app.name + ":already installed");
+    log.info(app.name + ":start application from dir");
     return startApp(app, callback);
   } else {
     drones[app.name] = app;
@@ -331,6 +345,7 @@ module.exports.changeBranch = function(connection, manifest, newBranch, callback
       err.code = 20 + err.code;
       return callback(err);
     } else {
+      log.info(app.name + ":git checkout done");
       manifest.repository.branch = newBranch;
       log.info(app.name + ":npm install");
       return installDependencies(connection, app, 2, function(err) {
@@ -338,6 +353,7 @@ module.exports.changeBranch = function(connection, manifest, newBranch, callback
           err.code = 3;
           return callback(err);
         } else {
+          log.info(app.name + ":npm install done");
           return callback();
         }
       });
@@ -389,12 +405,12 @@ module.exports.uninstall = function(name, purge, callback) {
   }
   if (drones[name] != null) {
     if (running[name] != null) {
-      log.info(name + ":stop application");
+      log.info(name + ":stop application done.");
       running[name].monitor.stop();
       delete running[name];
     }
     if (indexOf.call(stackApps, name) >= 0) {
-      log.info(name + ":remove from stack.json");
+      log.info(name + ":remove from stack.json done.");
       stack.removeApp(name, function(err) {
         if (err != null) {
           return log.error(err);
@@ -403,15 +419,18 @@ module.exports.uninstall = function(name, purge, callback) {
     }
     app = drones[name];
     if (purge) {
-      log.info(name + ":delete directory");
+      log.info(name + ":delete directory done.");
       directory.remove(app, function(err) {
         if (err != null) {
           return log.error(err);
         }
       });
     }
+    if (app.dir.indexOf('node_modules') > 0) {
+      app.dir = path.join(app.dir, '..', '..');
+    }
     return repo["delete"](app, function(err) {
-      log.info(name + ":delete source");
+      log.info(name + ":delete source done.");
       if (drones[name] != null) {
         delete drones[name];
       }
