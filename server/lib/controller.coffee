@@ -39,6 +39,8 @@ stackApps = [
         * add application in drones and running
 ###
 startApp = (app, callback) ->
+    log.info "Starting #{app.name}..."
+
     # Start Application
     if running[app.name]?
         # Check if an application with same already exists
@@ -57,9 +59,12 @@ startApp = (app, callback) ->
                     err = new Error 'Unknown error from Spawner.'
                     callback err
                 else
+                    log.info "#{app.name} successfully started!"
+
                     # Add application in drones and running variables
                     drones[app.name] = result.pkg
                     running[app.name] = result
+
                     # If app is an stack application,
                     # we store this manifest in stack.json
                     if app.name in stackApps
@@ -194,7 +199,7 @@ module.exports.removeRunningApp = (name) ->
     delete running[name]
 
 ###
-    Install applicaton defineed by <manifest>
+    Install applicaton defined by <manifest>
         * Check if application isn't already installed
         * Create user cozy-<name> if necessary
         * Create application repo for source code
@@ -214,6 +219,8 @@ module.exports.removeRunningApp = (name) ->
 module.exports.install = (connection, manifest, callback) ->
     app = new App(manifest).app
 
+    log.info "Installing #{app.name} in #{app.dir}..."
+
     # Check if app exists
     if drones[app.name]?
         log.info "#{app.name}:already installed"
@@ -221,21 +228,24 @@ module.exports.install = (connection, manifest, callback) ->
         startApp drones[app.name], callback
 
     else if fs.existsSync(app.dir)
+        log.info app.dir
         log.info "#{app.name}:already installed"
         log.info "#{app.name}:start application from dir"
-        # Start application
         startApp app, callback
+
     else
         drones[app.name] = app
 
         async.series [
             # Create user if necessary
-            (cb) -> user.create app, (err) ->
-                err?.code = 1
-                cb err
+            (cb) ->
+                user.create app, (err) ->
+                    err?.code = 1
+                    cb err
 
              # Create repository for application
-            (cb) -> directory.create app, cb
+            (cb) ->
+                directory.create app, cb
 
             if app.package
                 (cb) -> npmInstall app, connection, cb
@@ -293,6 +303,7 @@ module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
             err.code = 20 + err.code
             callback err
         else
+            log.info "#{app.name}:git checkout done"
             manifest.repository.branch = newBranch
             # NPM install
             log.info "#{app.name}:npm install"
@@ -302,6 +313,7 @@ module.exports.changeBranch = (connection, manifest, newBranch, callback) ->
                     err.code = 3
                     callback err
                 else
+                    log.info "#{app.name}:npm install done"
                     callback()
 
 
@@ -337,33 +349,41 @@ module.exports.stopAll = (callback) ->
 module.exports.uninstall = (name, purge=false, callback) ->
 
     if drones[name]?
+
         # Stop application
         if running[name]?
-            log.info "#{name}:stop application"
+            log.info "#{name}:stop application done."
             running[name].monitor.stop()
             delete running[name]
 
-        # If app is an stack application, we store this manifest in stack.json
+        # If app is a stack application, we remove its manifest from stack.json
         if name in stackApps
-            log.info "#{name}:remove from stack.json"
+            log.info "#{name}:remove from stack.json done."
             stack.removeApp name, (err) ->
                 log.error err if err?
-        # Remove repo and log files
+
+        # Remove additional files of given app.
         app = drones[name]
         if purge
-            log.info "#{name}:delete directory"
+            log.info "#{name}:delete directory done."
             directory.remove app, (err) ->
                 log.error err if err?
-        # Remove repo
+
+        # If app is installed via npm, change its dir field.
+        if app.dir.indexOf('node_modules') > 0
+            app.dir = path.join app.dir, '..', '..'
+
+        # Remove application source files.
         repo.delete app, (err) ->
-            log.info "#{name}:delete source"
-            # Remove drone in RAM
+            log.info "#{name}:delete source done."
+
             if drones[name]?
                 delete drones[name]
             if err?
                 callback err
             else
                 callback null, name
+
     else
         userDir = path.join(config('dir_app_bin'), name)
         if fs.existsSync userDir
@@ -373,10 +393,12 @@ module.exports.uninstall = (name, purge=false, callback) ->
                 logFile: config('dir_app_log') + name + ".log"
                 errFile: config('dir_app_log') + name + "-err.log"
                 backup: config('dir_app_log') + name + ".log-backup"
+
             if purge
                 log.info "#{name}:delete directory"
                 directory.remove app, (err) ->
                     log.error err if err?
+
             repo.delete app, (err) ->
                 log.info "#{name}:delete source"
                 # Remove drone in RAM
@@ -386,6 +408,7 @@ module.exports.uninstall = (name, purge=false, callback) ->
                     callback err
                 else
                     callback null, name
+
         else
             err = new Error 'Cannot uninstall an application not installed'
             callback err
