@@ -88,6 +88,7 @@ addInDatabase = (app, callback) ->
         * write stack file with new stack applications
 ###
 module.exports.addApp = (app, callback) ->
+
     # Store in stack.json
     fs.readFile config('file_stack'), 'utf8', (err, data) ->
         try
@@ -98,10 +99,16 @@ module.exports.addApp = (app, callback) ->
         data = JSON.stringify data, null, 2
         fs.writeFile config('file_stack'), data, callback
 
-    ## Store in database
-    # Recover application information
-    manifest = path.join(config('dir_app_bin'), app.name, 'package.json')
-    fs.readFile manifest, (err, data) ->
+    # Get stack application from the manifest
+    baseDir = path.join config('dir_app_bin'), app.name
+    manifestPath = path.join(
+        baseDir, 'node_modules', "cozy-#{app.name}", 'package.json')
+    # If the stack app is not installed via npm we get the manifest at the
+    # root.
+    unless fs.existsSync manifestPath
+        manifestPath = path.join baseDir, 'package.json'
+
+    fs.readFile manifestPath, (err, data) ->
         if err
             log.warn 'Error when read package.json'
         else

@@ -112,14 +112,14 @@ module.exports.install = function(req, res, next) {
       if (result.type === 'static') {
         return res.status(200).send({
           drone: {
-            "type": result.type,
-            "path": result.dir
+            type: result.type,
+            path: result.dir
           }
         });
       } else {
         return res.status(200).send({
           drone: {
-            "port": result.port
+            port: result.port
           }
         });
       }

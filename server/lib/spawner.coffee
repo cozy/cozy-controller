@@ -227,9 +227,9 @@ module.exports.start = (app, callback) ->
                 logging.close monitor
                 log.error 'Callback on Exit'
                 if callback
-                    respond new Error "#{app.name} CANT START"
+                    respond new Error "#{app.name} can't start"
                 else
-                    log.error "#{app.name} HAS FAILED TOO MUCH"
+                    log.error "#{app.name} starting failed too much time."
                     setTimeout monitor.stop, 1
 
             onError = (err) ->

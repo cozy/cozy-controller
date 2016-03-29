@@ -21,7 +21,10 @@ log = require('printit')({
 BASE_PACKAGE_JSON = "{\n  \"name\": \"cozy-controller-fake-package.json\",\n  \"version\": \"1.0.0\",\n  \"description\": \"This file is here to please NPM\",\n  \"README\":  \"This file is here to please NPM\",\n  \"license\": \"N/A\",\n  \"repository\": \"N/A\"\n}";
 
 makeCommandsProxy = function(trueCommandsFile) {
-  return "{spawn} = require 'child_process'\n{dirname} = require 'path'\nargs = [\"" + trueCommandsFile + "\"].concat process.argv[2..]\nspawn 'coffee', args,\n     stdio: 'inherit'\n     cwd: dirname " + trueCommmandsFile;
+  if (trueCommandsFile == null) {
+    trueCommandsFile = '';
+  }
+  return "{spawn} = require 'child_process'\n{dirname} = require 'path'\nargs = [\"" + trueCommandsFile + "\"].concat process.argv[2..]\nspawn 'coffee', args,\n     stdio: 'inherit'\n     cwd: dirname " + trueCommandsFile + "\n";
 };
 
 createAppFolder = function(app, callback) {
@@ -118,11 +121,12 @@ module.exports.init = function(app, callback) {
  */
 
 module.exports.update = function(app, callback) {
-  var commands, opts;
+  var appDir, commands, opts;
   commands = [['npm', 'install', app.fullnpmname]];
+  appDir = path.join(config('dir_app_bin'), app.name);
   opts = {
     user: app.user,
-    cwd: config('dir_app_bin')
+    cwd: appDir
   };
   return executeUntilEmpty(commands, opts, function(err) {
     if (err) {

@@ -1,6 +1,7 @@
 fs = require 'fs'
 spawn = require('child_process').spawn
 
+
 ###
     Create repository of <app>
         * Create application directory
@@ -40,6 +41,7 @@ module.exports.create = (app, callback) ->
         err = new Error "Controller can spawn only git repo"
         callback err
 
+
 ###
     Delete repository of <app>
         * Remove app directory
@@ -60,3 +62,4 @@ module.exports.delete = (app, callback) ->
                     callback()
             else
                 callback()
+

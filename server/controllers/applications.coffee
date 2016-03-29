@@ -85,12 +85,14 @@ module.exports.install = (req, res, next) ->
         else
             # send path to home if it's a static app
             if result.type is 'static'
-                res.status(200).send drone:
-                    "type": result.type
-                    "path": result.dir
+                res.status(200).send
+                    drone:
+                        type: result.type
+                        path: result.dir
             else
-                res.status(200).send drone:
-                    "port": result.port
+                res.status(200).send
+                    drone:
+                        port: result.port
 
 
 ###
@@ -107,7 +109,8 @@ module.exports.changeBranch = (req, res, next) ->
     # Stop app if it started
     controller.stop name, (err, result) ->
         if err? and err.toString() is 'Error: Cannot stop an application not started'
-            # If application is not started, don't restart it after branch change
+            # If application is not started, don't restart it after branch
+            # change
             started = false
         else if err?
             # If stop function send another error, stop process
