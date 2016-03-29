@@ -258,6 +258,7 @@ module.exports.install = function(connection, manifest, callback) {
   if (drones[app.name] != null) {
     log.info(app.name + ":already installed");
     log.info(app.name + ":start application");
+    drones[app.name].password = app.password;
     return startApp(drones[app.name], callback);
   } else if (fs.existsSync(app.dir)) {
     log.info(app.dir);
@@ -311,15 +312,12 @@ module.exports.start = function(manifest, callback) {
     error = error1;
     return callback(new Error("Can't retrieve application manifest,\npackage.json should be JSON format " + error));
   }
-  if ((drones[app.name] != null) || fs.existsSync(app.dir)) {
+  if (drones[app.name] != null) {
+    drones[app.name].password = app.password;
+    return startApp(app, callback);
+  } else if (fs.existsSync(app.dir)) {
     drones[app.name] = app;
-    return startApp(app, function(err, result) {
-      if (err != null) {
-        return callback(err);
-      } else {
-        return callback(null, result);
-      }
-    });
+    return startApp(app, callback);
   } else {
     err = new Error('Cannot start an application not installed');
     return callback(err);
