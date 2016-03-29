@@ -225,6 +225,7 @@ module.exports.install = (connection, manifest, callback) ->
     if drones[app.name]?
         log.info "#{app.name}:already installed"
         log.info "#{app.name}:start application"
+        drones[app.name].password = app.password
         startApp drones[app.name], callback
 
     else if fs.existsSync(app.dir)
@@ -473,4 +474,3 @@ module.exports.running = (callback) ->
     for key in Object.keys(running)
         apps[key] = drones[key]
     callback null, apps
-
