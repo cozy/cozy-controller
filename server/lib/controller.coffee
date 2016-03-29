@@ -225,6 +225,7 @@ module.exports.install = (connection, manifest, callback) ->
     if drones[app.name]?
         log.info "#{app.name}:already installed"
         log.info "#{app.name}:start application"
+        drones[app.name].password = app.password
         startApp drones[app.name], callback
 
     else if fs.existsSync(app.dir)
@@ -275,13 +276,12 @@ module.exports.start = (manifest, callback) ->
             Can't retrieve application manifest,
             package.json should be JSON format #{error}
         """
-    if drones[app.name]? or fs.existsSync(app.dir)
+    if drones[app.name]?
+        drones[app.name].password = app.password
+        startApp app, callback
+    else if fs.existsSync(app.dir)
         drones[app.name] = app
-        startApp app, (err, result) ->
-            if err?
-                callback err
-            else
-                callback null, result
+        startApp app, callback
     else
         err = new Error 'Cannot start an application not installed'
         callback err
@@ -473,4 +473,3 @@ module.exports.running = (callback) ->
     for key in Object.keys(running)
         apps[key] = drones[key]
     callback null, apps
-
