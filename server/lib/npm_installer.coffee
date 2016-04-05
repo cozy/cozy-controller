@@ -28,7 +28,7 @@ makeCommandsProxy = (trueCommandsFile='') ->
     args = ["#{trueCommandsFile}"].concat process.argv[2..]
     spawn 'coffee', args,
          stdio: 'inherit'
-         cwd: dirname #{trueCommandsFile}
+         cwd: dirname "#{trueCommandsFile}"
 
 """
 
