@@ -15,7 +15,8 @@ BASE_PACKAGE_JSON = """
       "description": "This file is here to please NPM",
       "README":  "This file is here to please NPM",
       "license": "N/A",
-      "repository": "N/A"
+      "repository": "N/A",
+      "private": true
     }
 """
 
