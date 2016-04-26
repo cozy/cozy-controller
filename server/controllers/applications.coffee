@@ -61,10 +61,11 @@ updateMonitor = (callback) ->
 restartController = (callback) ->
     exec config('restart_cmd'), (err, stdout) ->
         if err
+            log.warn "Can't restart the controller"
+            log.warn err
             callback "The controller can't be restarted. You should " +
                 "configure the command in /etc/cozy/controller.json."
         else
-            log.info "Controller was successfully restarted."
             callback()
 
 
@@ -230,6 +231,7 @@ module.exports.updateStack = (req, res, next) ->
                 callback err
     , (err) ->
         if err?
+            log.error err
             restartController (error) ->
                 log.error err.toString()
                 err = new Error "Cannot update stack: #{err.toString()}"
