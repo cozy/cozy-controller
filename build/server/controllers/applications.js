@@ -82,9 +82,10 @@ updateMonitor = function(callback) {
 restartController = function(callback) {
   return exec(config('restart_cmd'), function(err, stdout) {
     if (err) {
+      log.warn("Can't restart the controller");
+      log.warn(err);
       return callback("The controller can't be restarted. You should " + "configure the command in /etc/cozy/controller.json.");
     } else {
-      log.info("Controller was successfully restarted.");
       return callback();
     }
   });
@@ -306,6 +307,7 @@ module.exports.updateStack = function(req, res, next) {
     });
   }, function(err) {
     if (err != null) {
+      log.error(err);
       return restartController(function(error) {
         log.error(err.toString());
         err = new Error("Cannot update stack: " + (err.toString()));

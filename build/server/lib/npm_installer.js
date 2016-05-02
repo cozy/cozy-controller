@@ -18,13 +18,13 @@ log = require('printit')({
   prefix: 'lib:npm-installer'
 });
 
-BASE_PACKAGE_JSON = "{\n  \"name\": \"cozy-controller-fake-package.json\",\n  \"version\": \"1.0.0\",\n  \"description\": \"This file is here to please NPM\",\n  \"README\":  \"This file is here to please NPM\",\n  \"license\": \"N/A\",\n  \"repository\": \"N/A\"\n}";
+BASE_PACKAGE_JSON = "{\n  \"name\": \"cozy-controller-fake-package.json\",\n  \"version\": \"1.0.0\",\n  \"description\": \"This file is here to please NPM\",\n  \"README\":  \"This file is here to please NPM\",\n  \"license\": \"N/A\",\n  \"repository\": \"N/A\",\n  \"private\": true\n}";
 
 makeCommandsProxy = function(trueCommandsFile) {
   if (trueCommandsFile == null) {
     trueCommandsFile = '';
   }
-  return "{spawn} = require 'child_process'\n{dirname} = require 'path'\nargs = [\"" + trueCommandsFile + "\"].concat process.argv[2..]\nspawn 'coffee', args,\n     stdio: 'inherit'\n     cwd: dirname " + trueCommandsFile + "\n";
+  return "{spawn} = require 'child_process'\n{dirname} = require 'path'\nargs = [\"" + trueCommandsFile + "\"].concat process.argv[2..]\nspawn 'coffee', args,\n     stdio: 'inherit'\n     cwd: dirname \"" + trueCommandsFile + "\"\n";
 };
 
 createAppFolder = function(app, callback) {
