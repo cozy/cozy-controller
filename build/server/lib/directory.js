@@ -37,7 +37,9 @@ module.exports.create = function(app, callback) {
   var dirPath, error, error1;
   dirPath = path.join(config('dir_app_data'), app.name);
   if (fs.existsSync(dirPath)) {
-    return callback();
+    return module.exports.changeOwner(app.user, dirPath, function(err) {
+      return callback(err);
+    });
   } else {
     try {
       return fs.mkdir(dirPath, "0700", function(err) {
