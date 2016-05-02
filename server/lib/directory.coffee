@@ -22,7 +22,10 @@ module.exports.changeOwner = (user, path, callback) ->
 module.exports.create = (app, callback) ->
     dirPath = path.join config('dir_app_data'), app.name
     if fs.existsSync dirPath
-        callback()
+        # Force the chmod on the folder if the folder previously existed (i.e.
+        # if the Cozy is being moved).
+        module.exports.changeOwner app.user, dirPath, (err) ->
+            callback err
     else
         try
             fs.mkdir dirPath, "0700", (err) ->
