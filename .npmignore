@@ -1,0 +1,6 @@
+*.coffee
+*.log
+Cakefile
+coffeelint.json
+.travis.yml
+/server/lib/adduser.sh
