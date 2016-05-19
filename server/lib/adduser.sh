@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # $USER
@@ -12,14 +12,14 @@ fi
 
 id $USER
 EXISTS=$?
-if [ $EXISTS == 0 ]; then
+if [ $EXISTS = 0 ]; then
    exit 0
 fi
 
 if command -v useradd; then
    useradd -d $HOME -m $USER
    RESULT=$?
-   if [ $RESULT == 9 ]; then
+   if [ $RESULT = 9 ]; then
      exit 0
    fi
    exit $RESULT

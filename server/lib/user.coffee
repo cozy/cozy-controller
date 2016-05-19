@@ -17,7 +17,7 @@ module.exports.create = (app, callback) ->
     env.PATH = process.env.PATH
 
     script = path.join(__dirname, '..', 'lib', 'adduser.sh')
-    child = spawn 'bash', [script], env: env
+    child = spawn 'sh', [script], env: env
     child.on 'exit', (code) ->
         if code is 0
             callback()
