@@ -27,7 +27,11 @@ elif command -v pw; then
    pw add group $USER
    pw add user $USER -g $USER -d /home/$USER -m -s /usr/local/bin/bash
 elif command -v adduser; then
-   adduser --home $HOME --gecos $USER,na,na,na $USER
+   if adduser --help 2>&1 | grep -q "BusyBox"; then
+     adduser -D -h $HOME -g $USER,na,na,na $USER
+   else
+     adduser --home $HOME --gecos $USER,na,na,na $USER
+   fi
 elif command -v dscl; then
    # Find out the next available user ID
    MAXID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -ug | tail -1)
