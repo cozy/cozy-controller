@@ -18,7 +18,7 @@ config = require('./conf').get;
 
 module.exports.changeOwner = function(user, path, callback) {
   var child;
-  child = spawn('chown', ['--preserve-root', '-R', user + ":" + user, path]);
+  child = spawn('chown', ['-R', user + ":" + user, path]);
   return child.on('exit', function(code) {
     if (code !== 0) {
       return callback(new Error('Unable to change permissions'));

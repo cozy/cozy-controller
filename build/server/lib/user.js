@@ -21,7 +21,7 @@ module.exports.create = function(app, callback) {
   env.SHELL = process.env.SHELL;
   env.PATH = process.env.PATH;
   script = path.join(__dirname, '..', 'lib', 'adduser.sh');
-  child = spawn('bash', [script], {
+  child = spawn('sh', [script], {
     env: env
   });
   return child.on('exit', function(code) {
