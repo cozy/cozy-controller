@@ -57,9 +57,6 @@ getCouchStoragePlace = (callback) ->
     Return disk space information
 ###
 module.exports.info = (req, res, next) ->
-    freeMemCmd =
-        "free | grep cache: | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'"
-
     extractValFromDfValue = (val) ->
         unit = val[val.length - 1]
         val = val.substring(0, val.length - 1)
