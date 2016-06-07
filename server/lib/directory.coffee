@@ -5,7 +5,7 @@ spawn = require('child_process').spawn
 
 config = require('./conf').get
 
-validName: (name) ->
+validName = (name) ->
     name[0] isnt '.' and name.indexOf('/') is -1
 
 ###
