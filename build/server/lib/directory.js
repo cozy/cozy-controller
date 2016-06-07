@@ -11,10 +11,15 @@ spawn = require('child_process').spawn;
 
 config = require('./conf').get;
 
+({
+  validName: function(name) {
+    return name[0] !== '.' && name.indexOf('/') === -1;
+  }
 
-/*
-    Change owner for folder path
- */
+  /*
+      Change owner for folder path
+   */
+});
 
 module.exports.changeOwner = function(user, path, callback) {
   var child;
@@ -35,6 +40,10 @@ module.exports.changeOwner = function(user, path, callback) {
 
 module.exports.create = function(app, callback) {
   var dirPath, error, error1;
+  if (!validName(app.name)) {
+    callback(new Error('Invalid name'));
+    return;
+  }
   dirPath = path.join(config('dir_app_data'), app.name);
   if (fs.existsSync(dirPath)) {
     return module.exports.changeOwner(app.user, dirPath, function(err) {
@@ -65,6 +74,10 @@ module.exports.create = function(app, callback) {
 
 module.exports.remove = function(app, callback) {
   var dirPath;
+  if (!validName(app.name)) {
+    callback(new Error('Invalid name'));
+    return;
+  }
   dirPath = path.join(config('dir_app_data'), app.name);
   if (fs.existsSync(dirPath)) {
     return rmdir(dirPath, callback);

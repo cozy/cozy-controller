@@ -65,8 +65,7 @@ getCouchStoragePlace = function(callback) {
  */
 
 module.exports.info = function(req, res, next) {
-  var extractDataFromDfResult, extractValFromDfValue, freeMemCmd;
-  freeMemCmd = "free | grep cache: | cut -d':' -f2 | sed -e 's/^ *[0-9]* *//'";
+  var extractDataFromDfResult, extractValFromDfValue;
   extractValFromDfValue = function(val) {
     var unit;
     unit = val[val.length - 1];

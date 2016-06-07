@@ -15,6 +15,10 @@ path = require('path');
 
 module.exports.create = function(app, callback) {
   var child, env, script;
+  if (!app.user.match(/^cozy-\w+$/)) {
+    callback(new Error('Invalid username'));
+    return;
+  }
   env = {};
   env.USER = app.user;
   env.HOME = config('dir_app_bin');
