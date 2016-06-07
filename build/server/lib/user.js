@@ -15,7 +15,7 @@ path = require('path');
 
 module.exports.create = function(app, callback) {
   var child, env, script;
-  if (!app.user.match(/^cozy-\w+$/)) {
+  if (!app.user.match(/^cozy-[A-Za-z0-9-]+$/)) {
     callback(new Error('Invalid username'));
     return;
   }
