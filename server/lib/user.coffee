@@ -7,7 +7,7 @@ path = require 'path'
         Use script adduser.sh
 ###
 module.exports.create = (app, callback) ->
-    unless app.user.match /^cozy-\w+$/
+    unless app.user.match /^cozy-[A-Za-z0-9-]+$/
         callback new Error('Invalid username')
         return
 
