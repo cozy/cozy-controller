@@ -7,6 +7,10 @@ path = require 'path'
         Use script adduser.sh
 ###
 module.exports.create = (app, callback) ->
+    unless app.user.match /^cozy-\w+$/
+        callback new Error('Invalid username')
+        return
+
     env = {}
     env.USER = app.user
 

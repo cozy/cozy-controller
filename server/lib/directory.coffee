@@ -5,6 +5,9 @@ spawn = require('child_process').spawn
 
 config = require('./conf').get
 
+validName: (name) ->
+    name[0] isnt '.' and name.indexOf('/') is -1
+
 ###
     Change owner for folder path
 ###
@@ -20,6 +23,9 @@ module.exports.changeOwner = (user, path, callback) ->
     Create directory for <app>
 ###
 module.exports.create = (app, callback) ->
+    unless validName app.name
+        callback new Error('Invalid name')
+        return
     dirPath = path.join config('dir_app_data'), app.name
     if fs.existsSync dirPath
         # Force the chmod on the folder if the folder previously existed (i.e.
@@ -41,6 +47,9 @@ module.exports.create = (app, callback) ->
     Remove directory for <app>
 ###
 module.exports.remove = (app, callback) ->
+    unless validName app.name
+        callback new Error('Invalid name')
+        return
     dirPath = path.join config('dir_app_data'), app.name
     if fs.existsSync dirPath
         rmdir dirPath, callback
